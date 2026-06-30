@@ -1,13 +1,8 @@
 {
-  "functions": {
-    "index.js": {
-      "runtime": "@vercel/node@5.3.24"
-    }
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/index.js"
+      "source": "/(.*)",
+      "destination": "/api"
     }
   ]
 }
