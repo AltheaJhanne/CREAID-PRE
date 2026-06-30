@@ -1,4 +1,4 @@
-const API_BASE = "/api/users";
+import { API_BASE } from "./base";
 
 // CREATE USER / PATIENT
 export async function createUserApi(data)
@@ -234,11 +234,11 @@ export async function getLeaveRequestsApi(
 )
 {
   const response =
-    await fetch(
-      `/api/appointments/dentists/${dentistId}/leave-requests`
-    );
+  await fetch(
+    `${import.meta.env.VITE_API_URL}/appointments/dentists/${dentistId}/leave-requests`
+  );
 
-  return response.json();
+return await response.json();
 }
 
 export async function reviewLeaveRequestApi(
@@ -247,8 +247,8 @@ export async function reviewLeaveRequestApi(
 )
 {
   const response =
-    await fetch(
-      `/api/appointments/leave-requests/${id}`,
+  await fetch(
+    `${import.meta.env.VITE_API_URL}/appointments/leave-requests/${id}`,
       {
         method: "PATCH",
 
@@ -263,7 +263,7 @@ export async function reviewLeaveRequestApi(
       }
     );
 
-  return response.json();
+  return await response.json();
 }
 
 export async function saveDentistScheduleApi(
@@ -273,7 +273,7 @@ export async function saveDentistScheduleApi(
 {
   const response =
     await fetch(
-      `/api/users/${dentistId}/schedule`,
+    `${import.meta.env.VITE_API_URL}/users/${dentistId}/schedule`,
       {
         method: "PATCH",
 
@@ -307,8 +307,8 @@ export async function getDentistScheduleApi(
 {
   const response =
     await fetch(
-      `/api/users/${dentistId}/schedule`
-    );
+  `${import.meta.env.VITE_API_URL}/users/${dentistId}/schedule`
+);
 
   const result =
     await response.json();

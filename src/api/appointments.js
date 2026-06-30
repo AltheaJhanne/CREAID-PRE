@@ -26,7 +26,7 @@ const API_URL =
 {
   const response =
     await fetch(
-      `/api/appointments/${id}/reschedule`,
+  `${API_URL}/appointments/${id}/reschedule`,
       {
         method: "PATCH",
 
@@ -261,8 +261,8 @@ export async function getPatientLastVisitApi(
 {
   const response =
     await fetch(
-      `/api/appointments/patients/${patientId}/last-visit`
-    );
+  `${API_URL}/appointments/patients/${patientId}/last-visit`
+);
 
   return await response.json();
 };

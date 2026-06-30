@@ -1,4 +1,5 @@
-const API_BASE = "/api/leave-requests";
+const API_BASE =
+  `${import.meta.env.VITE_API_URL}/leave-requests`;
 
 export async function getLeaveRequestsApi(
   dentistId

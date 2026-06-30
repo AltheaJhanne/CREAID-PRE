@@ -1,12 +1,12 @@
-const API_BASE = "/api/files";
+const API_BASE =
+  `${import.meta.env.VITE_API_URL}/files`;
 
 export async function archivePatientFileApi(
   fileId
 )
 {
   const response =
-    await fetch(
-      `/api/files/medical-files/${fileId}/archive`,
+    await fetch(`${API_BASE}/medical-files/${fileId}/archive`,
       {
         method: "PATCH"
       }
@@ -167,9 +167,7 @@ export async function getBillingDocumentsApi(
 )
 {
   const response =
-    await fetch(
-      `/api/files/billing/${patientId}`
-    );
+    await fetch(`${API_BASE}/billing/${patientId}`);
 
   return await response.json();
 }
@@ -179,8 +177,7 @@ export async function uploadBillingDocumentApi(
 )
 {
   const response =
-    await fetch(
-      "/api/files/billing",
+    await fetch(`${API_BASE}/billing`,
       {
         method:"POST",
 
@@ -202,8 +199,7 @@ export async function archiveBillingDocumentApi(
   id
 )
 {
-  await fetch(
-    `/api/files/billing/${id}/archive`,
+  await fetch(`${API_BASE}/billing/${id}/archive`,
     {
       method:"PATCH"
     }

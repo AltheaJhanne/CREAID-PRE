@@ -65,9 +65,9 @@ export async function getPatientNotesApi(
 )
 {
   const response =
-    await fetch(
-      `/api/patients/${patientId}/notes`
-    );
+  await fetch(
+    `${API_URL}/patients/${patientId}/notes`
+  );
 
   return await response.json();
 }
@@ -78,8 +78,8 @@ export async function savePatientNotesApi(
 )
 {
   const response =
-    await fetch(
-      `/api/patients/${patientId}/notes`,
+  await fetch(
+    `${API_URL}/patients/${patientId}/notes`,
       {
         method: "POST",
 
