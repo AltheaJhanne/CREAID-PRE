@@ -1,0 +1,33 @@
+.layout-root {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.layout-main {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.layout-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 9, 48, 0.55);
+  backdrop-filter: blur(3px);
+  z-index: 150;
+  animation: fadeIn 0.22s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

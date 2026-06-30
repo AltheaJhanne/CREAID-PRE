@@ -1,0 +1,83 @@
+.terms-page {
+  min-height: 100vh;
+  background-color: #f8f8f8;
+  margin-top: 85px;
+}
+
+.terms-container {
+  max-width: 900px;
+}
+
+.terms-container h1 {
+  color: #FA1377;
+  font-size: 50px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.terms-date {
+  color: gray;
+  margin-bottom: 40px;
+}
+
+.terms-section {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.terms-section h3 {
+  color: #1F0F5B;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.terms-section p {
+  color: #555;
+  line-height: 1.8;
+}
+
+/* FOOTER */
+.custom-footer {
+  background-color: #1F0F5B;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 5px;
+  transition: 0.3s;
+}
+
+.footer-link:hover {
+  color: #FA1377;
+}
+
+/* LEFT PARAGRAPH IMPROVEMENT */
+.footer-desc {
+  font-size: 16px;
+  line-height: 1.8;
+  max-width: 95%;
+}
+
+/* RIGHT ALIGNMENT */
+@media (min-width: 768px) {
+  .text-md-end {
+    text-align: right;
+  }
+}
+.signup-btn {
+  display: inline-block;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  background-color: transparent;
+}
+.signup-btn:hover{
+  color: #FA1377;
+  font-weight: bold;
+}

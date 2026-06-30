@@ -1,0 +1,314 @@
+.services-about-page {
+  position: relative;
+  min-height: 100vh;
+  margin-top: 85px;
+}
+.services-about-page::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/bg3.png');
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%);
+  opacity: 0.2;
+}
+.services-about-page > * {
+  position: relative;
+  z-index: 1;
+}
+/* SERVICES BANNER */
+
+.services-banner-section{
+  width: 100%;
+}
+
+.services-banner-img{
+  height: 600px;
+  object-fit: cover;
+}
+
+.services-banner-overlay{
+  position: absolute;
+  top: 50%;
+  left: 8%;
+  transform: translateY(-50%);
+  color: white;
+  max-width: 600px;
+}
+
+.services-banner-overlay h1{
+  font-size: 70px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 20px;
+  margin-top: 40px;
+}
+
+.services-banner-overlay p{
+  font-size: 20px;
+  margin-bottom: 30px;
+  max-width: 500px;
+}
+
+.services-banner-btn{
+  background: #FA1377;
+  color: white;
+  padding: 10px 30px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: inline-block;
+  transition: 0.3s ease;
+  border-radius: 3px;
+}
+
+/* REMOVE BUTTONS */
+.carousel-control-prev,
+.carousel-control-next{
+  display: none;
+}
+
+/* REMOVE INDICATORS */
+.carousel-indicators{
+  display: none;
+}
+
+/* MOBILE */
+@media (max-width: 768px){
+
+  .services-banner-img{
+    height: 450px;
+  }
+
+  .services-banner-overlay{
+    left: 5%;
+    max-width: 90%;
+  }
+
+  .services-banner-overlay h1{
+    font-size: 45px;
+  }
+
+  .services-banner-overlay p{
+    font-size: 16px;
+  }
+
+  .services-bottom-title h2{
+    font-size: 35px;
+  }
+
+}
+.services-section {
+  padding: 100px 0;
+  background: none;
+}
+.services-section h1{
+  font-size: 50px;
+  font-weight: 700;
+  color: #666;
+  text-align: center;
+}
+.services-small-title{
+  color: #FA1377;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.services-subtitle{
+  color: #666;
+  max-width: 800px;
+  margin: auto;
+  line-height: 1.8;
+  text-align: center;
+}
+
+/* CARD */
+.service-card {
+  background: white;
+
+  position: relative;
+
+  text-align: center;
+
+  padding: 55px 35px;
+
+  overflow: hidden;
+
+  transition: 0.3s ease;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.40);
+
+  min-height: 420px;
+
+  border-radius: 3px;
+  
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+}
+
+/* NUMBER */
+.service-number {
+  position: absolute;
+
+  top: 10px;
+  left: 20px;
+
+  font-size: 80px;
+  font-weight: 200;
+
+  color: rgba(0,0,0,0.05);
+}
+
+/* TOP LINE */
+.card-line {
+  position: absolute;
+
+  top: 15px;
+  right: 15px;
+
+  width: 55px;
+  height: 6px;
+
+  background: #ff2c7d;
+}
+
+/* ICON CONTAINER */
+.service-icon{
+  width: 200px;
+  height: 200px;
+
+  margin: 30px auto; /* centers horizontally */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* IMAGE */
+.service-icon-img{
+  width: 200px;   /* increase size */
+  height: 200px;
+
+  object-fit: contain;
+  display: block;
+
+  transition: 0.3s ease;
+}
+
+.service-card:hover .service-icon-img{
+  transform: scale(1.1);
+}
+
+/* TITLE */
+.service-card h4 {
+  font-size: 22px;
+  font-weight: 700;
+
+  margin-bottom: 20px;
+
+  color: #222;
+}
+
+/* DESCRIPTION */
+.service-card p {
+  font-size: 14px;
+  line-height: 1.9;
+
+  color: #777;
+
+  margin-bottom: 35px;
+}
+
+/* BUTTON */
+.service-btn {
+  border: none;
+
+  padding: 12px 35px;
+
+  color: white;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: 0.3s ease;
+  border-radius: 5px;
+}
+
+.service-btn:hover {
+  transform: scale(1.05);
+}
+
+/* BUTTON COLORS */
+.service-btn {
+  border: none;
+
+  padding: 12px 35px;
+
+  background: #ff2c7d;
+
+  color: white;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: 0.3s ease;
+}
+
+.service-btn:hover {
+  transform: scale(1.05);
+
+  background: #e61e6d;
+}
+/* MOBILE */
+@media (max-width: 768px) {
+
+  .service-card {
+    min-height: auto;
+  }
+
+}
+/* FOOTER */
+.custom-footer {
+  background-color: #0d0727;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 5px;
+  transition: 0.3s;
+}
+
+.footer-link:hover {
+  color: #FA1377;
+}
+
+/* LEFT PARAGRAPH IMPROVEMENT */
+.footer-desc {
+  font-size: 16px;
+  line-height: 1.8;
+  max-width: 95%;
+}
+
+/* RIGHT ALIGNMENT */
+@media (min-width: 768px) {
+  .text-md-end {
+    text-align: right;
+  }
+}
+.signup-btn {
+  display: inline-block;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  background-color: transparent;
+}
+.signup-btn:hover{
+  color: #FA1377;
+  font-weight: bold;
+}

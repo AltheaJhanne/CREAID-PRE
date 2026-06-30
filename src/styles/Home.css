@@ -1,0 +1,291 @@
+/* HERO */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  margin-top: 85px;
+}
+
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/background.png');
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%);
+  opacity: 0.2;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* HERO CONTENT */
+.hero-content h1 {
+  color: #FA1377;
+  font-size: 40px;
+  font-weight: 900;
+}
+
+.hero-content p {
+  font-size: 18px;
+  color: #454545;
+}
+
+.hero-content button {
+  background-color: #FA1377;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  font-size: 15px;
+}
+
+.hero-content button:hover {
+  background-color: #d90f66;
+}
+
+.hero-content a {
+  color: #FA1377;
+}
+
+/* HERO BACKGROUND */
+.hero2 {
+  position: relative;
+  height: 90vh;
+  background-image: url('../assets/clinic1.png'); 
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+}
+
+
+/* DARK OVERLAY */
+.hero2-overlay {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); 
+  display: flex;
+  align-items: center;
+}
+
+/* CONTENT */
+.hero2-inner {
+  color: white;
+  max-width: auto;
+  text-align: left;
+  margin-left: 5%;
+}
+
+/* TEXT */
+.hero2-inner h1 {
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.hero2-inner p {
+  font-size: 18px;
+  margin: 15px 0 25px;
+}
+
+/* BUTTONS */
+.hero2-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  max-width: 450px;
+  align-items: center;
+}
+
+.hero2-buttons .btn-primary {
+  background-color: #FA1377;
+  border: 2px solid #FA1377;
+}
+
+.hero2-buttons .btn-primary:hover {
+  background-color: #d90f66;
+  border: 2px solid #d90f66;
+}
+
+.hero2-buttons .btn-outline-light {
+  border: 2px solid white;
+}
+.hero2-buttons a {
+  text-decoration: none;
+}
+/* EXPLORE SECTION */
+
+.home-small-title{
+  color: #FA1377;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.explore-title{
+  font-size: 50px;
+  font-weight: 700;
+  color: #666;
+  text-align: center;
+}
+
+.explore-subtitle{
+  color: #666;
+  max-width: 800px;
+  margin: auto;
+  margin-top: 15px;
+  line-height: 1.8;
+}
+
+.explore-card{
+  background: white;
+
+  border-radius: 5px;
+
+  padding: 40px 30px;
+
+  height: 100%;
+
+  transition: 0.3s ease;
+
+  box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+/* TOP ACCENT LINE */
+.explore-card::before{
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 6px;
+
+  background: #FA1377;
+}
+
+.explore-img{
+  width: 220px;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 25px;
+
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.explore-card h4{
+  color: #222;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.explore-card p{
+  color: #6f6f6f;
+  line-height: 1.8;
+  margin-bottom: 30px;
+}
+
+.explore-btn{
+  background: #FA1377;
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 5px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: 0.3s ease;
+  display: inline-block;
+}
+
+.explore-btn:hover{
+  background: #d90f66;
+  color: white;
+}
+
+/* FOOTER */
+.custom-footer {
+  background-color: #0d0727;
+}
+.custom-footer {
+  position: relative;
+  z-index: 5;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 5px;
+  transition: 0.3s;
+}
+
+.footer-link:hover {
+  color: #FA1377;
+}
+
+/* LEFT PARAGRAPH IMPROVEMENT */
+.footer-desc {
+  font-size: 16px;
+  line-height: 1.8;
+  max-width: 95%;
+}
+
+/* RIGHT ALIGNMENT */
+@media (min-width: 768px) {
+  .text-md-end {
+    text-align: right;
+  }
+}
+.signup-btn {
+  display: inline-block;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  background-color: transparent;
+}
+.signup-btn:hover{
+  color: #FA1377;
+  font-weight: bold;
+}
+
+.footer-dropdown
+{
+  position: relative;
+}
+
+.footer-dropdown-btn
+{
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.footer-submenu
+{
+  list-style: none;
+  margin-top: 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-submenu li
+{
+  margin: 0;
+}

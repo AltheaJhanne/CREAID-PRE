@@ -1,0 +1,202 @@
+.appointments-container
+{
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.page-title-row
+{
+  margin-bottom: 24px;
+}
+
+.page-main-title
+{
+  font-size: 48px;
+  font-weight: 700;
+  color: #150e43;
+  margin: 0;
+}
+
+.page-subtitle
+{
+  color: #7c7698;
+  margin-top: 8px;
+}
+
+.reports-filters
+{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.filter-item
+{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-item label
+{
+  font-size: 14px;
+  font-weight: 600;
+  color: #6f6987;
+}
+
+.filter-item input,
+.filter-item select
+{
+  height: 48px;
+  border: 1px solid #ddd8ee;
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 15px;
+}
+
+.search-item
+{
+  grid-column: span 2;
+}
+
+.appointment-btn-show
+{
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    #FA1377,
+    #d60d68
+  );
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: end;
+}
+
+.report-meta-row
+{
+  margin: 20px 0;
+  padding: 16px 24px;
+  border: 1px solid #ede9f8;
+  border-radius: 14px;
+}
+
+.rows-count
+{
+  margin: 0;
+  color: #7c7698;
+}
+
+.rows-count span
+{
+  font-weight: 700;
+  color: #150e43;
+}
+
+.report-table-wrap
+{
+  overflow-x: auto;
+}
+
+.report-table
+{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table th
+{
+  text-align: left;
+  padding: 16px;
+  background: #faf9fe;
+  color: #9a94b3;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.report-table td
+{
+  padding: 18px 16px;
+  border-top: 1px solid #f0edf8;
+}
+
+.report-pagination
+{
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.page-btn
+{
+  border: 1px solid #e2ddf0;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.page-btn.active
+{
+  background: #150e43;
+  color: white;
+}
+
+/* STATUS BADGES */
+
+.badge
+{
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.badge-confirmed
+{
+  background: #d4edda;
+  color: #155724 !important;
+}
+
+.badge-finished
+{
+  background: #dbeafe;
+  color: #1e40af !important;
+}
+
+.badge-cancelled
+{
+  background: #fee2e2;
+  color: #b91c1c !important;
+}
+
+.badge-pending
+{
+  background: #fef3c7;
+  color: #92400e !important;
+}
+
+@media (max-width: 992px)
+{
+  .reports-filters
+  {
+    grid-template-columns: 1fr;
+  }
+
+  .search-item
+  {
+    grid-column: auto;
+  }
+
+  .page-main-title
+  {
+    font-size: 34px;
+  }
+}
