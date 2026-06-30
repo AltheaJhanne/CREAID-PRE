@@ -54,7 +54,7 @@ export default function Services() {
           </p>
 
           <Link
-            to="/Appointment"
+            to="/appointment"
             className="services-banner-btn text-decoration-none"
           >
             BOOK NOW

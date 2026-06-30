@@ -4,7 +4,7 @@ import creaid from '../assets/creaid.jpg'
 import background from '../assets/background.png'
 import clinic1 from '../assets/clinic1.png'
 import Contact from '../assets/Contact.png'
-import Appointment from '../assets/Appointment.png'
+import Appointment from '../assets/appointment.png'
 import Services from '../assets/Services.png'
 import { NavLink } from 'react-router-dom'
 import { Link } from 'react-router-dom'
@@ -70,7 +70,7 @@ export default function Home() {
     Our Services
   </Link>
 
-  <Link to="/Appointment" className="btn btn-outline-light">
+  <Link to="/appointment" className="btn btn-outline-light">
     Book Appointment
   </Link>
 
@@ -176,7 +176,7 @@ export default function Home() {
           </p>
 
           <Link
-            to="/Appointment"
+            to="/appointment"
             className="explore-btn text-decoration-none"
           >
             MORE
