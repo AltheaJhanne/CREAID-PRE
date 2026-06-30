@@ -913,15 +913,14 @@ console.log(
  // =========================
  // FILTER DENTISTS
  // =========================
- const filteredDentists =
+const filteredDentists =
   selectedBranch
     ? dentists.filter(
         d =>
-          d.branchId ===
-          selectedBranch.name.replace(
-            " Branch",
-            ""
-          )
+          d.branch_id?.toLowerCase() ===
+          selectedBranch.name
+            .replace(" Branch", "")
+            .toLowerCase()
       )
     : dentists;
  // =========================
@@ -1028,10 +1027,10 @@ b.id === e.target.value
 </option>
        {filteredDentists.map((d) => (
 <option
-           key={d.id}
-           value={d.id}
+  key={d.id}
+  value={d.id}
 >
-           {d.name}
+  {d.full_name}
 </option>
        ))}
 </select>
@@ -1297,7 +1296,7 @@ b.id === e.target.value
 <div className="summary-item">
 <span>Dentist</span>
 <strong>
-         {selectedDentist?.name || '-'}
+         {selectedDentist?.full_name || "-"}
 </strong>
 </div>
 <div className="summary-item">
