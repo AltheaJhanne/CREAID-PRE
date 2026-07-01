@@ -191,9 +191,34 @@ function Calendar()
       {
         return false;
       }
-      const existingStart = convertTimeToMinutes(appt.appointment_time);
-      const existingEnd = convertTimeToMinutes(appt.appointment_end_time);
-      return candidateStart < existingEnd && candidateEnd > existingStart;
+      const existingStart =
+  convertToMinutes(
+    appointment.appointment_time
+  );
+
+  const existingEnd =
+    convertToMinutes(
+      appointment.appointment_end_time
+    );
+
+  console.log("Selected service duration:", totalDuration);
+
+  console.log({
+    slot: time,
+    candidateStart,
+    candidateEnd,
+    existingStart,
+    existingEnd,
+    appointmentTime: appointment.appointment_time,
+    appointmentEndTime: appointment.appointment_end_time,
+  });
+
+  return (
+    candidateStart <
+      existingEnd &&
+    candidateEnd >
+      existingStart
+  );
     });
   });
 
