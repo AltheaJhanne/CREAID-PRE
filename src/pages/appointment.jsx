@@ -519,8 +519,7 @@ if(
 );
   });
    console.log("APPOINTMENTS", appointments);
-  console.log(
-  "APPOINTMENTS",
+  console.table(
   appointments.map(a => ({
     date: a.appointment_date,
     start: a.appointment_time,
@@ -874,6 +873,11 @@ if (receiptFile) {
 );
    const appointmentDate =
   `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
+  console.log({
+  selectedServices,
+  totalDuration,
+  appointmentEndTime
+});
 
 const appointmentPayload = {
   patient_id: null,
