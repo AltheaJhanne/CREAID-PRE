@@ -276,6 +276,26 @@ function convert12To24(time)
   return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:00`;
 }
 
+function parseTimeToMinutes(time)
+{
+  if(!time)
+  {
+    return 0;
+  }
+
+  // 24-hour format (e.g. 13:00:00)
+  if(!time.includes("AM") && !time.includes("PM"))
+  {
+    const [hours, minutes] =
+      time.split(":").map(Number);
+
+    return hours * 60 + minutes;
+  }
+
+  // 12-hour format (e.g. 1:00 PM)
+  return convertToMinutes(time);
+}
+
 export default function Appointment() {
  const navigate = useNavigate()
  const [step, setStep] = useState(1)
@@ -468,9 +488,10 @@ const selectedDateString =
 }
 
 if (
-  appointment.branch_id !==
+  appointment.branch_id?.toLowerCase() !==
   selectedBranch?.name
     ?.replace(" Branch", "")
+    ?.toLowerCase()
 ) {
   return false;
 }
@@ -500,14 +521,14 @@ if(
 }
 
     const existingStart =
-      convertToMinutes(
-        appointment.appointment_time
-      );
+  parseTimeToMinutes(
+    appointment.appointment_time
+  );
 
-    const existingEnd =
-      convertToMinutes(
-        appointment.appointment_end_time
-      );
+const existingEnd =
+  parseTimeToMinutes(
+    appointment.appointment_end_time
+  );
 
     return (
       candidateStart <
