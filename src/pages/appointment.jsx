@@ -356,6 +356,8 @@ const cancellationDeadline =
     selectedTime
   );
 
+  console.log("TOTAL DURATION:", totalDuration);
+
 const unavailableTimes =
   times.filter((time) => {
 
@@ -517,7 +519,17 @@ if(
 );
   });
    console.log("APPOINTMENTS", appointments);
-  console.log("UNAVAILABLE", unavailableTimes);
+  console.log(
+  "APPOINTMENTS",
+  appointments.map(a => ({
+    date: a.appointment_date,
+    start: a.appointment_time,
+    end: a.appointment_end_time,
+    status: a.status,
+    dentist: a.dentist_id,
+    branch: a.branch_id
+  }))
+);
  // =========================
  // LOAD MOCK DATA
  // =========================
