@@ -11,7 +11,8 @@ import {
 from "../api/appointments";
 
 import {
-  getDentistsApi
+  getDentistsApi,
+  getDentistScheduleApi
 }
 from "../api/users";
 
@@ -70,6 +71,41 @@ function convertToMinutes(timeString)
     hours * 60 +
     minutes
   );
+}
+
+function convert12To24(time)
+{
+  if (!time) return "";
+
+  const [clock, period] = time.split(" ");
+
+  let [hours, minutes] =
+    clock.split(":").map(Number);
+
+  if (period === "PM" && hours !== 12)
+  {
+    hours += 12;
+  }
+
+  if (period === "AM" && hours === 12)
+  {
+    hours = 0;
+  }
+
+  return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:00`;
+}
+
+function convert24ToMinutes(time)
+{
+  if(!time)
+  {
+    return 0;
+  }
+
+  const [hours, minutes] =
+    time.split(":").map(Number);
+
+  return hours * 60 + minutes;
 }
 
 const generateTimeSlots = () =>
@@ -162,6 +198,12 @@ function WalkInAppointmentModal({
   setAppointments] =
   useState([]);
 
+  const [
+  dentistSchedule,
+  setDentistSchedule
+  ] =
+  useState(null);
+
   const [selectedServices,
   setSelectedServices] =
   useState([]);
@@ -194,6 +236,57 @@ function WalkInAppointmentModal({
   },
   [open]);
 
+  useEffect(() =>
+{
+  async function loadSchedule()
+  {
+    if(!form.dentist_id)
+    {
+      setDentistSchedule(null);
+      return;
+    }
+
+    try
+    {
+      const schedule =
+        await getDentistScheduleApi(
+          form.dentist_id
+        );
+
+        console.log(
+  "LEAVES:",
+  schedule.leaves
+);
+
+console.log(
+  "FIRST LEAVE:",
+  schedule.leaves?.[0]
+);
+
+      console.log(
+        "DENTIST SCHEDULE:",
+        schedule
+      );
+
+      setDentistSchedule(
+        schedule
+      );
+    }
+    catch(error)
+    {
+      console.error(error);
+
+      setDentistSchedule(null);
+    }
+  }
+
+  loadSchedule();
+
+},
+[
+  form.dentist_id
+]);
+
   async function loadData()
   {
     try
@@ -223,6 +316,16 @@ function WalkInAppointmentModal({
       setAppointments(
         appointmentsResponse.appointments || []
       );
+      console.table(
+  appointmentsResponse.appointments.map(a => ({
+    date: a.appointment_date,
+    branch: a.branch_id,
+    dentist: a.dentist_id,
+    status: a.status,
+    start: a.appointment_time,
+    end: a.appointment_end_time
+  }))
+);
     }
     catch(error)
     {
@@ -302,35 +405,106 @@ const unavailableTimes =
     candidateStart +
     totalDuration;
 
+const weekday =
+  new Date(form.appointment_date)
+    .toLocaleDateString(
+      "en-US",
+      {
+        weekday: "long"
+      }
+    );
+
+const workingDay =
+  dentistSchedule?.hours?.find(
+    h => h.day_name === weekday
+  );
+
+if(
+  !workingDay ||
+  workingDay.is_off
+)
+{
+  return true;
+}
+
+const clinicOpen =
+  convert24ToMinutes(
+    workingDay.start_time
+  );
+
+const clinicClose =
+  convert24ToMinutes(
+    workingDay.end_time
+  );
+
+if(
+  candidateStart < clinicOpen ||
+  candidateEnd > clinicClose
+)
+{
+  return true;
+}
+
+const lunch =
+  dentistSchedule?.lunch;
+
+if(lunch)
+{
   const lunchStart =
-    12 * 60;
+    convert24ToMinutes(
+      lunch.lunch_start
+    );
 
   const lunchEnd =
-    13 * 60;
+    convert24ToMinutes(
+      lunch.lunch_end
+    );
 
-  const clinicClose =
-    17 * 60;
+  const appliesTo =
+    lunch.applies_to;
 
-  if(candidateEnd > clinicClose)
-  {
-    return true;
-  }
+  const isWeekend =
+    weekday === "Saturday" ||
+    weekday === "Sunday";
+
+  const shouldCheckLunch =
+    appliesTo === "All Days" ||
+    appliesTo === "all_days" ||
+    (
+      (
+        appliesTo === "Weekdays Only" ||
+        appliesTo === "weekdays"
+      ) &&
+      !isWeekend
+    ) ||
+    appliesTo?.startsWith?.("custom");
 
   if(
-    candidateStart < lunchStart &&
+    shouldCheckLunch &&
+    candidateStart < lunchEnd &&
     candidateEnd > lunchStart
   )
   {
     return true;
   }
+}
 
-  if(
-    candidateStart >= lunchStart &&
-    candidateStart < lunchEnd
-  )
-  {
-    return true;
-  }
+const approvedLeave =
+  dentistSchedule?.leaves?.some(
+    leave =>
+      form.appointment_date >= leave.leave_from &&
+      form.appointment_date <= leave.leave_to
+  );
+
+if(approvedLeave)
+{
+  return true;
+}
+
+if(approvedLeave)
+{
+  return true;
+}
 
   return appointments.some(
     appointment =>
@@ -344,12 +518,12 @@ const unavailableTimes =
       }
 
       if(
-        appointment.branch_id !==
-        form.branch_id
-      )
-      {
-        return false;
-      }
+      appointment.branch_id?.toLowerCase() !==
+      form.branch_id?.toLowerCase()
+    )
+    {
+      return false;
+    }
 
       if(
         appointment.dentist_id !==
@@ -369,14 +543,31 @@ const unavailableTimes =
       }
 
       const existingStart =
-        convertToMinutes(
-          appointment.appointment_time
-        );
+      convert24ToMinutes(
+        appointment.appointment_time
+      );
 
       const existingEnd =
-        convertToMinutes(
-          appointment.appointment_end_time
-        );
+      convert24ToMinutes(
+        appointment.appointment_end_time
+      );
+
+       console.log({
+  selectedDate: form.appointment_date,
+  appointmentDate: appointment.appointment_date,
+
+  selectedBranch: form.branch_id,
+  appointmentBranch: appointment.branch_id,
+
+  selectedDentist: form.dentist_id,
+  appointmentDentist: appointment.dentist_id,
+
+  selectedStatus: appointment.status,
+
+  selectedStart: candidateStart,
+  existingStart: existingStart,
+  existingEnd: existingEnd
+});
 
       return (
         candidateStart < existingEnd &&
@@ -417,9 +608,14 @@ const payload =
     form.appointment_date,
 
   appointment_time:
-    form.appointment_time,
+  convert12To24(
+    form.appointment_time
+  ),
 
-  appointment_end_time,
+appointment_end_time:
+  convert12To24(
+    appointmentEndTime
+  ),
 
   selected_services:
     selectedServices,
@@ -447,8 +643,17 @@ const payload =
   status: "scheduled"
 };
 
+console.log(payload);
+
 await createAppointmentApi(
   payload
+);
+
+const appointmentsResponse =
+  await getAppointmentsApi();
+
+setAppointments(
+  appointmentsResponse.appointments || []
 );
 
 setForm({
@@ -483,13 +688,18 @@ setSelectedServices([]);
       onClose();
     }
     catch(error)
-    {
-      console.error(error);
+{
+  console.error("FULL ERROR:", error);
 
-      alert(
-        "Failed to create appointment."
-      );
-    }
+  console.log("RESPONSE:", error.response);
+
+  console.log("DATA:", error.response?.data);
+
+  alert(
+    error.response?.data?.message ||
+    "Failed to create appointment."
+  );
+}
   }
 
   if(!open)
@@ -498,7 +708,7 @@ setSelectedServices([]);
   const filteredDentists =
   dentists.filter(
     dentist =>
-      dentist.branch_id ===
+      dentist.branch_key ===
       form.branch_id
   );
 
