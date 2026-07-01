@@ -2232,33 +2232,34 @@ Upload
 }
 
 {activeTab === "schedule" && (
-                            <div className="tab-panel">
-                                <div className="section-card" style={{ marginBottom: 16 }}>
-                                    <h3 className="section-title">🕐 Working Hours</h3>
-                                    <div style={{ display: "flex", flexDirection: "column" }}>
-                                        {DAYS.map((day) => (
-                                            <div key={day} className="dact-day-row">
-                                                <span className="dact-day-label">{day}</span>
-                                                <input
-  type="time"
-  value={
-    workingHours[day]?.start
-  }
-  className="dact-time-input"
-  onChange={(e) =>
-    setWorkingHours(
-      (prev) => ({
-        ...prev,
-        [day]:
-        {
-          ...prev[day],
-          start:
-            e.target.value
-        }
-      })
-    )
-  }
-/>
+    <div className="tab-panel">
+      <div className="section-card" style={{ marginBottom: 16 }}>
+          <h3 className="section-title">🕐 Working Hours</h3>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                  {DAYS.map((day) => (
+                    <div key={day} className="dact-day-row">
+                      <span className="dact-day-label">{day}</span>
+  <input
+    type="time"
+    min="10:00"
+    max="17:00"
+    value={workingHours[day]?.start}
+    className="dact-time-input"
+    onChange={(e) => {
+  const value =
+    e.target.value < "10:00"
+      ? "10:00"
+      : e.target.value;
+
+  setWorkingHours((prev) => ({
+    ...prev,
+    [day]: {
+      ...prev[day],
+      start: value
+    }
+  }));
+}}
+  />
 
 <span className="dact-time-sep">
   –
@@ -2266,24 +2267,24 @@ Upload
 
 <input
   type="time"
-  value={
-    workingHours[day]?.end
-  }
+  min="10:00"
+  max="17:00"
+  value={workingHours[day]?.end}
   className="dact-time-input"
-  onChange={(e) =>
-    setWorkingHours(
-      (prev) => ({
-        ...prev,
-        [day]:
-        {
-          ...prev[day],
-          end:
-            e.target.value
-            
-        }
-      })
-    )
-  }
+  onChange={(e) => {
+  const value =
+    e.target.value > "17:00"
+      ? "17:00"
+      : e.target.value;
+
+  setWorkingHours((prev) => ({
+    ...prev,
+    [day]: {
+      ...prev[day],
+      end: value
+    }
+  }));
+}}
 />
 
 <label className="dact-off-toggle">
