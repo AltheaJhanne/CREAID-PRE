@@ -447,13 +447,21 @@ if(dentistSchedule.lunch)
     return true;
   }
 }
+const selectedDateString =
+  [
+    selectedDate.getFullYear(),
+    String(selectedDate.getMonth() + 1).padStart(2, "0"),
+    String(selectedDate.getDate()).padStart(2, "0")
+  ].join("-");
+
     return appointments.some(
   (appointment) => {
 
     if (
   appointment.appointment_date !==
-  selectedDate
-) {
+  selectedDateString
+)
+{
   return false;
 }
 
@@ -472,14 +480,22 @@ if (
   return false;
 }
 
-    if (
-      appointment.status !==
-        "scheduled" &&
-      appointment.status !==
-        "pending_verification"
-    ) {
-      return false;
-    }
+    const blockedStatuses =
+[
+  "scheduled",
+  "pending_verification",
+  "pending_payment",
+  "confirmed"
+];
+
+if(
+  !blockedStatuses.includes(
+    appointment.status
+  )
+)
+{
+  return false;
+}
 
     const existingStart =
       convertToMinutes(
