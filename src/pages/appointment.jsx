@@ -254,6 +254,28 @@ function generateTimeSlots(
   return slots;
 }
 
+function convert12To24(time)
+{
+  if (!time) return "";
+
+  const [clock, period] = time.split(" ");
+
+  let [hours, minutes] =
+    clock.split(":").map(Number);
+
+  if (period === "PM" && hours !== 12)
+  {
+    hours += 12;
+  }
+
+  if (period === "AM" && hours === 12)
+  {
+    hours = 0;
+  }
+
+  return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:00`;
+}
+
 export default function Appointment() {
  const navigate = useNavigate()
  const [step, setStep] = useState(1)
@@ -525,15 +547,9 @@ const mappedDentists =
   (response.dentists || [])
   .map(d => ({
     id: d.id,
-
-    name:
-      `Dr. ${d.first_name} ${d.last_name}`,
-
-    branchId:
-      d.branch_id,
-
-    img:
-      d.avatar_url || ""
+    full_name: `Dr. ${d.first_name} ${d.last_name}`,
+    branch_key: d.branch_key,
+    img: d.avatar_url || ""
   }));
 
   console.log(
@@ -560,12 +576,13 @@ const mappedDentists =
 
     try {
 
+      const response =
       await fetch(
-      `${import.meta.env.VITE_API_URL}/appointments`
+        `${import.meta.env.VITE_API_URL}/appointments`
       );
 
-      const result =
-        await response.json();
+    const result =
+      await response.json();
 
       setAppointments(
         result.appointments || []
@@ -827,40 +844,49 @@ if (receiptFile) {
   "SELECTED BRANCH:",
   selectedBranch
 );
-   const appointmentPayload = {
-     patient_id: null,
-     guest_name: guestName,
-     guest_contact: guestContact,
-     guest_email: guestEmail,
-     reason_for_visit: reasonForVisit,
-     notes: notes,
-     selected_services: selectedServices,
-     dentist_id: selectedDentist.id,
-     branch_id: selectedBranch?.name
-      .replace(" Branch", ""),
-     appointment_date:
-      selectedDate
-      ?.toISOString()
-      .split("T")[0],
-     appointment_time: selectedTime,
-     appointment_end_time: appointmentEndTime,
-     payment_method: paymentMethod,
-     payment_status: 'pending',
-     status:
-  receiptFile
-    ? 'pending_verification'
-    : 'pending_payment',
-     total_amount: totalAmount,
-    downpayment_amount: downpayment,
-    cancellation_deadline: cancellationDeadline,
-    receipt_url: receiptUrl,
-   }
-   const response =
+   const appointmentDate =
+  `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
 
-   console.log(
+const appointmentPayload = {
+  patient_id: null,
+  guest_name: guestName,
+  guest_contact: guestContact,
+  guest_email: guestEmail,
+  reason_for_visit: reasonForVisit,
+  notes: notes,
+  selected_services: selectedServices,
+  dentist_id: selectedDentist.id,
+
+  branch_id: selectedBranch?.name
+    .replace(" Branch", ""),
+
+  appointment_date: appointmentDate,
+
+  appointment_time:
+    convert12To24(selectedTime),
+
+  appointment_end_time:
+    convert12To24(appointmentEndTime),
+
+  payment_method: paymentMethod,
+  payment_status: "pending",
+
+  status:
+    receiptFile
+      ? "pending_verification"
+      : "pending_payment",
+
+  total_amount: totalAmount,
+  downpayment_amount: downpayment,
+  cancellation_deadline: cancellationDeadline,
+  receipt_url: receiptUrl,
+};
+  console.log(
   "BOOKING PAYLOAD:",
   appointmentPayload
 );
+
+const response =
   await createAppointmentApi(
     appointmentPayload
   );
@@ -869,6 +895,7 @@ console.log(
   "BOOKING RESPONSE:",
   response
 );
+
    alert(
      'Appointment booked successfully!'
    )
@@ -915,12 +942,10 @@ console.log(
 const filteredDentists =
   selectedBranch
     ? dentists.filter(
-        d =>
-          d.branch_id?.toLowerCase() ===
-          selectedBranch.name
-            .replace(" Branch", "")
-            .toLowerCase()
-      )
+    dentist =>
+    dentist.branch_key ===
+    selectedBranch?.name.replace(" Branch", "")
+)
     : dentists;
  // =========================
  // LOADING
