@@ -14,6 +14,28 @@ import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { isHoliday, getHoliday } from "../lib/holidays";
 
+function convert12To24(time)
+{
+  if (!time) return "";
+
+  const [clock, period] = time.split(" ");
+
+  let [hours, minutes] =
+    clock.split(":").map(Number);
+
+  if (period === "PM" && hours !== 12)
+  {
+    hours += 12;
+  }
+
+  if (period === "AM" && hours === 12)
+  {
+    hours = 0;
+  }
+
+  return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:00`;
+}
+
 function Calendar()
 {
   const navigate = useNavigate();
@@ -154,7 +176,21 @@ function Calendar()
     {
       if (appt.id === selectedAppointment?.id) return false;
       if (appt.appointment_date !== newDate) return false;
-      if (appt.status !== "scheduled" && appt.status !== "pending_verification") return false;
+      const blockedStatuses = [
+        "scheduled",
+        "pending_verification",
+        "pending_payment",
+        "confirmed"
+      ];
+
+      if (
+        !blockedStatuses.includes(
+          appt.status
+        )
+      )
+      {
+        return false;
+      }
       const existingStart = convertTimeToMinutes(appt.appointment_time);
       const existingEnd = convertTimeToMinutes(appt.appointment_end_time);
       return candidateStart < existingEnd && candidateEnd > existingStart;
@@ -251,14 +287,26 @@ function Calendar()
     }
     try
     {
-      const newStartMinutes = convertTimeToMinutes(newTime);
-      const newEndTime = convertMinutesToTime(newStartMinutes + rescheduleDuration);
-      await rescheduleAppointmentApi(selectedAppointment.id,
-      {
-        appointment_date: newDate,
-        appointment_time: newTime,
-        appointment_end_time: newEndTime,
-      });
+      const newStartMinutes =
+  convertTimeToMinutes(newTime);
+
+const newEndTime =
+  convertMinutesToTime(
+    newStartMinutes + rescheduleDuration
+  );
+
+await rescheduleAppointmentApi(
+  selectedAppointment.id,
+  {
+    appointment_date: newDate,
+
+    appointment_time:
+      convert12To24(newTime),
+
+    appointment_end_time:
+      convert12To24(newEndTime),
+  }
+);
       await fetchAppointments();
       setShowReschedule(false);
       setSelectedAppointment(null);
