@@ -23,10 +23,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { isHoliday } from "../lib/holidays";
-
-console.log("Holiday helper loaded");
-console.log(isHoliday);
-console.log(isHoliday(new Date("2026-12-25")));
+import {
+  getGoogleSession,
+  signInWithGoogle,
+  signOutGoogle
+} from "../api/googleAuth";
 
 
 const branches = [
@@ -298,6 +299,10 @@ function parseTimeToMinutes(time)
 
 export default function Appointment() {
  const navigate = useNavigate()
+ const [googleSession, setGoogleSession] =
+  useState(null);
+const [checkingGoogle, setCheckingGoogle] =
+  useState(true);
  const [step, setStep] = useState(1)
  const [dentists, setDentists] = useState([])
  const [services, setServices] = useState([])
@@ -661,6 +666,34 @@ useEffect(() =>
   loadData();
 }, []);
 
+useEffect(() =>
+{
+  async function checkGoogleLogin()
+  {
+    const session =
+      await getGoogleSession();
+
+    setGoogleSession(session);
+
+    if(session?.user)
+    {
+      setGuestName(
+        session.user.user_metadata?.full_name ||
+        session.user.user_metadata?.name ||
+        ""
+      );
+
+      setGuestEmail(
+        session.user.email || ""
+      );
+    }
+
+    setCheckingGoogle(false);
+  }
+
+  checkGoogleLogin();
+}, []);
+
  // =========================
  // MOCK BOOKING
  // =========================
@@ -1015,6 +1048,30 @@ const filteredDentists =
  // =========================
 return (
 <div className="appointment-page">
+
+  {!checkingGoogle && !googleSession && (
+  <div className="google-booking-gate">
+    <h2>
+      Continue with Google
+    </h2>
+
+    <p>
+      Please verify your Google account before booking an online appointment.
+    </p>
+
+    <button
+      type="button"
+      onClick={signInWithGoogle}
+      className="submit-appointment-btn"
+    >
+      Continue with Google
+    </button>
+  </div>
+)}
+
+{googleSession && (
+  <div className="appointment-form-container">
+
 <div className="appointment-form-container">
 <div className="appointment-header-section">
 <h1>Book Appointment</h1>
@@ -1023,6 +1080,21 @@ return (
            to schedule your dental
            appointment.
 </p>
+
+<button
+  type="button"
+  onClick={async () =>
+  {
+    await signOutGoogle();
+
+    setGoogleSession(null);
+    setGuestName("");
+    setGuestEmail("");
+  }}
+>
+  Use another Google account
+</button>
+
 </div>
 <div className="appointment-form-content">
  {/* LEFT SIDE */}
@@ -1191,6 +1263,7 @@ b.id === e.target.value
   <input
     type="text"
     value={guestName}
+    readOnly
     onChange={(e) =>
       setGuestName(e.target.value)
     }
@@ -1219,6 +1292,7 @@ b.id === e.target.value
     <input
       type="email"
       value={guestEmail}
+      readOnly
       onChange={(e) =>
         setGuestEmail(e.target.value)
       }
@@ -1484,3 +1558,5 @@ selectedDate
 </div>
  )
 }
+  </div>
+)}

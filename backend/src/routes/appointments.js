@@ -1,5 +1,10 @@
 import { Elysia } from "elysia";
 import { supabase } from "../supabase.js";
+import {
+  sendAppointmentEmail,
+  sendAppointmentConfirmedEmail
+}
+from "../utils/email.js";
 
 async function recalculateAppointmentTotals(
   appointmentId
@@ -431,6 +436,20 @@ console.log(
 
   }
 
+  const {
+  data: dentist
+} =
+await supabase
+  .from("users")
+  .select("first_name,last_name")
+  .eq("id", dentist_id)
+  .single();
+
+const dentistName =
+  dentist
+    ? `Dr. ${dentist.first_name} ${dentist.last_name}`
+    : "Assigned Dentist";
+
   const cancelLink =
 `${process.env.FRONTEND_URL}/cancel/${cancellation_token}`;
 
@@ -449,7 +468,7 @@ try {
       "Patient",
 
     dentist:
-      dentist_id,
+      dentistName,
 
     date:
       appointment_date,
@@ -1659,9 +1678,14 @@ async ({ params, set }) => {
     await supabase
       .from("appointments")
       .select(`
-        total_amount,
-        downpayment_amount
-      `)
+      total_amount,
+      downpayment_amount,
+      guest_name,
+      guest_email,
+      appointment_date,
+      appointment_time,
+      dentist_id
+    `)
       .eq("id", params.id)
       .single();
 
@@ -1724,6 +1748,59 @@ console.log(
         error.message
     };
   }
+
+  try
+{
+  const {
+    data: dentist
+  } =
+  await supabase
+    .from("users")
+    .select("first_name,last_name")
+    .eq(
+      "id",
+      appointment.dentist_id
+    )
+    .single();
+
+  const dentistName =
+    dentist
+      ? `Dr. ${dentist.first_name} ${dentist.last_name}`
+      : "Assigned Dentist";
+
+  await sendAppointmentConfirmedEmail({
+
+    to:
+      appointment.guest_email,
+
+    name:
+      appointment.guest_name,
+
+    dentist:
+      dentistName,
+
+    date:
+      appointment.appointment_date,
+
+    time:
+      appointment.appointment_time,
+
+    totalAmount:
+      appointment.total_amount
+
+  });
+
+  console.log(
+    "CONFIRMATION EMAIL SENT"
+  );
+}
+catch(emailError)
+{
+  console.error(
+    "CONFIRM EMAIL ERROR:",
+    emailError
+  );
+}
 
   return {
     success: true
@@ -2107,5 +2184,109 @@ async ({ params }) => {
   return {
     success: true
   };
+})
+
+.get(
+"/cancel/:token",
+async ({ params, set }) =>
+{
+  const {
+    data,
+    error
+  } =
+  await supabase
+    .from("appointments")
+    .select(`
+      id,
+      guest_name,
+      appointment_date,
+      appointment_time,
+      payment_status,
+      status
+    `)
+    .eq(
+      "cancellation_token",
+      params.token
+    )
+    .maybeSingle();
+
+  if(error || !data)
+  {
+    set.status = 404;
+
+    return {
+      success:false,
+      message:
+        "Invalid cancellation link."
+    };
+  }
+
+  return {
+    success:true,
+    appointment:data
+  };
+})
+
+.patch(
+"/cancel/:token",
+async ({ params, set }) =>
+{
+  const {
+    data: appointment,
+    error
+  } =
+  await supabase
+    .from("appointments")
+    .select(`
+    id,
+    status
+  `)
+    .eq(
+      "cancellation_token",
+      params.token
+    )
+    .maybeSingle();
+
+  if(error || !appointment)
+  {
+    set.status = 404;
+
+    return {
+      success:false,
+      message:
+        "Invalid cancellation link."
+    };
+  }
+
+  if(
+  appointment.status !==
+  "pending_verification"
+)
+{
+  set.status = 400;
+
+  return {
+    success:false,
+    message:
+      "Your appointment has already been confirmed by the clinic and can no longer be cancelled online."
+  };
+}
+
+  await supabase
+    .from("appointments")
+    .update({
+      status:"cancelled",
+      payment_status:"cancelled"
+    })
+    .eq(
+      "id",
+      appointment.id
+    );
+
+  return {
+    success:true
+  };
 });
+
+
 

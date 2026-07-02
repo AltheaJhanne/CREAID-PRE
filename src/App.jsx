@@ -26,6 +26,7 @@ import Scroll from "./Scroll";
 import Navbar from "./Navbar";
 import { supabase } from './lib/supabase';
 import Appointment from "./pages/appointment";
+import CancelAppointment from "./pages/CancelAppointment";
 
 async function testConnection() {
   const { data, error } = await supabase.auth.getSession()
@@ -71,6 +72,7 @@ function App()
       <Route path="/contact" element={<Contact />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/appointment" element={<Appointment />} />
+      <Route path="/cancel/:token" element={<CancelAppointment />} />
       <Route path="/myaccount" element={<MyAccount />} />
       <Route path="/patients/new" element={<NewPatient />} />
       <Route element={<Layout />}>

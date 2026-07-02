@@ -223,13 +223,27 @@ async (period, clinic = "All") => {
   return response.data;
 };
 
+import { supabase } from "../lib/supabase";
+
 export const createAppointmentApi =
-async (data) => {
+async (data) =>
+{
+  const {
+    data: { session }
+  } =
+  await supabase.auth.getSession();
 
   const response =
     await axios.post(
       `${API_URL}/appointments`,
-      data
+      data,
+      {
+        headers:
+        {
+          Authorization:
+            `Bearer ${session?.access_token}`
+        }
+      }
     );
 
   return response.data;
@@ -284,6 +298,30 @@ async (dentistId) => {
   const response =
     await axios.get(
       `${API_URL}/appointments/dentists/${dentistId}/earnings`
+    );
+
+  return response.data;
+};
+
+export async function getCancellationDetailsApi(
+  token
+)
+{
+  const response =
+    await axios.get(
+      `${API_URL}/appointments/cancel/${token}`
+    );
+
+  return response.data;
+}
+
+export async function cancelAppointmentByTokenApi(
+  token
+)
+{
+  const response =
+    await axios.patch(
+      `${API_URL}/appointments/cancel/${token}`
     );
 
   return response.data;
