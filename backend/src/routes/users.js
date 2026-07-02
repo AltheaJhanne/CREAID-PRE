@@ -1,5 +1,8 @@
 import { Elysia } from "elysia";
 import { supabase } from "../supabase.js";
+import {
+  logActivity
+} from "../utils/logActivity.js";
 
 const PAGE_SIZE = 5;
 
@@ -181,7 +184,7 @@ data.last_visit =
    ARCHIVE USER
 ========================= */
 .patch("/:id/archive",
-async ({ params, set }) => {
+async ({ params, body, set }) => {
 
   const { error } =
     await supabase
@@ -190,6 +193,31 @@ async ({ params, set }) => {
         is_archived: true
       })
       .eq("id", params.id);
+
+      const {
+  data: archivedUser
+} =
+await supabase
+  .from("users")
+  .select("first_name,last_name")
+  .eq(
+    "id",
+    params.id
+  )
+  .single();
+
+await logActivity({
+
+  user:
+    body.performed_by,
+
+  action:
+    "Archive User",
+
+  description:
+    `Archived ${archivedUser.first_name} ${archivedUser.last_name}.`
+
+});
 
   if (error) {
 
@@ -516,9 +544,40 @@ return {
   leaves:
     leaves || []
 };
+})
 
-console.log(
-  "LEAVES:",
-  leaves
-);
+.get(
+"/logs",
+async ({ set }) =>
+{
+  const {
+    data,
+    error
+  } =
+  await supabase
+    .from("user_logs")
+    .select("*")
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    );
+
+  if(error)
+  {
+    set.status = 500;
+
+    return {
+      success: false,
+      message:
+        error.message
+    };
+  }
+
+  return {
+    success: true,
+    logs:
+      data || []
+  };
 });

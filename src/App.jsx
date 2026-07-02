@@ -74,18 +74,129 @@ function App()
       <Route path="/terms" element={<Terms />} />
       <Route path="/appointment" element={<Appointment />} />
       <Route path="/cancel/:token" element={<CancelAppointment />} />
-      <Route path="/myaccount" element={<MyAccount />} />
-      <Route path="/patients/new" element={<NewPatient />} />
+      <Route
+      path="/myaccount"
+      element={
+        <ProtectedRoute
+          allowedRoles={[
+            "admin",
+            "staff",
+            "tester"
+          ]}
+        >
+          <MyAccount />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/patients/new"
+      element={
+        <ProtectedRoute
+          allowedRoles={[
+            "admin",
+            "staff",
+            "tester"
+          ]}
+        >
+          <NewPatient />
+        </ProtectedRoute>
+      }
+    />
       <Route element={<Layout />}>
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/calendar" element={<Calendar />} />
-      <Route path="/users" element={<Userlist />} /> 
-      <Route path="/users/patients" element={<Patients />} />
-      <Route path="/users/dentists" element={<Dentists />} />
-      <Route path="/payments" element={<Payments />} />
-      <Route path="/system" element={<SystemData />} />
-      <Route path="/inbox" element={<Inbox />} />
-      <Route path="/users/logs" element={<Logs />} />
+      <Route
+      path="/dashboard"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "staff", "tester"]}
+        >
+          <Dashboard />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/calendar"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "staff", "tester"]}
+        >
+          <Calendar />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/users"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "staff", "tester"]}
+        >
+          <Userlist />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/users/patients"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "staff", "tester"]}
+        >
+          <Patients />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/users/dentists"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "staff", "tester"]}
+        >
+          <Dentists />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/payments"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "staff", "tester"]}
+        >
+          <Payments />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/system"
+      element={
+        <ProtectedRoute
+          allowedRoles={[
+            "admin",
+            "staff",
+            "tester"
+          ]}
+        >
+          <SystemData />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/inbox"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "staff", "tester"]}
+        >
+          <Inbox />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/users/logs"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "tester"]}
+        >
+          <Logs />
+        </ProtectedRoute>
+      }
+    />
       <Route
       path="/reports/appointments"
       element={

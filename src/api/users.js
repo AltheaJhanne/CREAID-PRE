@@ -117,11 +117,28 @@ if (!response.ok) {
 // ARCHIVE USER
 export async function archiveUserApi(id)
 {
+  const user =
+    JSON.parse(
+      localStorage.getItem("user")
+    );
+
   const response =
     await fetch(
       `${API_BASE}/${id}/archive`,
       {
         method: "PATCH",
+
+        headers:
+        {
+          "Content-Type":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify({
+            performed_by:
+              user
+          })
       }
     );
 

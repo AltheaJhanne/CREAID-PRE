@@ -1,5 +1,8 @@
 import { Elysia } from "elysia";
 import { supabase } from "../supabase.js";
+import {
+  logActivity
+} from "../utils/logActivity.js";
 
 export const authRoutes =
   new Elysia({
@@ -67,6 +70,19 @@ async ({ body, set }) => {
         "Account archived",
     };
   }
+
+  await logActivity({
+
+  user:
+    userData,
+
+  action:
+    "Login",
+
+  description:
+    "Logged into the system."
+
+});
 
   return {
     success: true,
