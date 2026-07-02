@@ -1,5 +1,12 @@
 import { API_BASE } from "./base";
 
+function getCurrentUser()
+{
+  return JSON.parse(
+    localStorage.getItem("user")
+  );
+}
+
 // CREATE USER / PATIENT
 export async function createUserApi(data)
 {
@@ -135,10 +142,10 @@ export async function archiveUserApi(id)
         },
 
         body:
-          JSON.stringify({
-            performed_by:
-              user
-          })
+        JSON.stringify({
+        performed_by:
+        getCurrentUser()
+        })
       }
     );
 
@@ -163,7 +170,20 @@ export async function restoreUserApi(id)
     await fetch(
       `${API_BASE}/${id}/restore`,
       {
-        method: "PATCH",
+        method:"PATCH",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify({
+
+            performed_by:
+              getCurrentUser()
+
+          })
       }
     );
 
@@ -173,8 +193,7 @@ export async function restoreUserApi(id)
   if(!response.ok)
   {
     throw new Error(
-      result.message ||
-      "Failed to restore user"
+      result.message
     );
   }
 
@@ -191,13 +210,22 @@ export async function updateUserApi(
     await fetch(
       `${API_BASE}/${id}`,
       {
-        method: "PATCH",
-        headers: {
+        method:"PATCH",
+
+        headers:{
           "Content-Type":
-            "application/json",
+            "application/json"
         },
+
         body:
-          JSON.stringify(data),
+          JSON.stringify({
+
+            ...data,
+
+            performed_by:
+              getCurrentUser()
+
+          })
       }
     );
 
@@ -207,8 +235,7 @@ export async function updateUserApi(
   if(!response.ok)
   {
     throw new Error(
-      result.message ||
-      "Failed to update user"
+      result.message
     );
   }
 

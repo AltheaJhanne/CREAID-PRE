@@ -238,7 +238,7 @@ await logActivity({
    RESTORE USER
 ========================= */
 .patch("/:id/restore",
-async ({ params, set }) => {
+async ({ params, body, set }) => {
 
   const { error } =
     await supabase
@@ -247,6 +247,31 @@ async ({ params, set }) => {
         is_archived: false
       })
       .eq("id", params.id);
+
+      const {
+  data: restoredUser
+} =
+await supabase
+  .from("users")
+  .select("first_name,last_name")
+  .eq(
+    "id",
+    params.id
+  )
+  .single();
+
+await logActivity({
+
+  user:
+    body.performed_by,
+
+  action:
+    "Restore User",
+
+  description:
+    `Restored ${restoredUser.first_name} ${restoredUser.last_name}.`
+
+});
 
   if (error) {
 
@@ -269,14 +294,20 @@ async ({ params, set }) => {
 .patch("/:id",
 async ({ params, body, set }) => {
 
+  // Remove performed_by before updating the database
+  const {
+    performed_by,
+    ...updates
+  } = body;
+
   const { error } =
     await supabase
       .from("users")
-      .update(body)
+      .update(updates)
       .eq("id", params.id);
 
-  if (error) {
-
+  if(error)
+  {
     set.status = 500;
 
     return {
@@ -284,6 +315,26 @@ async ({ params, body, set }) => {
       message: error.message,
     };
   }
+
+  // Get the updated user's name
+  const {
+    data: updatedUser
+  } =
+  await supabase
+    .from("users")
+    .select("first_name,last_name")
+    .eq("id", params.id)
+    .single();
+
+  // Save to audit log
+  await logActivity({
+    user: performed_by,
+
+    action: "Update User",
+
+    description:
+      `Updated profile of ${updatedUser.first_name} ${updatedUser.last_name}.`
+  });
 
   return {
     success: true,
