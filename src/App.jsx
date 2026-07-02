@@ -27,6 +27,7 @@ import Navbar from "./Navbar";
 import { supabase } from './lib/supabase';
 import Appointment from "./pages/appointment";
 import CancelAppointment from "./pages/CancelAppointment";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 async function testConnection() {
   const { data, error } = await supabase.auth.getSession()
@@ -76,7 +77,6 @@ function App()
       <Route path="/myaccount" element={<MyAccount />} />
       <Route path="/patients/new" element={<NewPatient />} />
       <Route element={<Layout />}>
-      <Route path="/reports/appointments" element={<Appointments />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/calendar" element={<Calendar />} />
       <Route path="/users" element={<Userlist />} /> 
@@ -86,10 +86,62 @@ function App()
       <Route path="/system" element={<SystemData />} />
       <Route path="/inbox" element={<Inbox />} />
       <Route path="/users/logs" element={<Logs />} />
-      <Route path="/reports" element={<Reports />} />
-      <Route path="/reports/collections" element={<Collections />} />
-      <Route path="/reports/expenses" element={<Expenses />} />
-      <Route path="/reports/daily" element={<Daily />} />
+      <Route
+      path="/reports/appointments"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "tester"]}
+        >
+          <Appointments />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/reports"
+      element={
+        <ProtectedRoute
+          allowedRoles={[
+            "admin",
+            "tester"
+          ]}
+        >
+          <Reports />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/reports/collections"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "tester"]}
+        >
+          <Collections />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/reports/expenses"
+      element={
+        <ProtectedRoute
+          allowedRoles={["admin", "tester"]}
+        >
+          <Expenses />
+        </ProtectedRoute>
+      }
+    />
+      <Route
+      path="/reports/daily"
+      element={
+        <ProtectedRoute
+          allowedRoles={[
+            "admin",
+            "tester"
+          ]}
+        >
+          <Daily />
+        </ProtectedRoute>
+      }
+    />
             </Route>
     </Routes>
     </>

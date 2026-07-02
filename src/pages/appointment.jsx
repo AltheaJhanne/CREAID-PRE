@@ -673,6 +673,11 @@ useEffect(() =>
     const session =
       await getGoogleSession();
 
+      console.log(
+  "GOOGLE SESSION:",
+  session
+);
+
     setGoogleSession(session);
 
     if(session?.user)
