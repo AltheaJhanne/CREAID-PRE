@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { supabase } from "../supabase.js";
+import { logActivity } from "../utils/logActivity.js";
 
 
 export const leaveRequestRoutes = new Elysia({
@@ -105,9 +106,10 @@ async ({ params, set }) =>
 async ({ params, body, set }) =>
 {
   const {
-    status,
-    staff_note
-  } = body;
+  status,
+  staff_note,
+  performed_by
+} = body;
 
   const normalizedStatus =
     status.toLowerCase();
@@ -135,6 +137,39 @@ async ({ params, body, set }) =>
       message:error.message
     };
   }
+
+  const {
+  data: dentist
+} =
+await supabase
+  .from("users")
+  .select("first_name,last_name")
+  .eq("id", data.dentist_id)
+  .single();
+
+const dentistName =
+  dentist
+    ? `Dr. ${dentist.first_name} ${dentist.last_name}`
+    : "Unknown Dentist";
+
+await logActivity({
+
+  user:
+    performed_by,
+
+  action:
+    normalizedStatus === "approved"
+      ? "Approve Leave"
+      : "Decline Leave",
+
+  description:
+    `${
+      normalizedStatus === "approved"
+        ? "Approved"
+        : "Declined"
+    } leave request of ${dentistName}.`
+
+});
 
   return {
     success:true,

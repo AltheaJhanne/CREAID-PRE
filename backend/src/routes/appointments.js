@@ -5,6 +5,9 @@ import {
   sendAppointmentConfirmedEmail
 }
 from "../utils/email.js";
+import {
+  logActivity
+} from "../utils/logActivity.js";
 
 async function recalculateAppointmentTotals(
   appointmentId
@@ -367,21 +370,37 @@ if(
   appointmentError
 );
 
+if (appointmentError)
+{
+  set.status = 500;
+
+  return {
+    success: false,
+    message:
+      appointmentError.message
+  };
+}
+
 console.log(
   "APPOINTMENT CREATED:",
   appointment.id
 );
 
-  if (appointmentError) {
+await logActivity({
 
-    set.status = 500;
+  user:
+    body.performed_by,
 
-    return {
-      success: false,
-      message:
-        appointmentError.message
-    };
-  }
+  action:
+    "Create Appointment",
+
+  description:
+    `Created appointment for ${
+      guest_name ||
+      "Registered Patient"
+    }.`
+
+});
 
   if (
     selected_services?.length
@@ -1664,7 +1683,7 @@ async ({ params }) => {
 })
 
 .patch("/:id/confirm-downpayment",
-async ({ params, set }) => {
+async ({ params, body, set }) => {
 
    console.log(
     "CONFIRMING:",
@@ -1802,6 +1821,61 @@ catch(emailError)
   );
 }
 
+const {
+  data: patient
+} =
+await supabase
+  .from("appointments")
+  .select("guest_name")
+  .eq("id", params.id)
+  .single();
+
+await logActivity({
+
+  user:
+    body.performed_by,
+
+  action:
+    "Confirm Downpayment",
+
+  description:
+    `Verified downpayment of ${patient.guest_name}.`
+
+});
+
+let patientName =
+  appointment.guest_name;
+
+if(!patientName && appointment.patient_id)
+{
+  const {
+    data: patient
+  } =
+  await supabase
+    .from("users")
+    .select("first_name,last_name")
+    .eq("id", appointment.patient_id)
+    .single();
+
+  patientName =
+    patient
+      ? `${patient.first_name} ${patient.last_name}`
+      : "Registered Patient";
+}
+
+await logActivity({
+
+  user:
+    body.performed_by,
+
+  action:
+    "Confirm Downpayment",
+
+  description:
+    `Verified downpayment of ${patientName}.`
+
+});
+
   return {
     success: true
   };
@@ -1847,7 +1921,10 @@ async ({ params, body, set }) => {
 "/:id/status",
 async ({ params, body, set }) =>
 {
-  const { status } = body;
+  const {
+  status,
+  performed_by
+} = body;
 
   // Update appointment status
   const {
@@ -2282,6 +2359,19 @@ async ({ params, set }) =>
       "id",
       appointment.id
     );
+
+    await logActivity({
+
+  user:
+    body.performed_by,
+
+  action:
+    "Cancel Appointment",
+
+  description:
+    `Cancelled booking request of ${appointment.guest_name}.`
+
+});
 
   return {
     success:true

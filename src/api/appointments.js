@@ -3,6 +3,13 @@ import axios from "axios";
 const API_URL =
   import.meta.env.VITE_API_URL;
 
+  function getCurrentUser()
+{
+  return JSON.parse(
+    localStorage.getItem("user")
+  );
+}
+
   export async function rejectAppointmentApi(
   id,
   rejection_reason
@@ -108,12 +115,16 @@ async (id) => {
 
   
 
-  export const confirmDownpaymentApi =
-async (id) => {
-
+ export const confirmDownpaymentApi =
+async (id) =>
+{
   const response =
     await axios.patch(
-      `${API_URL}/appointments/${id}/confirm-downpayment`
+      `${API_URL}/appointments/${id}/confirm-downpayment`,
+      {
+        performed_by:
+          getCurrentUser()
+      }
     );
 
   return response.data;
@@ -229,24 +240,29 @@ export const createAppointmentApi =
 async (data) =>
 {
   const {
-    data: { session }
-  } =
-  await supabase.auth.getSession();
+  data: { session }
+} =
+await supabase.auth.getSession();
 
-  const response =
-    await axios.post(
-      `${API_URL}/appointments`,
-      data,
-      {
-        headers:
-        {
-          Authorization:
-            `Bearer ${session?.access_token}`
-        }
-      }
-    );
+const response =
+await axios.post(
+  `${API_URL}/appointments`,
+  {
+    ...data,
 
-  return response.data;
+    performed_by:
+      getCurrentUser()
+  },
+  {
+    headers:
+    {
+      Authorization:
+      `Bearer ${session?.access_token}`
+    }
+  }
+);
+
+return response.data;
 };
 
 export const getAppointmentsApi =
@@ -260,14 +276,22 @@ async () => {
   return response.data;
 };
 
-export const updateAppointmentStatusApi = async (id, status) => {
-  const response = await axios.patch(
-    `${API_URL}/appointments/${id}/status`,
-    { status }
-  );
+export const updateAppointmentStatusApi =
+async (id, status) =>
+{
+  const response =
+    await axios.patch(
+      `${API_URL}/appointments/${id}/status`,
+      {
+        status,
+
+        performed_by:
+          getCurrentUser()
+      }
+    );
 
   return response.data;
-}
+};
 
 export async function getPatientLastVisitApi(
   patientId
@@ -321,8 +345,12 @@ export async function cancelAppointmentByTokenApi(
 {
   const response =
     await axios.patch(
-      `${API_URL}/appointments/cancel/${token}`
+      `${API_URL}/appointments/cancel/${token}`,
+      {
+        performed_by:
+          getCurrentUser()
+      }
     );
 
   return response.data;
-};
+}
