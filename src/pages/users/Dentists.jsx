@@ -6,16 +6,18 @@ import { getMyPatientsApi, getDentistEarningsApi} from "../../api/appointments";
 import { getLeaveRequestsApi, updateLeaveRequestApi } from "../../api/leaveRequest";
 import
 {
-  getMedicalFilesApi,
-  uploadMedicalFileApi,
-  deleteMedicalFileApi,
-  archivePatientFileApi
+getMedicalFilesApi,
+deleteMedicalFileApi,
+archivePatientFileApi,
+restorePatientFileApi
 }
 from "../../api/files";
 import {
   getBillingDocumentsApi,
-  uploadBillingDocumentApi,
-  archiveBillingDocumentApi} from "../../api/files";
+  archiveBillingDocumentApi,
+  restoreBillingDocumentApi
+}
+from "../../api/files";
 import { supabase } from "../../lib/supabase";
 
 const LEAVE_ICON = {
@@ -86,6 +88,18 @@ setMedicalFiles
 useState([]);
 
 const [
+archivedMedicalFiles,
+setArchivedMedicalFiles
+] =
+useState([]);
+
+const [
+showArchivedMedical,
+setShowArchivedMedical
+] =
+useState(false);
+
+const [
 showUploadModal,
 setShowUploadModal
 ]
@@ -112,11 +126,15 @@ setBillingDocuments
 ] = useState([]);
 
 const [
-billingUploadType,
-setBillingUploadType
-] = useState(
-"receipt"
-);
+archivedBillingDocuments,
+setArchivedBillingDocuments
+] = useState([]);
+
+const [
+showArchivedBilling,
+setShowArchivedBilling
+] = useState(false);
+
 
 const fileInputRef =
 useRef(null);
@@ -307,12 +325,15 @@ async function handleViewRecord(
   {
     const
 [
-  recordResponse,
-  fileResponse,
-  billingResponse
+recordResponse,
+fileResponse,
+archivedFileResponse,
+billingResponse,
+archivedBillingResponse
 ]
 =
 await Promise.all([
+
   getPatientRecordsApi(
     patient.id
   ),
@@ -321,9 +342,24 @@ await Promise.all([
     patient.id
   ),
 
+  getMedicalFilesApi(
+    patient.id,
+    {
+      archived: true
+    }
+  ),
+
   getBillingDocumentsApi(
     patient.id
+  ),
+
+  getBillingDocumentsApi(
+    patient.id,
+    {
+      archived: true
+    }
   )
+
 ]);
 
     setPatientRecords(
@@ -337,6 +373,10 @@ await Promise.all([
     setBillingDocuments(
       billingResponse.documents || []
     );
+
+    setArchivedBillingDocuments(
+  archivedBillingResponse.documents || []
+);
   }
   catch(error)
   {
@@ -367,10 +407,42 @@ async function refreshMedicalFiles()
     setMedicalFiles(
       response.files || []
     );
+
+    await loadArchivedMedicalFiles();
+
   }
   catch(error)
   {
     console.error(error);
+  }
+}
+
+async function loadArchivedMedicalFiles()
+{
+  if(!selectedRecordPatient)
+  {
+    return;
+  }
+
+  try
+  {
+    const response =
+      await getMedicalFilesApi(
+        selectedRecordPatient.id,
+        {
+          archived: true
+        }
+      );
+
+    setArchivedMedicalFiles(
+      response.files || []
+    );
+  }
+  catch(error)
+  {
+    console.error(error);
+
+    setArchivedMedicalFiles([]);
   }
 }
 
@@ -548,112 +620,30 @@ async function handleArchiveBillingDocument(
   {
     await archiveBillingDocumentApi(id);
 
-    const response =
+    const active =
       await getBillingDocumentsApi(
         selectedRecordPatient.id
       );
 
-    setBillingDocuments(
-      response.documents || []
-    );
-  }
-  catch(error)
-  {
-    console.error(error);
-  }
-}
-
-async function handleUploadBillingDocument()
-{
-  const file = selectedUploadFile;
-
-  if(
-    !file ||
-    !selectedRecordPatient
-  )
-  {
-    alert("Please choose a file.");
-    return;
-  }
-
-  try
-  {
-    const filePath =
-      `${selectedRecordPatient.id}/${Date.now()}-${file.name}`;
-
-    const {
-      error: uploadError
-    } =
-    await supabase.storage
-      .from("medical-files")
-      .upload(
-        filePath,
-        file,
+    const archived =
+      await getBillingDocumentsApi(
+        selectedRecordPatient.id,
         {
-          upsert:true
+          archived: true
         }
       );
 
-    if(uploadError)
-    {
-      throw uploadError;
-    }
-
-    await uploadBillingDocumentApi({
-
-      patient_id:
-        selectedRecordPatient.is_guest
-          ? null
-          : selectedRecordPatient.id,
-
-      guest_email:
-        selectedRecordPatient.email,
-
-      guest_contact:
-        selectedRecordPatient.contact_number,
-
-      uploaded_by:
-        selectedDentist?.id,
-
-      uploaded_by_role:
-        "staff",
-
-      document_type:
-        billingUploadType,
-
-      file_name:
-        file.name,
-
-      storage_path:
-        filePath,
-
-      mime_type:
-        file.type,
-
-      size_bytes:
-        file.size
-
-    });
-
-    const response =
-      await getBillingDocumentsApi(
-        selectedRecordPatient.id
-      );
-
     setBillingDocuments(
-      response.documents || []
+      active.documents || []
     );
 
-    setShowUploadModal(false);
-
-    setSelectedUploadFile(null);
-
-    alert("Billing document uploaded.");
+    setArchivedBillingDocuments(
+      archived.documents || []
+    );
   }
   catch(error)
   {
     console.error(error);
-    alert("Upload failed.");
   }
 }
 
@@ -1655,23 +1645,21 @@ selectedRecordPatient && (
 <div className="record-section">
 
 <div className="record-section-header">
-
-<h3>
-Medical Files
-</h3>
-
-<div>
-
+  <h3>Medical Files</h3>
 <button
-className="upload-document-btn"
+className="archive-toggle-btn"
 onClick={() =>
-setShowUploadModal(true)
+setShowArchivedMedical(
+!showArchivedMedical
+)
 }
 >
-+ Upload Medical File
+{
+showArchivedMedical
+? "Active Files"
+: "Archived Files"
+}
 </button>
-
-</div>
 
 </div>
 
@@ -1729,7 +1717,11 @@ Actions
 
 {
 
-medicalFiles.map(file=>(
+(
+showArchivedMedical
+? archivedMedicalFiles
+: medicalFiles
+).map(file=>(
 
 <tr
 key={file.id}
@@ -1741,7 +1733,7 @@ key={file.id}
 
 {" "}
 
-{file.title}
+{file.file_name || file.name || file.title}
 
 </td>
 
@@ -1755,18 +1747,18 @@ file.file_type
 
 {
 file.file_type === "xray"
-? "🩻 X-Ray"
+? "X-Ray"
 
 : file.file_type === "lab"
-? "🧪 Lab"
+? "Lab"
 
 : file.file_type === "clearance"
-? "📋 Clearance"
+? "Clearance"
 
 : file.file_type === "consent"
-? "✍️ Consent"
+? "Consent"
 
-: "📁 Other"
+: "Other"
 }
 
 </span>
@@ -1788,7 +1780,7 @@ rel="noreferrer"
 className="file-btn view"
 >
 
-👁 View
+View
 
 </a>
 
@@ -1798,22 +1790,52 @@ download
 className="file-btn download"
 >
 
-⬇ Download
+Download
 
 </a>
+
+{
+showArchivedMedical
+? (
+
+<button
+className="file-btn"
+onClick={async ()=>
+{
+await restorePatientFileApi(
+file.id
+);
+
+await refreshMedicalFiles();
+
+await loadArchivedMedicalFiles();
+}}
+>
+
+↩ Unarchive
+
+</button>
+
+)
+
+:
+
+(
 
 <button
 className="file-btn archive"
 onClick={()=>
 handleArchiveMedicalFile(
 file.id
-)
-}
+)}
 >
 
-🗄 Archive
+Archive
 
 </button>
+
+)
+}
 
 </td>
 
@@ -1845,39 +1867,19 @@ file.id
 Billing Documents
 </h3>
 
-<div>
-
-<select
-value={billingUploadType}
-onChange={(e)=>
-setBillingUploadType(
-e.target.value
-)}
-className="record-file-filter"
->
-
-<option value="receipt">
-Official Receipt
-</option>
-
-<option value="invoice">
-Invoice
-</option>
-
-</select>
-
 <button
-className="upload-document-btn"
-onClick={()=>
-setShowUploadModal(true)
-}
+className="archive-toggle-btn"
+onClick={() =>
+setShowArchivedBilling(
+!showArchivedBilling
+)}
 >
-
-+ Upload Billing Document
-
+{
+showArchivedBilling
+? "Active Files"
+: "Archived Files"
+}
 </button>
-
-</div>
 
 </div>
 
@@ -1935,7 +1937,11 @@ Actions
 
 {
 
-billingDocuments.map(doc=>(
+(
+showArchivedBilling
+? archivedBillingDocuments
+: billingDocuments
+).map(doc=>(
 
 <tr
 key={doc.id}
@@ -1959,11 +1965,11 @@ doc.document_type==="receipt"
 
 ?
 
-"🧾 Receipt"
+"Receipt"
 
 :
 
-"📑 Invoice"
+"Invoice"
 
 }
 
@@ -1994,7 +2000,7 @@ rel="noreferrer"
 className="file-btn view"
 >
 
-👁 View
+View
 
 </a>
 
@@ -2004,22 +2010,69 @@ download
 className="file-btn download"
 >
 
-⬇ Download
+Download
 
 </a>
+
+{
+showArchivedBilling
+? (
+
+<button
+className="file-btn"
+onClick={async ()=>
+{
+await restoreBillingDocumentApi(
+doc.id
+);
+
+const active =
+await getBillingDocumentsApi(
+selectedRecordPatient.id
+);
+
+const archived =
+await getBillingDocumentsApi(
+selectedRecordPatient.id,
+{
+archived:true
+}
+);
+
+setBillingDocuments(
+active.documents || []
+);
+
+setArchivedBillingDocuments(
+archived.documents || []
+);
+}}
+>
+
+↩ Unarchive
+
+</button>
+
+)
+
+:
+
+(
 
 <button
 className="file-btn archive"
 onClick={()=>
 handleArchiveBillingDocument(
 doc.id
-)
-}
+)}
 >
 
-🗄 Archive
+Archive
 
 </button>
+
+)
+}
 
 </td>
 
@@ -2097,139 +2150,6 @@ doc.id
   </div>
 )}
 
-{
-showUploadModal && (
-
-<div
-className="upload-modal-overlay"
-onClick={() =>
-setShowUploadModal(false)
-}
->
-
-<div
-className="upload-modal"
-onClick={(e)=>
-e.stopPropagation()
-}
->
-
-<h2>
-{
-recordTab === "billing"
-? "Upload Billing Document"
-: "Upload Medical File"
-}
-</h2>
-
-<label>
-
-Category
-
-</label>
-
-{
-recordTab === "billing"
-
-?
-
-<select
-value={billingUploadType}
-onChange={(e)=>
-setBillingUploadType(
-e.target.value
-)}
->
-
-<option value="receipt">
-Official Receipt
-</option>
-
-<option value="invoice">
-Invoice
-</option>
-
-</select>
-
-:
-
-<select
-value={selectedUploadType}
-onChange={(e)=>
-setSelectedUploadType(
-e.target.value
-)}
->
-
-<option value="xray">
-X-Ray
-</option>
-
-<option value="lab">
-Laboratory Result
-</option>
-
-<option value="clearance">
-Medical Clearance
-</option>
-
-<option value="consent">
-Consent Form
-</option>
-
-<option value="other">
-Other
-</option>
-
-</select>
-
-}
-
-<label>
-
-Choose File
-
-</label>
-
-<input
-type="file"
-onChange={(e)=>
-setSelectedUploadFile(
-e.target.files[0]
-)
-}
-/>
-
-<div
-className="upload-modal-actions"
->
-
-<button
-onClick={()=>
-setShowUploadModal(false)
-}
->
-Cancel
-</button>
-
-<button
-onClick={
-recordTab === "billing"
-? handleUploadBillingDocument
-: handleUploadMedicalFile
-}
->
-Upload
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-)
-}
 
 {activeTab === "schedule" && (
     <div className="tab-panel">

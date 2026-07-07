@@ -3557,20 +3557,38 @@ border-radius: 5px;
 .file-actions
 {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .file-btn
 {
   border: none;
-  text-decoration: none;
-  padding: 8px 12px;
   border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
+
+  padding: 10px 18px;
+
+  font-size: 14px;
+  font-weight: 600;
+
   cursor: pointer;
-  transition: 0.2s ease;
+
+  transition: all .2s ease;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  white-space: nowrap;
+
+  min-width: fit-content;
+}
+
+.file-btn:hover
+{
+  transform: translateY(-1px);
 }
 
 .file-btn.view

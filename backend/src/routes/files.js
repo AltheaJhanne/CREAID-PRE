@@ -181,15 +181,50 @@ async ({ params, set }) =>
   };
 })
 
-.get(
-"/medical-files/:patientId",
+.patch(
+"/medical-files/:fileId/restore",
 async ({ params, set }) =>
 {
+  const { error } =
+    await supabase
+      .from("medical_files")
+      .update({
+        is_archived: false
+      })
+      .eq(
+        "id",
+        params.fileId
+      );
+
+  if(error)
+  {
+    set.status = 500;
+
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+
+  return {
+    success: true
+  };
+})
+
+.get(
+"/medical-files/:patientId",
+async ({ params, query, set }) =>
+{
+  const showArchived =
+    String(query.archived || "false") === "true";
+
   let data = [];
   let error = null;
 
   if(
-    params.patientId.startsWith("guest-")
+    params.patientId.startsWith(
+      "guest-email-"
+    )
   )
   {
     const email =
@@ -208,7 +243,13 @@ async ({ params, set }) =>
         )
         .eq(
           "is_archived",
-          false
+          showArchived
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
         );
 
     data = result.data;
@@ -226,7 +267,13 @@ async ({ params, set }) =>
         )
         .eq(
           "is_archived",
-          false
+          showArchived
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
         );
 
     data = result.data;
@@ -263,7 +310,7 @@ async ({ params, set }) =>
               .from("medical-files")
               .createSignedUrl(
                 file.storage_path,
-                3600
+                60 * 60
               );
 
             if(signedData)
@@ -275,8 +322,7 @@ async ({ params, set }) =>
 
           return {
             ...file,
-            file_url:
-              fileUrl
+            file_url: fileUrl
           };
         }
       )
@@ -344,13 +390,19 @@ async ({ body, set }) =>
 
 .get(
 "/billing/:patientId",
-async ({ params }) =>
+async ({ params, query, set }) =>
 {
-  let query =
+  const showArchived =
+  String(query.archived || "false") === "true";
+
+let billingQuery =
   supabase
-  .from("billing_documents")
-  .select("*")
-  .eq("is_archived",false);
+    .from("billing_documents")
+    .select("*")
+    .eq(
+      "is_archived",
+      showArchived
+    );
 
   if(
     params.patientId.startsWith(
@@ -358,8 +410,8 @@ async ({ params }) =>
     )
   )
   {
-    query =
-    query.eq(
+    billingQuery =
+    billingQuery.eq(
       "guest_email",
       params.patientId.replace(
         "guest-email-",
@@ -369,17 +421,18 @@ async ({ params }) =>
   }
   else
   {
-    query =
-    query.eq(
+    billingQuery =
+    billingQuery.eq(
       "patient_id",
       params.patientId
     );
   }
 
   const {
-    data
-  } =
-  await query;
+  data
+}
+=
+await billingQuery;
 
   const documents =
 await Promise.all(
@@ -443,5 +496,35 @@ async ({ params }) =>
 
   return{
     success:true
+  };
+})
+
+.patch(
+"/billing/:id/restore",
+async ({ params, set }) =>
+{
+  const { error } =
+    await supabase
+      .from("billing_documents")
+      .update({
+        is_archived: false
+      })
+      .eq(
+        "id",
+        params.id
+      );
+
+  if(error)
+  {
+    set.status = 500;
+
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+
+  return {
+    success: true
   };
 })

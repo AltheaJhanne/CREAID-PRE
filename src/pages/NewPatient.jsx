@@ -614,9 +614,9 @@ setTimeout(() => {
                         <div>
                           <label>Suffix</label>
                           <input
-                          name="middlename"
-                          value={personal.middlename}
-                          placeholder="Middlename"
+                          name="suffix"
+                          value={personal.suffix}
+                          placeholder="Suffix"
                           onChange={handleChange}
                         />
                         </div>

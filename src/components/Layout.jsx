@@ -32,13 +32,12 @@ function Layout()
         <Topbar />
 
         <main
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "24px",
-            boxSizing: "border-box"
-          }}
-        >
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          boxSizing: "border-box"
+        }}
+      >
           <Outlet />
         </main>
       </div>

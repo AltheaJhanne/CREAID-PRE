@@ -47,13 +47,30 @@ export async function savePatientFileApi(data)
 }
 
 export async function getPatientFilesApi(
-  patientId
+  patientId,
+  options = {}
 )
 {
-  const response =
-    await fetch(
-      `${API_BASE}/medical-files/${patientId}`
+  const params =
+    new URLSearchParams();
+
+  if(options.archived)
+  {
+    params.set(
+      "archived",
+      "true"
     );
+  }
+
+  const url =
+    `${API_BASE}/medical-files/${patientId}${
+      params.toString()
+        ? `?${params}`
+        : ""
+    }`;
+
+  const response =
+    await fetch(url);
 
   return await response.json();
 }
@@ -163,11 +180,30 @@ export async function deleteMedicalFileApi(
 }
 
 export async function getBillingDocumentsApi(
-  patientId
+  patientId,
+  options = {}
 )
 {
+  const params =
+    new URLSearchParams();
+
+  if(options.archived)
+  {
+    params.set(
+      "archived",
+      "true"
+    );
+  }
+
+  const url =
+    `${API_BASE}/billing/${patientId}${
+      params.toString()
+        ? `?${params}`
+        : ""
+    }`;
+
   const response =
-    await fetch(`${API_BASE}/billing/${patientId}`);
+    await fetch(url);
 
   return await response.json();
 }
@@ -204,4 +240,56 @@ export async function archiveBillingDocumentApi(
       method:"PATCH"
     }
   );
+}
+
+export async function restorePatientFileApi(
+  fileId
+)
+{
+  const response =
+    await fetch(
+      `${API_BASE}/medical-files/${fileId}/restore`,
+      {
+        method: "PATCH"
+      }
+    );
+
+  const result =
+    await response.json();
+
+  if(!response.ok)
+  {
+    throw new Error(
+      result.message ||
+      "Failed to restore file"
+    );
+  }
+
+  return result;
+}
+
+export async function restoreBillingDocumentApi(
+  id
+)
+{
+  const response =
+    await fetch(
+      `${API_BASE}/billing/${id}/restore`,
+      {
+        method: "PATCH"
+      }
+    );
+
+  const result =
+    await response.json();
+
+  if(!response.ok)
+  {
+    throw new Error(
+      result.message ||
+      "Failed to restore billing document"
+    );
+  }
+
+  return result;
 }

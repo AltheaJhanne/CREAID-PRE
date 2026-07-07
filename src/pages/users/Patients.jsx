@@ -1,12 +1,17 @@
 import { supabase } from "../../lib/supabase";
 import { useState, useRef, useEffect } from "react";
 import "../../styles/patients.css";
+import { downloadFile } from "../../lib/downloadFile";
 import {
   getPatientsApi,
   getPatientNotesApi,
   savePatientNotesApi
 }
 from "../../api/patients";
+import {
+  getFullPatientApi
+}
+from "../../api/users";
 import { getPatientLastVisitApi } from "../../api/appointments";
 import {
   savePatientFileApi,
@@ -15,7 +20,9 @@ import {
 } from "../../api/files";
 import {
   getBillingDocumentsApi,
-  archiveBillingDocumentApi
+  archiveBillingDocumentApi,
+  restoreBillingDocumentApi,
+  restorePatientFileApi
 } from "../../api/files";
 
 
@@ -82,9 +89,22 @@ function Patients()
   const [newForm, setNewForm]             = useState({ name: "", age: "", contact: "", email: "", dentist: "Dr. Vannesa Cruz" });
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [billingDocuments, setBillingDocuments] = useState([]);
+  const [archivedMedicalFiles, setArchivedMedicalFiles] = useState([]);
+  const [archivedBillingDocuments, setArchivedBillingDocuments] = useState([]);
+  const [
+  showArchivedMedical,
+  setShowArchivedMedical
+] = useState(false);
+
+const [
+  showArchivedBilling,
+  setShowArchivedBilling
+] = useState(false);
   const [notesSaving, setNotesSaving] =
   useState(false);
   const [notes, setNotes] = useState("");
+  const [fullPatient, setFullPatient] =
+  useState(null);
   const fileInputRef = useRef(null);
   useEffect(() =>
 {
@@ -185,9 +205,13 @@ async function archiveRecord(
       fileId
     );
 
-    loadPatientFiles(
-      selectedPatient.id
-    );
+    await loadPatientFiles(
+    selectedPatient.id
+  );
+
+  await loadArchivedFiles(
+    selectedPatient.id
+  );
   }
   catch(error)
   {
@@ -370,9 +394,15 @@ async function loadPatientFiles(
   type: file.file_type,
   date: file.created_at?.split("T")[0],
   size:
-    file.size_bytes
-      ? `${Math.round(file.size_bytes / 1024)} KB`
-      : ""
+  file.size_bytes
+    ? `${Math.round(file.size_bytes / 1024)} KB`
+    : "",
+
+notes:
+  file.notes || "",
+
+is_note:
+  !file.size_bytes || file.size_bytes === 0
 }));
 
     console.log(
@@ -389,6 +419,79 @@ async function loadPatientFiles(
     console.error(error);
 
     setPatientFiles([]);
+  }
+}
+
+async function loadArchivedFiles(patientId)
+{
+  try
+  {
+    const medical =
+      await getPatientFilesApi(
+        patientId,
+        {
+          archived:true
+        }
+      );
+
+    const billing =
+      await getBillingDocumentsApi(
+        patientId,
+        {
+          archived:true
+        }
+      );
+
+    setArchivedMedicalFiles(
+
+  (medical.files || []).map(file => ({
+    id: file.id,
+    name: file.file_name,
+    file_name: file.file_name,
+    file_url: file.file_url,
+    mime_type: file.mime_type,
+    type: file.file_type,
+    date: file.created_at?.split("T")[0],
+    size:
+      file.size_bytes
+        ? `${Math.round(file.size_bytes / 1024)} KB`
+        : "",
+
+    notes:
+      file.notes || "",
+
+    is_note:
+      !file.size_bytes ||
+      file.size_bytes === 0
+  }))
+
+);
+
+    setArchivedBillingDocuments(
+
+  (billing.documents || []).map(doc => ({
+    id: doc.id,
+    name: doc.file_name,
+    file_name: doc.file_name,
+    file_url: doc.file_url,
+    mime_type: doc.mime_type,
+    type: doc.document_type,
+    date: doc.created_at?.split("T")[0],
+    uploaded_by: doc.uploaded_by,
+    size:
+      doc.size_bytes
+        ? `${Math.round(doc.size_bytes / 1024)} KB`
+        : ""
+  }))
+
+);
+  }
+  catch(error)
+  {
+    console.error(error);
+
+    setArchivedMedicalFiles([]);
+    setArchivedBillingDocuments([]);
   }
 }
 
@@ -427,6 +530,13 @@ async function loadPatientFiles(
 async function handleSelectPatient(patientId)
 {
   setSelected(patientId);
+
+  const full =
+  await getFullPatientApi(
+    patientId
+  );
+
+setFullPatient(full);
 
   const noteResponse =
   await getPatientNotesApi(
@@ -473,8 +583,12 @@ setNotes(
   }
 
   loadPatientFiles(patient.id);
+  loadArchivedFiles(patient.id);
   loadLastVisit(patient.id);
 }
+
+console.log("GUARDIAN", fullPatient?.guardian);
+console.log("MEDICAL", fullPatient?.medical);
 
   return (
     <div className="patients-root">
@@ -606,11 +720,11 @@ setNotes(
 
             <div className="detail-tabs">
               {[
-                "info",
-                "medical",
-                "billing",
-                "notes"
-              ].map((tab) => (
+              "info",
+              "medical",
+              "billing",
+              "notes"
+            ].map((tab) => (
                 <button key={tab} className={`tab-btn ${activeTab === tab ? "tab-active" : ""}`} onClick={() => setActiveTab(tab)}>
                   {tab === "info" &&
                   "📋 Information"}
@@ -628,22 +742,303 @@ setNotes(
             </div>
 
             {activeTab === "info" && (
-              <div className="tab-panel">
-                <div className="info-grid">
-                  <div className="info-card"><label>Full Name</label><span>{selectedPatient.first_name} {selectedPatient.last_name}</span></div>
-                  <div className="info-card"><label>Birthdate</label><span>{selectedPatient.birthdate || "-"}</span></div>
-                  <div className="info-card"><label>Age</label><span>{calculateAge(selectedPatient.birthdate) || "-"}</span></div>
-                  <div className="info-card"><label>Contact</label><span>{selectedPatient.contact_number || "-"}</span></div>
-                  <div className="info-card"><label>Email</label><span>{selectedPatient.email || "No email"}</span></div>
-                  <div className="info-card"><label>Registered Since</label><span>{selectedPatient.created_at?.split("T")[0] || "-"}</span></div>
-                  <div className="info-card"><label>Last Visit</label><span>{selectedPatient.is_guest ? "Guest Patient" : selectedPatient.last_visit || "-"}</span></div>
-                </div>
-              </div>
-            )}
+  <div className="tab-panel patient-info-panel">
+
+    <section className="info-section">
+      <h3>Personal Details</h3>
+
+      <div className="info-clean-grid">
+        <div>
+          <label>Last Name</label>
+          <p>{selectedPatient.last_name || "-"}</p>
+        </div>
+
+        <div>
+          <label>First Name</label>
+          <p>{selectedPatient.first_name || "-"}</p>
+        </div>
+
+        <div>
+          <label>Middle Name</label>
+          <p>{selectedPatient.middle_name || "-"}</p>
+        </div>
+
+        <div>
+          <label>Suffix</label>
+          <p>{selectedPatient.suffix || "—"}</p>
+        </div>
+
+        <div>
+          <label>Birthdate</label>
+          <p>{selectedPatient.birthdate || "-"}</p>
+        </div>
+
+        <div>
+          <label>Age</label>
+          <p>{calculateAge(selectedPatient.birthdate) || "-"}</p>
+        </div>
+
+        <div>
+          <label>Sex</label>
+          <p>{selectedPatient.sex || "-"}</p>
+        </div>
+
+        <div>
+          <label>Civil Status</label>
+          <p>{selectedPatient.civilstatus || "-"}</p>
+        </div>
+
+        <div>
+          <label>Phone Number</label>
+          <p>{selectedPatient.contact_number || "-"}</p>
+        </div>
+
+        <div>
+          <label>Email</label>
+          <p>{selectedPatient.email || "No email"}</p>
+        </div>
+
+        <div>
+          <label>Occupation</label>
+          <p>{selectedPatient.occupation || "-"}</p>
+        </div>
+
+        <div>
+          <label>Company</label>
+          <p>{selectedPatient.company || "-"}</p>
+        </div>
+
+        <div>
+          <label>School</label>
+          <p>{selectedPatient.school || "-"}</p>
+        </div>
+
+        <div>
+          <label>Blood Type</label>
+          <p>{selectedPatient.bloodtype || "-"}</p>
+        </div>
+
+        <div>
+          <label>Weight</label>
+          <p>{selectedPatient.weight || "-"}</p>
+        </div>
+
+        <div>
+          <label>Height</label>
+          <p>{selectedPatient.height || "-"}</p>
+        </div>
+
+        <div>
+          <label>Registered Since</label>
+          <p>{selectedPatient.created_at?.split("T")[0] || "-"}</p>
+        </div>
+
+        <div>
+          <label>Last Visit</label>
+          <p>{selectedPatient.is_guest ? "Guest Patient" : lastVisit || "-"}</p>
+        </div>
+
+        <div className="full">
+          <label>Address</label>
+          <p>{selectedPatient.address || "-"}</p>
+        </div>
+      </div>
+    </section>
+
+    {
+  fullPatient?.guardian?.id && (
+
+    <section className="info-section">
+
+      <h3>
+        Guardian Information
+      </h3>
+
+      <div className="info-clean-grid">
+
+        <div>
+          <label>Father's Name</label>
+          <p>{fullPatient.guardian.father_name || "-"}</p>
+        </div>
+
+        <div>
+          <label>Father's Contact</label>
+          <p>{fullPatient.guardian.father_contact || "-"}</p>
+        </div>
+
+        <div>
+          <label>Father's Occupation</label>
+          <p>{fullPatient.guardian.father_occupation || "-"}</p>
+        </div>
+
+        <div>
+          <label>Mother's Name</label>
+          <p>{fullPatient.guardian.mother_name || "-"}</p>
+        </div>
+
+        <div>
+          <label>Mother's Contact</label>
+          <p>{fullPatient.guardian.mother_contact || "-"}</p>
+        </div>
+
+        <div>
+          <label>Mother's Occupation</label>
+          <p>{fullPatient.guardian.mother_occupation || "-"}</p>
+        </div>
+
+        <div>
+          <label>Guardian Name</label>
+          <p>{fullPatient.guardian.guardian_name || "-"}</p>
+        </div>
+
+        <div>
+          <label>Guardian Contact</label>
+          <p>{fullPatient.guardian.guardian_contact || "-"}</p>
+        </div>
+
+        <div>
+          <label>Guardian Occupation</label>
+          <p>{fullPatient.guardian.guardian_occupation || "-"}</p>
+        </div>
+
+      </div>
+
+    </section>
+
+  )
+}
+
+{
+  fullPatient?.medical?.id && (
+
+    <section className="info-section">
+
+      <h3>
+        Medical Summary
+      </h3>
+
+      <div className="info-clean-grid">
+
+        <div>
+          <label>Last Dental Visit</label>
+          <p>{fullPatient.medical.last_dental_visit || "-"}</p>
+        </div>
+
+        <div>
+          <label>Good Health</label>
+          <p>{fullPatient.medical.good_health === "yes" ? "Yes" : "No"}</p>
+        </div>
+
+        <div>
+          <label>Medical Treatment</label>
+          <p>{fullPatient.medical.under_medical_treatment === "yes" ? "Yes" : "No"}</p>
+        </div>
+
+        <div>
+          <label>Taking Medication</label>
+          <p>{fullPatient.medical.taking_medication === "yes" ? "Yes" : "No"}</p>
+        </div>
+
+        <div className="full">
+          <label>Medical Conditions</label>
+          <p>
+            {
+              fullPatient.medical.conditions?.length
+                ? fullPatient.medical.conditions.join(", ")
+                : "-"
+            }
+          </p>
+        </div>
+
+        <div className="full">
+          <label>Allergies</label>
+          <p>
+            {
+              [
+                fullPatient.medical.allergy_penicillin_antibiotics && "Penicillin",
+                fullPatient.medical.allergy_aspirin && "Aspirin",
+                fullPatient.medical.allergy_latex && "Latex",
+                fullPatient.medical.allergy_local_anesthetic && "Local Anesthetic",
+                fullPatient.medical.allergy_sulfa_drugs && "Sulfa Drugs",
+                fullPatient.medical.allergy_others
+              ]
+              .filter(Boolean)
+              .join(", ") || "None"
+            }
+          </p>
+        </div>
+
+        <div className="full">
+          <label>Current Medication</label>
+          <p>
+            {
+              fullPatient.medical.prescribed_medications ||
+              fullPatient.medical.medication_details ||
+              "-"
+            }
+          </p>
+        </div>
+
+        <div className="full">
+          <label>Dental Habits</label>
+          <p>
+            {
+              fullPatient.medical.dental_habits?.length
+                ? fullPatient.medical.dental_habits.join(", ")
+                : "-"
+            }
+          </p>
+        </div>
+
+        <div className="full">
+          <label>Medical Alert</label>
+          <p>{fullPatient.medical.medical_alert || "None"}</p>
+        </div>
+
+        <div className="full">
+          <label>Other Medical Concerns</label>
+          <p>{fullPatient.medical.other_medical_concerns || "None"}</p>
+        </div>
+
+      </div>
+
+    </section>
+
+  )
+}
+
+  </div>
+)}
 
           {activeTab === "medical" && (
             <div className="tab-panel">
-                {patientFiles.length === 0 ? (
+              <div
+  style={{
+    display: "flex",
+    justifyContent: "flex-end",
+    marginBottom: "15px"
+  }}
+>
+  <button
+  className="archive-toggle-btn"
+    onClick={() =>
+      setShowArchivedMedical(
+        !showArchivedMedical
+      )
+    }
+  >
+    {
+      showArchivedMedical
+        ? "Show Active Files"
+        : "Show Archived Files"
+    }
+  </button>
+</div>
+                {(
+                  showArchivedMedical
+                  ? archivedMedicalFiles
+                  : patientFiles
+                  ).length === 0 ? (
                   <div className="billing-empty">
 
                   <div className="billing-icon">
@@ -669,14 +1064,35 @@ setNotes(
                   </div>
                 ) : (
                   <ul className="file-list">
-                    {patientFiles.map((r) => (
+                    {(
+                    showArchivedMedical
+                      ? archivedMedicalFiles
+                      : patientFiles
+                  ).map((r) => (
                       <li key={r.id} className="file-item">
-                        <span className="file-type-icon">{FILE_ICON[r.type] || "📎"}</span>
-                        <span className={`file-badge ${r.type}`}>{r.type}</span>
-                        <div className="file-meta">
-                          <span className="file-name">{r.name}</span>
-                          <span className="file-date">{r.date} · {r.size}</span>
-                        </div>
+                        <span className="file-type-icon">
+                        {FILE_ICON[r.type] || "📎"}
+                      </span>
+
+                      <div className="file-meta">
+
+                        <span className={`file-badge ${r.type}`}>
+                          {r.type}
+                        </span>
+
+                        <span className="file-name">
+                          {r.name}
+                        </span>
+
+                        <span className="file-date">
+                          {r.date} • {r.size}
+                        </span>
+
+                        <span className="file-uploaded">
+                          Uploaded by: Patient
+                        </span>
+
+                      </div>
 
                         <div className="file-actions">
 
@@ -695,16 +1111,21 @@ setNotes(
                   View
                 </button>
 
-                <a
-                  href={r.file_url}
-                  download
-                  className="file-btn"
-                >
-                  Download
-                </a>
+                <button
+                type="button"
+                className="file-btn file-btn-download"
+                onClick={() =>
+                  downloadFile(
+                    r.file_url,
+                    r.file_name || r.name || "medical-file"
+                  )
+                }
+              >
+                Download
+              </button>
 
                 <button
-                  className="file-btn"
+                  className="file-btn file-btn-print"
                   onClick={() =>
                   {
                     const win =
@@ -722,14 +1143,40 @@ setNotes(
                   Print
                 </button>
 
-                <button
-                  className="file-btn file-btn-archive"
-                  onClick={() =>
-                    archiveRecord(r.id)
-                  }
-                >
-                  Archive
-                </button>
+                {
+  showArchivedMedical
+  ? (
+      <button
+        className="file-btn file-btn-unarchive"
+        onClick={async () =>
+        {
+          await restorePatientFileApi(
+            r.id
+          );
+
+          await loadPatientFiles(
+            selectedPatient.id
+          );
+
+          await loadArchivedFiles(
+            selectedPatient.id
+          );
+        }}
+      >
+        Unarchive
+      </button>
+    )
+  : (
+      <button
+        className="file-btn file-btn-archive"
+        onClick={() =>
+          archiveRecord(r.id)
+        }
+      >
+        Archive
+      </button>
+    )
+}
 
               </div>
                       </li>
@@ -770,13 +1217,18 @@ setNotes(
               />
             )
           : (
-              <a
-                href={previewFile.file_url}
-                download
-                className="download-btn"
-              >
-                Download File
-              </a>
+              <button
+              type="button"
+              className="download-btn"
+              onClick={() =>
+                downloadFile(
+                  previewFile.file_url,
+                  previewFile.file_name || previewFile.name || "medical-file"
+                )
+              }
+            >
+              Download File
+            </button>
             )
         }
       </div>
@@ -790,8 +1242,40 @@ setNotes(
 
 <div className="tab-panel">
 
+<div className="medical-header">
+
+
+  <div
+  style={{
+    display: "flex",
+    justifyContent: "flex-end",
+    marginBottom: "15px"
+  }}
+>
+  <button
+    className="archive-toggle-btn"
+    onClick={() =>
+    setShowArchivedBilling(
+    !showArchivedBilling
+  )
+}
+  >
+    {
+      showArchivedBilling
+        ? "Show Active Files"
+        : "Show Archived Files"
+    }
+  </button>
+</div>
+
+</div>
+
 {
-billingDocuments.length === 0
+(
+showArchivedBilling
+? archivedBillingDocuments
+: billingDocuments
+).length === 0
 ?
 
 (
@@ -822,7 +1306,11 @@ Official Receipts and Invoices will appear here.
 
 {
 
-billingDocuments.map(doc => (
+(
+  showArchivedBilling
+    ? archivedBillingDocuments
+    : billingDocuments
+).map(doc => (
 
 <li
 key={doc.id}
@@ -859,7 +1347,7 @@ doc.document_type === "receipt"
 
 <span className="file-name">
 
-{doc.title}
+{doc.file_name || doc.name || doc.title}
 
 </span>
 
@@ -873,30 +1361,99 @@ doc.created_at
 
 </span>
 
+<span className="file-uploaded">
+
+Uploaded by:
+
+<strong>
+
+{" "}
+{doc.uploaded_by || "Staff"}
+
+</strong>
+
+</span>
+
 </div>
 
 <div className="file-actions">
 
 <a
-href={doc.file_url}
-target="_blank"
-rel="noreferrer"
-className="file-btn"
+  href={doc.file_url}
+  target="_blank"
+  rel="noreferrer"
+  className="file-btn file-btn-view"
 >
-
-View
-
+  View
 </a>
 
-<a
-href={doc.file_url}
-download
-className="file-btn"
+<button
+  type="button"
+  className="file-btn file-btn-download"
+  onClick={() =>
+    downloadFile(
+      doc.file_url,
+      doc.file_name || doc.title || "billing-document"
+    )
+  }
 >
+  Download
+</button>
 
-Download
+{
+  showArchivedBilling
+  ? (
+      <button
+        className="file-btn file-btn-unarchive"
+        onClick={async () =>
+        {
+          await restoreBillingDocumentApi(
+            doc.id
+          );
 
-</a>
+          await loadPatientBillingDocuments(
+            selectedPatient
+          );
+
+          await loadArchivedFiles(
+            selectedPatient.id
+          );
+        }}
+      >
+        ↩ Unarchive
+      </button>
+    )
+  : (
+      <button
+        className="file-btn file-btn-archive"
+        onClick={async () =>
+        {
+          if(
+            !window.confirm(
+              "Archive this billing document?"
+            )
+          )
+          {
+            return;
+          }
+
+          await archiveBillingDocumentApi(
+            doc.id
+          );
+
+          await loadPatientBillingDocuments(
+            selectedPatient
+          );
+
+          await loadArchivedFiles(
+            selectedPatient.id
+          );
+        }}
+      >
+        📦 Archive
+      </button>
+    )
+}
 
 </div>
 
