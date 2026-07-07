@@ -2,6 +2,14 @@
 .account-container {
   padding: 24px;
   width: 100%;
+
+  height: calc(100vh - 95px);
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
+
+  box-sizing: border-box;
 }
 
 /* ── CARD ── */
@@ -9,8 +17,12 @@
   background: white;
   border-radius: 16px;
   border: 1px solid #f0f0f0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  overflow: hidden;
+
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+
+  overflow: visible;
+
+  min-height: fit-content;
 }
 
 .account-card-header {
