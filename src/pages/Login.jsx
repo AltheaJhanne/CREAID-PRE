@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/creaid.jpg";
 import "../App.css";
 import { loginApi } from "../api/auth";
+import { updateUserPresenceApi } from "../api/users";
 
 function Login() 
 {
@@ -38,10 +39,15 @@ async (e) => {
     );
 
     setRole(
-      result.user.role
-    );
+  result.user.role
+);
 
-    navigate("/dashboard");
+await updateUserPresenceApi(
+  result.user.id,
+  true
+);
+
+navigate("/dashboard");
 
   } catch (err) {
 

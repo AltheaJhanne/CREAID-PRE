@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import "../styles/newpatient.css";
 import { createUserApi } from "../api/users";
 import { useNavigate } from "react-router-dom";
+import
+{
+  createUserApi,
+  checkEmailExistsApi
+}
+from "../api/users";
 
 
 const PERSONAL_REQUIRED = [
@@ -102,8 +108,53 @@ function NewPatient()
     "Teeth Grinding", "Nail Biting", "Mouth Breathing",
   ];
 
-  const handleChange = (e) =>
-    setPersonal({ ...personal, [e.target.name]: e.target.value });
+ const handleChange = (e) =>
+{
+  const {
+    name,
+    value
+  } = e.target;
+
+  const updated =
+  {
+    ...personal,
+    [name]: value
+  };
+
+  if(name === "birthdate" && value)
+  {
+    const birth =
+      new Date(value);
+
+    const today =
+      new Date();
+
+    let age =
+      today.getFullYear() -
+      birth.getFullYear();
+
+    const monthDiff =
+      today.getMonth() -
+      birth.getMonth();
+
+    if(
+      monthDiff < 0 ||
+      (
+        monthDiff === 0 &&
+        today.getDate() < birth.getDate()
+      )
+    )
+    {
+      age--;
+    }
+
+    updated.age = age;
+
+    setIsMinor(age < 18);
+  }
+
+  setPersonal(updated);
+};
 
   const handleGuardianChange = (e) =>
     setGuardian({ ...guardian, [e.target.name]: e.target.value });
@@ -147,11 +198,45 @@ function NewPatient()
   {
     const err = validateFields(PERSONAL_REQUIRED, personal);
     if (err) return err;
+    if(
+    !/^09\d{9}$/.test(personal.mobile)
+  )
+  {
+    return "Please enter a valid 11-digit mobile number.";
+  }
+  if(
+  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+    personal.email
+  )
+)
+{
+  return "Please enter a valid email address.";
+}
     return "";
   };
 
   const validateGuardian = () => validateFields(GUARDIAN_REQUIRED, guardian);
-  const validateMedical = () => validateFields(MEDICAL_REQUIRED, medical);
+  const validateMedical = () =>
+{
+  let requiredFields = [...MEDICAL_REQUIRED];
+
+  // Remove Bleeding Time requirement for male patients
+  if(
+    personal.sex &&
+    personal.sex.toLowerCase() === "male"
+  )
+  {
+    requiredFields =
+      requiredFields.filter(
+        field => field.name !== "bleedingTime"
+      );
+  }
+
+  return validateFields(
+    requiredFields,
+    medical
+  );
+};
 
   const goNext = () => 
   {
@@ -189,36 +274,209 @@ function NewPatient()
   {
     console.log("SUBMITTING PATIENT...");
 
-    const payload = {
-      first_name: personal.firstname,
-      middle_name: personal.middlename,
-      last_name: personal.lastname,
-      suffix: personal.suffix,
-      nickname: personal.nickname,
+    const payload =
+{
+  user:
+  {
+    first_name: personal.firstname,
+    middle_name: personal.middlename,
+    last_name: personal.lastname,
+    suffix: personal.suffix,
+    nickname: personal.nickname,
 
-      birthdate: personal.birthdate,
-      sex: personal.sex,
-      contact_number: personal.mobile,
-      email: personal.email,
-      address: personal.homeAddress,
+    birthdate:
+      personal.birthdate || null,
 
-      bloodtype: personal.bloodType,
-      weight: personal.weight,
-      height: personal.height,
-      civilstatus: personal.civilStatus,
-      occupation: personal.occupation,
-      company: personal.company,
-      school: personal.school,
+    sex: personal.sex,
 
-      role: "patient",
-      password: "default123",
-      is_archived: false,
-    };
+    contact_number:
+      personal.mobile,
 
-    console.log("PATIENT PAYLOAD:", payload);
+    email: personal.email,
 
-    const response =
-      await createUserApi(payload);
+    address:
+      personal.homeAddress,
+
+    school:
+      personal.school,
+
+    bloodtype:
+      personal.bloodType,
+
+    weight:
+      personal.weight,
+
+    height:
+      personal.height,
+
+    civilstatus:
+      personal.civilStatus,
+
+    occupation:
+      personal.occupation,
+
+    company:
+      personal.company,
+
+    role:"patient",
+
+    password:"default123",
+
+    is_archived:false
+  },
+
+  guardian:
+  {
+    father_name:
+      guardian.fatherName,
+
+    father_occupation:
+      guardian.fatherOccupation,
+
+    father_employer:
+      guardian.fatherEmployer,
+
+    father_contact:
+      guardian.fatherContact,
+
+    mother_name:
+      guardian.motherName,
+
+    mother_occupation:
+      guardian.motherOccupation,
+
+    mother_employer:
+      guardian.motherEmployer,
+
+    mother_contact:
+      guardian.motherContact,
+
+    guardian_name:
+      guardian.guardianName,
+
+    guardian_occupation:
+      guardian.guardianOccupation,
+
+    guardian_contact:
+      guardian.guardianContact,
+
+    physician_name:
+      guardian.physicianName,
+
+    physician_specialty:
+      guardian.physicianSpecialty,
+
+    physician_office_address:
+      guardian.physicianOfficeAddress,
+
+    physician_office_number:
+      guardian.physicianOfficeNumber
+  },
+
+  medical:
+  {
+    last_dental_visit:
+      medical.lastDentalVisit,
+
+    good_health:
+      medical.goodHealth,
+
+    under_medical_treatment:
+      medical.underMedicalTreatment,
+
+    medical_treatment_condition:
+      medical.medicalTreatmentCondition,
+
+    serious_illness:
+      medical.seriousIllness,
+
+    serious_illness_details:
+      medical.seriousIllnessDetails,
+
+    hospitalized:
+      medical.hospitalized,
+
+    hospitalized_details:
+      medical.hospitalizedDetails,
+
+    taking_medication:
+      medical.takingMedication,
+
+    medication_details:
+      medical.medicationDetails,
+
+    use_tobacco:
+      medical.useTobacco,
+
+    use_alcohol_drugs:
+      medical.useAlcoholDrugs,
+
+    allergy_local_anesthetic:
+      medical.allergyLocalAnesthetic,
+
+    allergy_latex:
+      medical.allergyLatex,
+
+    allergy_aspirin:
+      medical.allergyAspirin,
+
+    allergy_penicillin_antibiotics:
+      medical.allergyPenicillinAntibiotics,
+
+    allergy_sulfa_drugs:
+      medical.allergySulfaDrugs,
+
+    allergy_others:
+      medical.allergyOthers,
+
+    bleeding_time:
+      medical.bleedingTime,
+
+    is_pregnant:
+      medical.isPregnant,
+
+    is_nursing:
+      medical.isNursing,
+
+    taking_birth_control:
+      medical.takingBirthControl,
+
+    conditions:
+      medical.conditions,
+
+    dental_habits:
+      medical.habits,
+
+    patient_diet:
+      medical.patientDiet,
+
+    previous_hospitalizations:
+      medical.previousHospitalizations,
+
+    prescribed_medications:
+      medical.prescribedMedications,
+
+    allergies:
+      medical.allergies,
+
+    family_medical_problems:
+      medical.familyMedicalProblems,
+
+    other_medical_concerns:
+      medical.otherMedicalConcerns,
+
+    medical_alert:
+      medical.medicalAlert
+  }
+};
+
+const response =
+  await createUserApi(payload);
+
+console.log(
+  "CREATE PATIENT RESPONSE:",
+  response
+);
 
     console.log("CREATE PATIENT RESPONSE:", response);
 
@@ -334,38 +592,82 @@ setTimeout(() => {
                       <div className="field-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr 0.5fr 0.6fr" }}>
                         <div>
                           <label>Lastname <span className="req">*</span></label>
-                          <input name="lastname" placeholder="Lastname" onChange={handleChange} />
+                          <input
+                          name="lastname"
+                          value={personal.lastname}
+                          placeholder="Lastname"
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Firstname <span className="req">*</span></label>
-                          <input name="firstname" placeholder="Firstname" onChange={handleChange} />
+                          <input
+                          name="firstname"
+                          value={personal.firstname}
+                          placeholder="Firstname"
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Middlename</label>
-                          <input name="middlename" placeholder="Middlename" onChange={handleChange} />
+                          <input
+                          name="middlename"
+                          value={personal.middlename}
+                          placeholder="Middlename"
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Suffix</label>
-                          <input name="suffix" placeholder="Suffix" onChange={handleChange} />
+                          <input
+                          name="middlename"
+                          value={personal.middlename}
+                          placeholder="Middlename"
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Nickname</label>
-                          <input name="nickname" placeholder="Nickname" onChange={handleChange} />
+                          <input
+                          name="nickname"
+                          value={personal.nickname}
+                          placeholder="Nickname"
+                          onChange={handleChange}
+                        />
                         </div>
                       </div>
 
                       <div className="field-grid" style={{ gridTemplateColumns: "1.2fr 0.5fr 0.7fr 0.8fr 0.8fr" }}>
                         <div>
                           <label>Birthdate <span className="req">*</span></label>
-                          <input type="date" name="birthdate" onChange={handleChange} />
+                          <input
+                          type="date"
+                          name="birthdate"
+                          value={personal.birthdate}
+                          max={
+                            new Date()
+                              .toISOString()
+                              .split("T")[0]
+                          }
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
-                          <label>Age <span className="req">*</span></label>
-                          <input name="age" placeholder="Age" onChange={handleChange} />
-                        </div>
+                        <label>Age <span className="req">*</span></label>
+                        <input
+                          name="age"
+                          value={personal.age}
+                          readOnly
+                          placeholder="Auto-computed"
+                        />
+                      </div>
                         <div>
                           <label>Sex <span className="req">*</span></label>
-                          <select name="sex" onChange={handleChange}>
+                          <select
+                            name="sex"
+                            value={personal.sex}
+                            onChange={handleChange}
+                          >
                             <option value="">Select</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
@@ -373,45 +675,111 @@ setTimeout(() => {
                         </div>
                         <div>
                           <label>Religion <span className="req">*</span></label>
-                          <input name="religion" placeholder="Religion" onChange={handleChange} />
+                          <input
+                          name="religion"
+                          value={personal.religion}
+                          placeholder="Religion"
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Nationality <span className="req">*</span></label>
-                          <input name="nationality" placeholder="Nationality" onChange={handleChange} />
+                          <input
+                          name="nationality"
+                          value={personal.nationality}
+                          placeholder="Nationality"
+                          onChange={handleChange}
+                        />
                         </div>
                       </div>
 
                       <div className="field-grid" style={{ gridTemplateColumns: "2fr 0.8fr 0.8fr" }}>
                         <div>
                           <label>Home Address <span className="req">*</span></label>
-                          <input name="homeAddress" placeholder="Home Address" onChange={handleChange} />
+                          <input
+                          name="homeAddress"
+                          value={personal.homeAddress}
+                          placeholder="Home Address"
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Home No. <span className="req">*</span></label>
-                          <input name="homeNo" placeholder="Home No." onChange={handleChange} />
+                          <input
+                          name="homeNo"
+                          value={personal.homeNo}
+                          placeholder="Home No."
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Fax No. <span className="req">*</span></label>
-                          <input name="faxNo" placeholder="Fax No." onChange={handleChange} />
+                          <input
+                          name="faxNo"
+                          value={personal.faxNo}
+                          placeholder="Fax No."
+                          onChange={handleChange}
+                        />
                         </div>
                       </div>
 
                       <div className="field-grid" style={{ gridTemplateColumns: "1fr 0.7fr 1fr 1fr" }}>
                         <div>
                           <label>Occupation <span className="req">*</span></label>
-                          <input name="occupation" placeholder="Occupation" onChange={handleChange} />
+                          <input
+                          name="occupation"
+                          value={personal.occupation}
+                          placeholder="Occupation"
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Mobile No. <span className="req">*</span></label>
-                          <input name="mobile" placeholder="Mobile Number" onChange={handleChange} />
+                          <input
+                          name="mobile"
+                          value={personal.mobile}
+                          placeholder="09XXXXXXXXX"
+                          maxLength={11}
+                          onChange={(e) =>
+                          {
+                            const value =
+                              e.target.value.replace(/\D/g, "");
+
+                            handleChange({
+                              target:
+                              {
+                                name: "mobile",
+                                value
+                              }
+                            });
+                          }}
+                        />
                         </div>
                         <div>
                           <label>Email <span className="req">*</span></label>
-                          <input name="email" placeholder="Email" onChange={handleChange} />
+                          <input
+                          name="email"
+                          value={personal.email}
+                          placeholder="Email"
+                          onChange={(e)=>
+                          {
+                            handleChange({
+                              target:
+                              {
+                                name:"email",
+                                value:e.target.value.toLowerCase()
+                              }
+                            });
+                          }}
+                        />
                         </div>
                         <div>
                           <label>Civil Status <span className="req">*</span></label>
-                          <select name="civilStatus" onChange={handleChange}>
+                          <select
+                          name="civilStatus"
+                          value={personal.civilStatus}
+                          onChange={handleChange}
+                        >
                             <option value="">Select</option>
                             <option>Single</option>
                             <option>Married</option>
@@ -423,22 +791,48 @@ setTimeout(() => {
                       <div className="field-grid" style={{ gridTemplateColumns: "0.7fr 0.7fr 0.7fr" }}>
                         <div>
                           <label>Blood Type <span className="req">*</span></label>
-                          <input name="bloodType" placeholder="Blood Type" onChange={handleChange} />
+                          <input
+                          name="bloodType"
+                          value={personal.bloodType}
+                          placeholder="Blood Type"
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Weight <span className="req">*</span></label>
-                          <input name="weight" placeholder="Weight" onChange={handleChange} />
+                          <input
+                          type="number"
+                          min="1"
+                          name="weight"
+                          value={personal.weight}
+                          placeholder="Weight"
+                          onChange={handleChange}
+                        />
                         </div>
                         <div>
                           <label>Height <span className="req">*</span></label>
-                          <input name="height" placeholder="Height" onChange={handleChange} />
+                          <input
+                          type="number"
+                          min="1"
+                          name="height"
+                          value={personal.height}
+                          placeholder="Height"
+                          onChange={handleChange}
+                        />
                         </div>
                       </div>
 
-                      <label className="minor-checkbox-row">
-                        <input type="checkbox" checked={isMinor} onChange={(e) => { setIsMinor(e.target.checked); setValidationError("");}}/>
-                        This patient is a minor (under 18 years old)!
-                      </label>
+                      {isMinor && (
+                      <div className="minor-checkbox-row">
+                        <strong>
+                          Minor Patient
+                        </strong>
+
+                        <span>
+                          Guardian information will be required.
+                        </span>
+                      </div>
+                    )}
                     </div>
                   </div>
 
@@ -467,22 +861,42 @@ setTimeout(() => {
                     <div className="field-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
                       <div>
                         <label>Physician's Name</label>
-                        <input name="physicianName" placeholder="Physician's Name" onChange={handleGuardianChange} />
+                        <input
+                        name="physicianName"
+                        value={guardian.physicianName}
+                        placeholder="Physician's Name"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Specialty</label>
-                        <input name="physicianSpecialty" placeholder="Specialty" onChange={handleGuardianChange} />
+                        <input
+                        name="physicianSpecialty"
+                        value={guardian.physicianSpecialty}
+                        placeholder="Specialty"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Office Number</label>
-                        <input name="physicianOfficeNumber" placeholder="Office Number" onChange={handleGuardianChange} />
+                        <input
+                        name="physicianOfficeNumber"
+                        value={guardian.physicianOfficeNumber}
+                        placeholder="Office Number"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                     </div>
                     <div className="field-grid"
                       style={{ gridTemplateColumns: "1fr" }}>
                       <div>
                         <label>Office Address</label>
-                        <input name="physicianOfficeAddress" placeholder="Office Address" onChange={handleGuardianChange} />
+                        <input
+                        name="physicianOfficeAddress"
+                        value={guardian.physicianOfficeAddress}
+                        placeholder="Office Address"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                     </div>
 
@@ -491,19 +905,39 @@ setTimeout(() => {
                       style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr" }}>
                       <div>
                         <label>Father's Name <span className="req">*</span></label>
-                        <input name="fatherName" placeholder="Father's Name" onChange={handleGuardianChange} />
+                        <input
+                        name="fatherName"
+                        value={guardian.fatherName}
+                        placeholder="Father's Name"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Occupation</label>
-                        <input name="fatherOccupation" placeholder="Occupation" onChange={handleGuardianChange} />
+                        <input
+                        name="fatherOccupation"
+                        value={guardian.fatherOccupation}
+                        placeholder="Occupation"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Employer</label>
-                        <input name="fatherEmployer" placeholder="Employer" onChange={handleGuardianChange} />
+                        <input
+                        name="fatherEmployer"
+                        value={guardian.fatherEmployer}
+                        placeholder="Employer"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Contact No.</label>
-                        <input name="fatherContact" placeholder="Contact Number" onChange={handleGuardianChange} />
+                        <input
+                        name="fatherContact"
+                        value={guardian.fatherContact}
+                        placeholder="Contact Number"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                     </div>
 
@@ -511,19 +945,39 @@ setTimeout(() => {
                     <div className="field-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr" }}>
                       <div>
                         <label>Mother's Name <span className="req">*</span></label>
-                        <input name="motherName" placeholder="Mother's Name" onChange={handleGuardianChange} />
+                        <input
+                        name="motherName"
+                        value={guardian.motherName}
+                        placeholder="Mother's Name"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Occupation</label>
-                        <input name="motherOccupation" placeholder="Occupation" onChange={handleGuardianChange} />
+                        <input
+                        name="motherOccupation"
+                        value={guardian.motherOccupation}
+                        placeholder="Occupation"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Employer</label>
-                        <input name="motherEmployer" placeholder="Employer" onChange={handleGuardianChange} />
+                        <input
+                        name="motherEmployer"
+                        value={guardian.motherEmployer}
+                        placeholder="Employer"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Contact No.</label>
-                        <input name="motherContact" placeholder="Contact Number" onChange={handleGuardianChange} />
+                        <input
+                        name="motherContact"
+                        value={guardian.motherContact}
+                        placeholder="Contact Number"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                     </div>
 
@@ -532,15 +986,30 @@ setTimeout(() => {
                       style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
                       <div>
                         <label>Guardian's Name</label>
-                        <input name="guardianName" placeholder="Guardian's Name" onChange={handleGuardianChange} />
+                        <input
+                        name="guardianName"
+                        value={guardian.guardianName}
+                        placeholder="Guardian's Name"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Occupation</label>
-                        <input name="guardianOccupation" placeholder="Occupation" onChange={handleGuardianChange} />
+                        <input
+                        name="guardianOccupation"
+                        value={guardian.guardianOccupation}
+                        placeholder="Occupation"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                       <div>
                         <label>Contact No.</label>
-                        <input name="guardianContact" placeholder="Contact Number" onChange={handleGuardianChange} />
+                        <input
+                        name="guardianContact"
+                        value={guardian.guardianContact}
+                        placeholder="Contact Number"
+                        onChange={handleGuardianChange}
+                      />
                       </div>
                     </div>
                   </div>
@@ -623,20 +1092,44 @@ setTimeout(() => {
                         </div>
                       </div>
 
-                      <div className="field-grid" style={{ gridTemplateColumns: "1fr" }}>
-                        <div>
-                          <label>9. Bleeding Time</label>
-                          <input name="bleedingTime" value={medical.bleedingTime} onChange={handleMedicalChange} placeholder="Bleeding time" />
+                      {personal.sex?.toLowerCase() === "female" && (
+                      <>
+                        <div className="section-label">
+                          For Women Only
                         </div>
-                      </div>
 
-                      <div className="section-label">For Women Only</div>
-                      <YesNoField label="Are you pregnant?"
-                        name="isPregnant" value={medical.isPregnant} />
-                      <YesNoField label="Are you nursing?"
-                        name="isNursing" value={medical.isNursing} />
-                      <YesNoField label="Are you taking birth control pills?"
-                        name="takingBirthControl" value={medical.takingBirthControl} />
+                        <div className="field-grid" style={{ gridTemplateColumns: "1fr" }}>
+                          <div>
+                            <label>Bleeding Time</label>
+
+                            <input
+                              name="bleedingTime"
+                              value={medical.bleedingTime}
+                              onChange={handleMedicalChange}
+                              placeholder="Bleeding Time"
+                            />
+                          </div>
+                        </div>
+
+                        <YesNoField
+                          label="Are you pregnant?"
+                          name="isPregnant"
+                          value={medical.isPregnant}
+                        />
+
+                        <YesNoField
+                          label="Are you nursing?"
+                          name="isNursing"
+                          value={medical.isNursing}
+                        />
+
+                        <YesNoField
+                          label="Are you taking birth control pills?"
+                          name="takingBirthControl"
+                          value={medical.takingBirthControl}
+                        />
+                      </>
+                      )}
                     </div>
 
                     <div className="medical-right">

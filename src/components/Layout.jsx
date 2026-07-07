@@ -1,19 +1,44 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import Topbar  from "./Topbar";
+import Topbar from "./Topbar";
 
-function Layout() 
+function Layout()
 {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(prev => !prev)}/>
+    <div
+      style={{
+        display: "flex",
+        height: "100vh"
+      }}
+    >
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() =>
+          setSidebarCollapsed(prev => !prev)
+        }
+      />
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          minWidth: 0
+        }}
+      >
         <Topbar />
-        <main style={{ flex: 1, overflowY: "auto" }}>
+
+        <main
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "24px",
+            boxSizing: "border-box"
+          }}
+        >
           <Outlet />
         </main>
       </div>

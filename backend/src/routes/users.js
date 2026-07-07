@@ -127,56 +127,106 @@ await dbQuery;
 /* =========================
    CREATE USER / PATIENT
 ========================= */
-.post("/", async ({ body, set }) => {
-  const { data, error } = await supabase
+.post("/", async ({ body, set }) =>
+{
+  const {
+    user,
+    guardian,
+    medical
+  } = body;
+
+  /* -----------------------
+     CREATE USER
+  ----------------------- */
+
+  const {
+    data: createdUser,
+    error: userError
+  } =
+  await supabase
     .from("users")
-    .insert([body])
+    .insert([user])
     .select()
     .single();
 
-    /* Attach Last Visit */
-
-const {
-  data: visits
-} =
-await supabase
-  .from("appointments")
-  .select(
-    "appointment_date"
-  )
-  .eq(
-    "patient_id",
-    data.id
-  )
-  .eq(
-    "status",
-    "completed"
-  )
-  .order(
-    "appointment_date",
-    {
-      ascending: false
-    }
-  )
-  .limit(1);
-
-data.last_visit =
-  visits?.[0]
-    ?.appointment_date ||
-  null;
-
-  if (error) {
+  if(userError)
+  {
     set.status = 500;
 
     return {
-      success: false,
-      message: error.message,
+      success:false,
+      message:userError.message
     };
   }
 
+  /* -----------------------
+     CREATE GUARDIAN
+  ----------------------- */
+
+  if(guardian)
+  {
+    const {
+      error: guardianError
+    } =
+    await supabase
+      .from("patient_guardians")
+      .insert([
+        {
+          patient_id:
+            createdUser.id,
+
+          ...guardian
+        }
+      ]);
+
+    if(guardianError)
+    {
+      set.status = 500;
+
+      return {
+        success:false,
+        message:guardianError.message
+      };
+    }
+  }
+
+  /* -----------------------
+     CREATE MEDICAL
+  ----------------------- */
+
+  if(medical)
+  {
+    const {
+      error: medicalError
+    } =
+    await supabase
+      .from("patient_medical_records")
+      .insert([
+        {
+          patient_id:
+            createdUser.id,
+
+          ...medical,
+
+          last_dental_visit:
+            medical.last_dental_visit || null
+        }
+      ]);
+
+    if(medicalError)
+    {
+      set.status = 500;
+
+      return {
+        success:false,
+        message:medicalError.message
+      };
+    }
+  }
+
   return {
-    success: true,
-    user: data,
+    success:true,
+    user:createdUser
   };
 })
 
@@ -292,31 +342,173 @@ await logActivity({
    UPDATE USER
 ========================= */
 .patch("/:id",
-async ({ params, body, set }) => {
-
-  // Remove performed_by before updating the database
+async ({ params, body, set }) =>
+{
   const {
     performed_by,
-    ...updates
+    user,
+    guardian,
+    medical
   } = body;
 
-  const { error } =
-    await supabase
-      .from("users")
-      .update(updates)
-      .eq("id", params.id);
+  /* -------------------------
+     UPDATE USER
+  ------------------------- */
 
-  if(error)
+  const {
+    error: userError
+  } =
+  await supabase
+    .from("users")
+    .update({
+    ...user,
+
+    birthdate:
+      user.birthdate || null
+  })
+    .eq("id", params.id);
+
+  if(userError)
   {
     set.status = 500;
 
     return {
-      success: false,
-      message: error.message,
+      success:false,
+      message:userError.message
     };
   }
 
-  // Get the updated user's name
+  /* -------------------------
+     UPDATE GUARDIAN
+  ------------------------- */
+
+  if(guardian)
+  {
+    const {
+      data: existingGuardian
+    } =
+    await supabase
+      .from("patient_guardians")
+      .select("id")
+      .eq("patient_id", params.id)
+      .maybeSingle();
+
+    if(existingGuardian)
+    {
+      const {
+        error
+      } =
+      await supabase
+        .from("patient_guardians")
+        .update(guardian)
+        .eq("patient_id", params.id);
+
+      if(error)
+      {
+        set.status = 500;
+
+        return {
+          success:false,
+          message:error.message
+        };
+      }
+    }
+    else
+    {
+      const {
+        error
+      } =
+      await supabase
+        .from("patient_guardians")
+        .insert([
+          {
+            ...guardian,
+            patient_id: params.id
+          }
+        ]);
+
+      if(error)
+      {
+        set.status = 500;
+
+        return {
+          success:false,
+          message:error.message
+        };
+      }
+    }
+  }
+
+  /* -------------------------
+     UPDATE MEDICAL
+  ------------------------- */
+
+  if(medical)
+  {
+    const {
+      data: existingMedical
+    } =
+    await supabase
+      .from("patient_medical_records")
+      .select("id")
+      .eq("patient_id", params.id)
+      .maybeSingle();
+
+    if(existingMedical)
+    {
+      const {
+        error
+      } =
+      await supabase
+        .from("patient_medical_records")
+        .update({
+        ...medical,
+
+        last_dental_visit:
+          medical.last_dental_visit || null
+      })
+        .eq("patient_id", params.id);
+
+      if(error)
+      {
+        set.status = 500;
+
+        return {
+          success:false,
+          message:error.message
+        };
+      }
+    }
+    else
+    {
+      const {
+        error
+      } =
+      await supabase
+        .from("patient_medical_records")
+        .insert([
+  {
+    ...medical,
+
+    last_dental_visit:
+      medical.last_dental_visit || null,
+
+    patient_id: params.id
+  }
+]);
+
+      if(error)
+      {
+        set.status = 500;
+
+        return {
+          success:false,
+          message:error.message
+        };
+      }
+    }
+  }
+
   const {
     data: updatedUser
   } =
@@ -326,7 +518,6 @@ async ({ params, body, set }) => {
     .eq("id", params.id)
     .single();
 
-  // Save to audit log
   await logActivity({
     user: performed_by,
 
@@ -337,9 +528,64 @@ async ({ params, body, set }) => {
   });
 
   return {
-    success: true,
+    success:true
   };
 })
+
+.patch(
+  "/:id/presence",
+  async ({ params, body, set }) =>
+  {
+    console.log("========== PRESENCE UPDATE ==========");
+    console.log("User ID:", params.id);
+    console.log("Request Body:", body);
+
+    const {
+      data: updatedRows,
+      error
+    } =
+    await supabase
+      .from("users")
+      .update({
+        is_online: body.is_online,
+        last_seen_at: new Date().toISOString()
+      })
+      .eq("id", params.id)
+      .select();
+
+    console.log("UPDATED ROW:", updatedRows);
+    console.log("UPDATE ERROR:", error);
+
+    const {
+      data: currentUser,
+      error: checkError
+    } =
+    await supabase
+      .from("users")
+      .select("id, first_name, is_online, last_seen_at")
+      .eq("id", params.id)
+      .single();
+
+    console.log("DATABASE VALUE:", currentUser);
+    console.log("CHECK ERROR:", checkError);
+    console.log("====================================");
+
+    if(error)
+    {
+      set.status = 500;
+
+      return {
+        success: false,
+        message: error.message
+      };
+    }
+
+    return {
+      success: true,
+      user: currentUser
+    };
+  }
+)
 
 .patch(
 "/:id/schedule",
@@ -630,5 +876,65 @@ async ({ set }) =>
     success: true,
     logs:
       data || []
+  };
+})
+
+.get("/:id/full", async ({ params, set }) =>
+{
+  /* -------------------------
+     USER
+  -------------------------- */
+
+  const {
+    data: user,
+    error: userError
+  } =
+  await supabase
+    .from("users")
+    .select("*")
+    .eq("id", params.id)
+    .single();
+
+  if(userError)
+  {
+    set.status = 404;
+
+    return {
+      success:false,
+      message:userError.message
+    };
+  }
+
+  /* -------------------------
+     GUARDIAN
+  -------------------------- */
+
+  const {
+    data: guardian
+  } =
+  await supabase
+    .from("patient_guardians")
+    .select("*")
+    .eq("patient_id", params.id)
+    .maybeSingle();
+
+  /* -------------------------
+     MEDICAL
+  -------------------------- */
+
+  const {
+    data: medical
+  } =
+  await supabase
+    .from("patient_medical_records")
+    .select("*")
+    .eq("patient_id", params.id)
+    .maybeSingle();
+
+  return {
+    success:true,
+    user,
+    guardian,
+    medical
   };
 });

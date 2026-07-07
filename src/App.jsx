@@ -88,6 +88,7 @@ function App()
         </ProtectedRoute>
       }
     />
+      <Route element={<Layout />}>
       <Route
       path="/patients/new"
       element={
@@ -102,7 +103,6 @@ function App()
         </ProtectedRoute>
       }
     />
-      <Route element={<Layout />}>
       <Route
       path="/dashboard"
       element={

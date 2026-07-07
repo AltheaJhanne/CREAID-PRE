@@ -64,9 +64,15 @@
   border-color: #ff0000; 
   color: #ff0000; 
 }
-.form-content 
-{ 
-  margin-top: 10px; 
+.form-content
+{
+  margin-top: 10px;
+
+  height: calc(100vh - 220px);
+
+  overflow-y: auto;
+
+  padding-right: 12px;
 }
 .form-note 
 {
@@ -558,4 +564,51 @@
 {
   background: #c62828;
   transform: translateY(-1px);
+}
+.admin-container
+{
+  width: 100%;
+  min-height: 100%;
+}
+
+.admin-main
+{
+  width: 100%;
+}
+
+.dashboard-content
+{
+  padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.new-patient-container
+{
+  width: 100%;
+  box-sizing: border-box;
+}
+html,
+body,
+#root
+{
+  height: 100%;
+}
+
+.admin-container
+{
+  width: 100%;
+  min-height: 100%;
+}
+
+.admin-main
+{
+  width: 100%;
+  min-height: 100%;
+}
+
+.dashboard-content
+{
+  width: 100%;
+  box-sizing: border-box;
 }

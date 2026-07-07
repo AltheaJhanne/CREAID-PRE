@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
+import { updateUserPresenceApi } from "../api/users";
 import "../styles/Topbar.css";
 import WalkInAppointmentModal
   from "./WalkInAppointmentModal";
@@ -166,14 +168,49 @@ function Topbar({
   }, []);
 
   // LOGOUT
-  const handleLogout = async () => {
+  const handleLogout = async () =>
+{
+  const currentUser =
+    JSON.parse(
+      localStorage.getItem("user")
+    );
 
-    await supabase.auth.signOut();
+  console.log(
+    "LOGGING OUT USER:",
+    currentUser
+  );
 
-    localStorage.removeItem("role");
+  if(currentUser?.id)
+  {
+    try
+    {
+      const result =
+        await updateUserPresenceApi(
+          currentUser.id,
+          false
+        );
 
-    navigate("/");
-  };
+      console.log(
+        "OFFLINE RESPONSE:",
+        result
+      );
+    }
+    catch(err)
+    {
+      console.error(
+        "FAILED TO SET OFFLINE:",
+        err
+      );
+    }
+  }
+
+  await supabase.auth.signOut();
+
+  localStorage.removeItem("role");
+  localStorage.removeItem("user");
+
+  navigate("/");
+};
 
   // CLOSE ALL MENUS
   const closeAll = () => {
@@ -413,18 +450,22 @@ function Topbar({
                 </div>
 
                 <div
-                  className="dropdown-item logout"
-                  onClick={() => {
+                className="dropdown-item logout"
+                onClick={() =>
+                {
+                  console.log("Logout clicked");
 
-                    closeAll();
+                  setShowProfile(false);
 
-                    setShowLogoutConfirm(
-                      true
-                    );
-                  }}
-                >
-                  🚪 Logout
-                </div>
+                  setShowNotif(false);
+
+                  setShowOverflow(false);
+
+                  setShowLogoutConfirm(true);
+                }}
+              >
+                🚪 Logout
+              </div>
 
               </div>
 
@@ -522,59 +563,72 @@ function Topbar({
       </header>
 
       {/* LOGOUT MODAL */}
-      {showLogoutConfirm && (
+      {console.log("showLogoutConfirm =", showLogoutConfirm)}
 
-        <div
-          className="modal-overlay"
-          onClick={(e) => {
+      {/* LOGOUT MODAL */}
+{showLogoutConfirm && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(21,14,67,0.55)",
+      zIndex: 999999,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }}
+    onClick={(e) =>
+    {
+      if(e.target === e.currentTarget)
+      {
+        setShowLogoutConfirm(false);
+      }
+    }}
+  >
+    <div
+      style={{
+        background: "white",
+        padding: "32px 28px",
+        borderRadius: "18px",
+        width: "340px",
+        textAlign: "center",
+        boxShadow: "0 20px 60px rgba(21,14,67,0.25)"
+      }}
+    >
+      <h3>
+        Log Out
+      </h3>
 
-            if (
-              e.target === e.currentTarget
-            ) {
+      <p>
+        Are you sure you want to log out?
+      </p>
 
-              setShowLogoutConfirm(
-                false
-              );
-            }
-          }}
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          marginTop: "24px"
+        }}
+      >
+        <button
+          className="btn cancel"
+          onClick={() =>
+            setShowLogoutConfirm(false)
+          }
         >
+          Cancel
+        </button>
 
-          <div className="modal">
-
-            <h3>Log Out</h3>
-
-            <p>
-              Are you sure you want
-              to log out?
-            </p>
-
-            <div className="modal-actions">
-
-              <button
-                className="btn cancel"
-                onClick={() =>
-                  setShowLogoutConfirm(
-                    false
-                  )
-                }
-              >
-                Cancel
-              </button>
-
-              <button
-                className="btn confirm"
-                onClick={handleLogout}
-              >
-                Yes, Log Out
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      )}
+        <button
+          className="btn confirm"
+          onClick={handleLogout}
+        >
+          Yes, Log Out
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       <WalkInAppointmentModal
   open={showWalkInModal}

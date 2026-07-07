@@ -366,3 +366,60 @@ export async function getDentistScheduleApi(
 
   return result;
 }
+
+export async function getFullPatientApi(id)
+{
+  const response =
+    await fetch(
+      `${API_BASE}/${id}/full`
+    );
+
+  const result =
+    await response.json();
+
+  if(!response.ok)
+  {
+    throw new Error(
+      result.message
+    );
+  }
+
+  return result;
+}
+
+export async function updateUserPresenceApi(
+  id,
+  isOnline
+)
+{
+  const response =
+    await fetch(
+      `${API_BASE}/${id}/presence`,
+      {
+        method:"PATCH",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify({
+            is_online:isOnline
+          })
+      }
+    );
+
+  const result =
+    await response.json();
+
+  if(!response.ok)
+  {
+    throw new Error(
+      result.message
+    );
+  }
+
+  return result;
+}
+

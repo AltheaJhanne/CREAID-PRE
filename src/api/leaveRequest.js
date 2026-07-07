@@ -40,7 +40,14 @@ export async function updateLeaveRequestApi(
         },
 
         body:
-          JSON.stringify(data)
+        JSON.stringify({
+
+          ...data,
+
+          performed_by:
+            getCurrentUser()
+
+        })
       }
     );
 

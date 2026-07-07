@@ -71,6 +71,27 @@ async ({ body, set }) => {
     };
   }
 
+  /* UPDATE ONLINE STATUS */
+
+const {
+  error: presenceError
+} =
+await supabase
+  .from("users")
+  .update({
+    is_online: true,
+    last_seen_at: new Date().toISOString()
+  })
+  .eq("id", userData.id);
+
+if(presenceError)
+{
+  console.error(
+    "Presence update failed:",
+    presenceError
+  );
+}
+
   await logActivity({
 
   user:
