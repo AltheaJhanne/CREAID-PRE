@@ -2,12 +2,6 @@ import { useState, useEffect } from "react";
 import "../styles/newpatient.css";
 import { createUserApi } from "../api/users";
 import { useNavigate } from "react-router-dom";
-import
-{
-  createUserApi,
-  checkEmailExistsApi
-}
-from "../api/users";
 
 
 const PERSONAL_REQUIRED = [
