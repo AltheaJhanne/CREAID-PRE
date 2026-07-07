@@ -354,7 +354,18 @@ await rescheduleAppointmentApi(
     : appointments;
 
   if (clinicFilter !== "All")
-    filteredAppointments = filteredAppointments.filter(appt => appt.branch_id === clinicFilter);
+{
+  filteredAppointments =
+    filteredAppointments.filter(
+      appt =>
+        (appt.branch_id || "")
+          .trim()
+          .toLowerCase() ===
+        clinicFilter
+          .trim()
+          .toLowerCase()
+    );
+}
 
   const year = currentDate.getFullYear();
   const monthIndex = currentDate.getMonth();

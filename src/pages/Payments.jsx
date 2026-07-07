@@ -224,13 +224,18 @@ async function loadPayments()
 const filteredPayments =
   payments.filter(payment =>
   {
-    if(
-      clinicFilter !== "All" &&
-      payment.branch_id !== clinicFilter
-    )
-    {
-      return false;
-    }
+    if (
+  clinicFilter !== "All" &&
+  (payment.branch_id || "")
+    .trim()
+    .toLowerCase() !==
+  clinicFilter
+    .trim()
+    .toLowerCase()
+)
+{
+  return false;
+}
     const search =
       searchTerm.toLowerCase();
 
@@ -286,11 +291,13 @@ else if(filterStatus)
 }
 
 const matchesMethod =
-  !filterMethod
-  ||
-  payment.payment_method
-    ?.toLowerCase()
-    === filterMethod;
+  !filterMethod ||
+  (payment.payment_method || "")
+    .trim()
+    .toLowerCase() ===
+  filterMethod
+    .trim()
+    .toLowerCase();
 
 return (
   matchesStatus &&

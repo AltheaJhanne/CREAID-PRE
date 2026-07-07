@@ -6,12 +6,19 @@ function ProtectedRoute({
   allowedRoles
 })
 {
-  const { role } =
-    useAuth();
+  const { role } = useAuth();
 
-  if(
-    !allowedRoles.includes(role)
-  )
+  if (!role)
+  {
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
+  }
+
+  if (!allowedRoles.includes(role))
   {
     return (
       <Navigate

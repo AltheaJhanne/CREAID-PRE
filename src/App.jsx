@@ -88,7 +88,19 @@ function App()
         </ProtectedRoute>
       }
     />
-      <Route element={<Layout />}>
+      <Route
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "admin",
+        "staff",
+        "tester"
+      ]}
+    >
+      <Layout />
+    </ProtectedRoute>
+  }
+>
       <Route
       path="/patients/new"
       element={
