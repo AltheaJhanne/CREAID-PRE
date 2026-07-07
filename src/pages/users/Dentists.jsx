@@ -179,7 +179,7 @@ useState(
 
 const pendingCount =
   leaveRequests.filter(
-    r => r.status === "Pending"
+    r => r.status?.toLowerCase() === "pending"
   ).length;
     const filtered =
   dentists.filter((d) =>
@@ -218,19 +218,51 @@ async function handleLeaveAction(
   status
 )
 {
-  console.log(
-    "STATUS BEING SENT:",
-    status
-  );
+  try
+  {
+    console.log(
+      "STATUS BEING SENT:",
+      status
+    );
 
-  await updateLeaveRequestApi(
-    leaveId,
-    {
-      status,
-      staff_note: remarkInput
-    }
-  );
+    const result =
+      await updateLeaveRequestApi(
+        leaveId,
+        {
+          status,
+          staff_note: remarkInput
+        }
+      );
+
+    console.log(
+      "UPDATE RESULT:",
+      result
+    );
+
+    const leaveResponse =
+      await getLeaveRequestsApi(
+        selectedDentist.id
+      );
+
+    setLeaveRequests(
+      leaveResponse.requests || []
+    );
+
+    setRemarkInput("");
+
+    setShowRemarkModal(null);
+  }
+  catch(error)
+  {
+    console.error(
+      "LEAVE UPDATE ERROR:",
+      error
+    );
+
+    alert(error.message);
+  }
 }
+
 function handlePrint()
 {
   const printContents =

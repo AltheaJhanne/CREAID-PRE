@@ -1125,23 +1125,62 @@ console.log("MEDICAL", fullPatient?.medical);
               </button>
 
                 <button
-                  className="file-btn file-btn-print"
-                  onClick={() =>
-                  {
-                    const win =
-                      window.open(
-                        r.file_url,
-                        "_blank"
-                      );
+  className="file-btn file-btn-print"
+  onClick={() =>
+  {
+    const printWindow = window.open("", "_blank");
 
-                    setTimeout(() =>
-                    {
-                      win?.print();
-                    }, 700);
-                  }}
-                >
-                  Print
-                </button>
+    if (!printWindow) return;
+
+    if (r.mime_type?.includes("image"))
+    {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>${r.file_name}</title>
+            <style>
+              body{
+                margin:0;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                height:100vh;
+              }
+
+              img{
+                max-width:100%;
+                max-height:100%;
+              }
+            </style>
+          </head>
+
+          <body>
+
+            <img
+              src="${r.file_url}"
+              onload="window.print();window.onafterprint=()=>window.close();"
+            />
+
+          </body>
+        </html>
+      `);
+    }
+    else
+    {
+      printWindow.location.href = r.file_url;
+
+      printWindow.onload = () =>
+      {
+        printWindow.print();
+
+        printWindow.onafterprint =
+          () => printWindow.close();
+      };
+    }
+  }}
+>
+  Print
+</button>
 
                 {
   showArchivedMedical

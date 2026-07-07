@@ -152,24 +152,26 @@ const dentistName =
     ? `Dr. ${dentist.first_name} ${dentist.last_name}`
     : "Unknown Dentist";
 
-await logActivity({
+if (performed_by)
+{
+  await logActivity({
 
-  user:
-    performed_by,
+    user: performed_by,
 
-  action:
-    normalizedStatus === "approved"
-      ? "Approve Leave"
-      : "Decline Leave",
-
-  description:
-    `${
+    action:
       normalizedStatus === "approved"
-        ? "Approved"
-        : "Declined"
-    } leave request of ${dentistName}.`
+        ? "Approve Leave"
+        : "Decline Leave",
 
-});
+    description:
+      `${
+        normalizedStatus === "approved"
+          ? "Approved"
+          : "Declined"
+      } leave request of ${dentistName}.`
+
+  });
+}
 
   return {
     success:true,
