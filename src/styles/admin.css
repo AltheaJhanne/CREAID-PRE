@@ -24,10 +24,16 @@
 
 .dashboard-content {
   flex: 1;
-  padding: 20px 24px;
-  overflow-y: auto;
+
   display: flex;
   flex-direction: column;
+
+  min-height: 0;
+
+  padding: 20px 24px;
+
+  overflow: hidden;
+
   gap: 20px;
 }
 

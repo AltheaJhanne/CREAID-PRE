@@ -9,6 +9,17 @@ function Inbox()
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [tickets, setTickets] =
+  useState([]);
+
+  const [ticketFilter, setTicketFilter] =
+  useState("open");
+
+  const [selectedTicket, setSelectedTicket] =
+  useState(null);
+
+  const [showTicketList, setShowTicketList] =
+  useState(false);
   const currentUser =
   JSON.parse(
     localStorage.getItem("user")
@@ -25,7 +36,11 @@ const currentUserId =
 );
 
 useEffect(() => {
+
   loadConversations();
+
+  loadTickets();
+
 }, []);
 
 useEffect(() => {
@@ -63,6 +78,19 @@ useEffect(() => {
         }
       )
 
+      .on(
+  "postgres_changes",
+  {
+    event: "*",
+    schema: "public",
+    table: "support_tickets"
+  },
+  () =>
+  {
+    loadTickets();
+  }
+)
+
       .subscribe();
 
   return () => {
@@ -73,32 +101,52 @@ useEffect(() => {
 
 }, [selectedConversation]);
 
+/*
 useEffect(() => {
 
-  messagesEndRef.current
-    ?.scrollIntoView({
-      behavior: "smooth"
-    });
+  messagesEndRef.current?.scrollIntoView({
+    behavior: "smooth"
+  });
 
 }, [messages]);
+*/
 
-async function loadMessages(otherUserId)
+async function loadMessages(
+  otherUserId,
+  ticketId = null
+)
 {
   try
   {
-    const { data, error } =
-      await supabase
-        .from("messages")
-        .select("*")
-        .or(
-          `and(sender_id.eq.${currentUserId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${currentUserId})`
-        )
-        .order(
-          "created_at",
-          {
-            ascending: true
-          }
-        );
+    let query =
+  supabase
+    .from("messages")
+    .select("*")
+    .or(
+      `and(sender_id.eq.${currentUserId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${currentUserId})`
+    );
+
+query =
+  ticketId
+    ? query.eq(
+        "ticket_id",
+        ticketId
+      )
+    : query.is(
+        "ticket_id",
+        null
+      );
+
+const {
+  data,
+  error
+} =
+await query.order(
+  "created_at",
+  {
+    ascending:true
+  }
+);
 
     if(error)
     {
@@ -112,6 +160,55 @@ async function loadMessages(otherUserId)
   {
     console.error(error);
   }
+}
+
+async function openTicketConversation(
+  ticket
+)
+{
+  const conversation =
+    getConversationForTicket(
+      ticket
+    );
+
+  setSelectedConversation(
+    conversation
+  );
+
+  setSelectedTicket(
+    ticket
+  );
+
+  await supabase
+    .from("messages")
+    .update({
+      read:true
+    })
+    .eq(
+      "sender_id",
+      conversation.id
+    )
+    .eq(
+      "receiver_id",
+      currentUserId
+    )
+    .eq(
+      "ticket_id",
+      ticket.id
+    )
+    .eq(
+      "read",
+      false
+    );
+
+  await loadMessages(
+    conversation.id,
+    ticket.id
+  );
+
+  loadConversations();
+
+  loadTickets();
 }
 
 async function loadConversations()
@@ -223,6 +320,37 @@ async function loadConversations()
   }
 }
 
+const activeUserTickets =
+  selectedConversation
+    ? tickets.filter(
+        ticket =>
+          ticket.requester_id ===
+          selectedConversation.id
+      )
+    : [];
+
+const filteredTickets =
+  activeUserTickets.filter(
+    ticket =>
+      ticketFilter === "all"
+        ? true
+        : ticketFilter === "closed"
+          ? ticket.status === "closed"
+          : ticket.status !== "closed"
+  );
+
+const openTicketCount =
+  activeUserTickets.filter(
+    ticket =>
+      ticket.status !== "closed"
+  ).length;
+
+const closedTicketCount =
+  activeUserTickets.filter(
+    ticket =>
+      ticket.status === "closed"
+  ).length;
+
 const filteredConversations =
   conversations.filter(
     (c) =>
@@ -233,7 +361,108 @@ const filteredConversations =
         )
   );
 
-  function formatConversationTime(dateValue)
+  async function loadTickets()
+{
+  try
+  {
+    let query =
+      supabase
+        .from("support_tickets")
+        .select("*")
+        .order(
+          "updated_at",
+          {
+            ascending: false
+          }
+        );
+
+    if(currentUserId)
+    {
+      query =
+        query.eq(
+          "assigned_to",
+          currentUserId
+        );
+    }
+
+    const {
+      data,
+      error
+    } =
+      await query;
+
+    if(error)
+    {
+      throw error;
+    }
+
+    setTickets(
+      data || []
+    );
+  }
+  catch(error)
+  {
+    console.error(error);
+
+    setTickets([]);
+  }
+}
+
+async function updateTicketStatus(
+ticket,
+status
+)
+{
+const {
+data,
+error
+}
+=
+await supabase
+.from(
+"support_tickets"
+)
+.update({
+
+status,
+
+updated_at:
+new Date()
+.toISOString()
+
+})
+.eq(
+"id",
+ticket.id
+)
+.select()
+.single();
+
+if(error)
+{
+console.error(error);
+
+alert(
+"Unable to update ticket."
+);
+
+return;
+}
+
+if(
+selectedTicket?.id ===
+ticket.id
+)
+{
+setSelectedTicket(
+data
+);
+}
+
+await loadTickets();
+}
+
+function formatConversationTime(dateValue)
 {
   if(!dateValue)
   {
@@ -360,12 +589,49 @@ function shouldShowDateSeparator(
   );
 }
 
+function getConversationForTicket(
+  ticket
+)
+{
+  return (
+    conversations.find(
+      c =>
+        c.id ===
+        ticket.requester_id
+    ) ||
+    {
+      id:
+        ticket.requester_id,
+
+      name:
+        ticket.requester_id,
+
+      role:
+        "patient",
+
+      preview:
+        ticket.subject ||
+        "Ticket",
+
+      unread:0,
+
+      time:
+        ticket.updated_at ||
+        ticket.created_at
+    }
+  );
+}
+
   return (
     <div className="admin-container">
       <div className="admin-main">
         <div className="dashboard-content">
           <div className="inbox-container">
-            <div className="inbox-sidebar">
+            <div
+  className={`inbox-sidebar ${
+    selectedTicket ? "collapsed" : ""
+  }`}
+>
               <h2 className="inbox-title">Inbox</h2>
 
               <input
@@ -463,20 +729,166 @@ function shouldShowDateSeparator(
   ) : (
 
     <>
+<div className="chat-header">
 
-      <div className="chat-header">
+  <div className="chat-header-main">
 
-        <h3>
-          {selectedConversation.name}
-        </h3>
+    <h3>
 
-        <span>
-          {selectedConversation.role}
-        </span>
+      {
+        selectedTicket
+          ? (
+              selectedTicket.ticket_number ||
+              "Ticket"
+            )
+          : (
+              selectedConversation?.name || ""
+            )
+      }
 
-      </div>
+    </h3>
 
-      <div className="messages-area">
+    <div className="chat-user-meta">
+
+    <span className="chat-user-name">
+
+        {selectedConversation?.name}
+
+    </span>
+
+    <span className="chat-user-role">
+
+        {
+        selectedTicket
+        ? selectedTicket.status
+        : selectedConversation?.role
+        }
+
+    </span>
+
+</div>
+
+    {
+      selectedTicket && (
+
+        <p className="chat-ticket-subject">
+
+          {
+            selectedTicket.subject ||
+            "No subject"
+          }
+
+        </p>
+
+      )
+    }
+
+  </div>
+
+  <div className="chat-header-actions">
+
+    <button
+      type="button"
+      className="chat-action-btn secondary"
+      onClick={() =>
+        setShowTicketList(current => !current)
+      }
+    >
+      {
+        showTicketList
+          ? "Hide Tickets"
+          : "Show Tickets"
+      }
+    </button>
+
+    {
+      selectedTicket && (
+
+        <>
+
+          <button
+            type="button"
+            className="chat-action-btn secondary"
+            onClick={() =>
+            {
+              setSelectedTicket(null);
+
+              loadMessages(
+                selectedConversation.id,
+                null
+              );
+            }}
+          >
+
+            Back to PM
+
+          </button>
+
+          {
+            selectedTicket.status === "closed"
+
+            ?
+
+            (
+
+              <button
+                type="button"
+                className="chat-action-btn warning"
+                onClick={() =>
+                  updateTicketStatus(
+                    selectedTicket,
+                    "open"
+                  )
+                }
+              >
+
+                Undo Close
+
+              </button>
+
+            )
+
+            :
+
+            (
+
+              <button
+                type="button"
+                className="chat-action-btn success"
+                onClick={() =>
+                  updateTicketStatus(
+                    selectedTicket,
+                    "closed"
+                  )
+                }
+              >
+
+                Mark Done
+
+              </button>
+
+            )
+
+          }
+
+        </>
+
+      )
+    }
+
+  </div>
+
+</div>
+
+      <div
+  className={`chat-body ${
+    showTicketList
+      ? "with-ticket-side"
+      : ""
+  }`}
+>
+
+<div className="messages-area">
 
   {messages.map(
     (msg, index) => {
@@ -548,10 +960,133 @@ function shouldShowDateSeparator(
 
 </div>
 
+
+{
+showTicketList && (
+
+<div className="ticket-panel">
+
+<div className="ticket-panel-header">
+
+<strong>
+
+Tickets
+
+</strong>
+
+<span className="ticket-summary">
+
+{openTicketCount} Open • {closedTicketCount} Closed
+
+</span>
+
+</div>
+
+<div className="ticket-filter-row">
+
+{
+[
+["all","All"],
+["open","Open"],
+["closed","Closed"]
+].map(
+([filter,label]) => (
+
+<button
+key={filter}
+className={
+ticketFilter === filter
+? "ticket-filter active"
+: "ticket-filter"
+}
+onClick={() =>
+setTicketFilter(filter)
+}
+>
+
+{label}
+
+</button>
+
+))
+}
+
+</div>
+
+<div className="ticket-list">
+
+{
+filteredTickets.length === 0
+?
+
+<div className="ticket-empty">
+
+No tickets.
+
+</div>
+
+:
+
+filteredTickets.map(ticket => (
+
+<button
+key={ticket.id}
+className="ticket-item ticket-item-button"
+onClick={() =>
+openTicketConversation(ticket)
+}
+>
+
+<div className="ticket-item-main">
+
+    <strong>
+        {ticket.ticket_number || "Ticket"}
+    </strong>
+
+    <p className="ticket-description">
+        {ticket.subject || "No subject"}
+    </p>
+
+    <div className="ticket-footer">
+
+        <span
+            className={`ticket-status ${ticket.status.toLowerCase()}`}
+        >
+            {ticket.status}
+        </span>
+
+    </div>
+
+</div>
+
+</button>
+
+))
+}
+
+</div>
+
+</div>
+
+)
+}
+
+</div>
+
 <div className="chat-input">
 
   <input
-    placeholder="Type a message..."
+  disabled={
+  selectedTicket?.status ===
+  "closed"
+  }
+    placeholder={
+selectedTicket?.status === "closed"
+?
+"Ticket is closed"
+:
+"Type a message..."
+}
     value={message}
     onChange={(e) =>
       setMessage(
@@ -565,16 +1100,14 @@ function shouldShowDateSeparator(
         e.preventDefault();
 
         document
-          .querySelector(
-            ".send-btn"
-          )
-          ?.click();
+        .querySelector(".chat-send-btn")
+        ?.click();
       }
     }}
   />
 
   <button
-    className="send-btn"
+    className="chat-send-btn"
     onClick={async () => {
 
       if(
@@ -595,16 +1128,19 @@ function shouldShowDateSeparator(
         await supabase
           .from("messages")
           .insert({
-            sender_id:
-              currentUserId,
+          sender_id:
+            currentUserId,
 
-            receiver_id:
-              selectedConversation.id,
+          receiver_id:
+            selectedConversation.id,
 
-            content,
+          ticket_id:
+            selectedTicket?.id || null,
 
-            read: false
-          });
+          content,
+
+          read: false
+        });
 
       if(error)
       {
@@ -622,17 +1158,26 @@ function shouldShowDateSeparator(
             "message",
 
           title:
-            "New Message",
+          selectedTicket
+          ? "New Ticket Reply"
+          : "New Message",
 
           content:
-            `${currentUser?.first_name || "Staff"} sent you a message.`,
+          selectedTicket
+          ?
+          `${currentUser?.first_name || "Staff"} replied to ${
+          selectedTicket.ticket_number || "your ticket"
+          }.`
+          :
+          `${currentUser?.first_name || "Staff"} sent you a message.`,
 
           read: false
         });
 
       await loadMessages(
-        selectedConversation.id
-      );
+selectedConversation.id,
+selectedTicket?.id || null
+);
 
       await loadConversations();
 

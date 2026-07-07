@@ -1521,7 +1521,7 @@ selectedRecordPatient && (
         className={recordTab === "notes" ? "record-tab active" : "record-tab"}
         onClick={() => setRecordTab("notes")}
       >
-        📝 Treatment History
+        📝 Dental History
       </button>
 
     </div>
@@ -2098,7 +2098,7 @@ Archive
 
       <>
 
-        <h3>Treatment History</h3>
+        <h3>Dental History</h3>
 
         {patientRecords.length === 0 ? (
 
