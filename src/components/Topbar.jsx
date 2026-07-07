@@ -6,11 +6,6 @@ import "../styles/Topbar.css";
 import WalkInAppointmentModal
   from "./WalkInAppointmentModal";
 
-const BRANCHES = [
-  "All",
-  "Paombong Branch",
-  "Hagonoy Branch"
-];
 
 function useWindowWidth() {
 
@@ -59,9 +54,6 @@ function Topbar({
 
   const [showWalkInModal, setShowWalkInModal] 
   = useState(false);
-
-  const [branch, setBranch]
-    = useState("All");
 
   const [avatarUrl, setAvatarUrl]
     = useState("");
@@ -277,26 +269,6 @@ function Topbar({
         {/* RIGHT */}
         <div className="topbar-right">
 
-          {/* BRANCH */}
-          {!branchHidden && (
-
-            <select
-              className="branch-select"
-              value={branch}
-              onChange={(e) =>
-                setBranch(e.target.value)
-              }
-            >
-              {BRANCHES.map((b) => (
-
-                <option key={b}>
-                  {b}
-                </option>
-
-              ))}
-            </select>
-
-          )}
 
           {/* NOTIFICATIONS */}
           {!notifHidden && (
@@ -500,32 +472,7 @@ function Topbar({
 
                 <div className="overflow-dropdown">
 
-                  {branchHidden && (
-
-                    <div className="overflow-item">
-
-                      🏥
-
-                      <select
-                        value={branch}
-                        onChange={(e) =>
-                          setBranch(
-                            e.target.value
-                          )
-                        }
-                      >
-                        {BRANCHES.map((b) => (
-
-                          <option key={b}>
-                            {b}
-                          </option>
-
-                        ))}
-                      </select>
-
-                    </div>
-
-                  )}
+                  
 
                   {notifHidden && (
 

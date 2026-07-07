@@ -9,6 +9,8 @@ function Inbox()
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [activeMessageMenu, setActiveMessageMenu] =
+    useState(null);
   const [tickets, setTickets] =
   useState([]);
 
@@ -54,7 +56,7 @@ useEffect(() => {
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "messages"
         },
@@ -154,7 +156,14 @@ await query.order(
       return;
     }
 
-    setMessages(data || []);
+    setMessages(
+      (data || []).filter(
+        message =>
+          isMessageVisibleForCurrentUser(
+            message
+          )
+      )
+    );
   }
   catch(error)
   {
@@ -257,7 +266,12 @@ async function loadConversations()
       .from("messages")
       .select(`
         content,
-        created_at
+        created_at,
+        sender_id,
+        receiver_id,
+        deleted_by_sender,
+        deleted_by_receiver,
+        deleted_for_everyone
       `)
       .or(
         `and(sender_id.eq.${currentUserId},receiver_id.eq.${user.id}),and(sender_id.eq.${user.id},receiver_id.eq.${currentUserId})`
@@ -268,8 +282,7 @@ async function loadConversations()
           ascending: false
         }
       )
-      .limit(1)
-      .maybeSingle();
+      .limit(10);
 
     const {
       data: unreadMessages
@@ -296,11 +309,21 @@ async function loadConversations()
               unreadMessages?.length || 0,
 
               preview:
-                latestMessage?.content ||
+                latestMessage?.find(
+                  message =>
+                    isMessageVisibleForCurrentUser(
+                      message
+                    )
+                )?.content ||
                 "No messages yet",
 
               time:
-                latestMessage?.created_at || ""
+                latestMessage?.find(
+                  message =>
+                    isMessageVisibleForCurrentUser(
+                      message
+                    )
+                )?.created_at || ""
             };
           }
         )
@@ -587,6 +610,109 @@ function shouldShowDateSeparator(
       previousMessage.created_at
     ).toDateString()
   );
+}
+
+function isMessageVisibleForCurrentUser(
+  msg
+)
+{
+  if(
+    !msg ||
+    msg.deleted_for_everyone
+  )
+  {
+    return false;
+  }
+
+  if(
+    msg.sender_id === currentUserId &&
+    msg.deleted_by_sender
+  )
+  {
+    return false;
+  }
+
+  if(
+    msg.receiver_id === currentUserId &&
+    msg.deleted_by_receiver
+  )
+  {
+    return false;
+  }
+
+  return true;
+}
+
+async function deleteMessageForYou(
+  msg
+)
+{
+  const updates =
+    msg.sender_id === currentUserId
+      ? {
+          deleted_by_sender: true,
+          deleted_by_user_id: currentUserId
+        }
+      : {
+          deleted_by_receiver: true,
+          deleted_by_user_id: currentUserId
+        };
+
+  const {
+    error
+  } =
+    await supabase
+      .from("messages")
+      .update(updates)
+      .eq("id", msg.id);
+
+  if(error)
+  {
+    console.error(error);
+    alert("Unable to delete message.");
+    return;
+  }
+
+  setActiveMessageMenu(null);
+
+  await loadMessages(
+    selectedConversation.id,
+    selectedTicket?.id || null
+  );
+
+  await loadConversations();
+}
+
+async function deleteMessageForEveryone(
+  msg
+)
+{
+  const {
+    error
+  } =
+    await supabase
+      .from("messages")
+      .update({
+        deleted_for_everyone: true,
+        deleted_by_user_id: currentUserId
+      })
+      .eq("id", msg.id);
+
+  if(error)
+  {
+    console.error(error);
+    alert("Unable to delete message for everyone.");
+    return;
+  }
+
+  setActiveMessageMenu(null);
+
+  await loadMessages(
+    selectedConversation.id,
+    selectedTicket?.id || null
+  );
+
+  await loadConversations();
 }
 
 function getConversationForTicket(
@@ -929,6 +1055,55 @@ function getConversationForTicket(
                   : "other"
               }`}
             >
+              <div className="message-action-wrap">
+                <button
+                  type="button"
+                  className="message-action-trigger"
+                  onClick={() =>
+                    setActiveMessageMenu(
+                      activeMessageMenu === msg.id
+                        ? null
+                        : msg.id
+                    )
+                  }
+                  aria-label="Message actions"
+                >
+                  ...
+                </button>
+
+                {activeMessageMenu === msg.id && (
+                  <div className="message-action-menu">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        deleteMessageForYou(msg)
+                      }
+                    >
+                      Delete for you
+                    </button>
+
+                    <button
+                      type="button"
+                      className="danger"
+                      onClick={() =>
+                        deleteMessageForEveryone(msg)
+                      }
+                    >
+                      Delete for everyone
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveMessageMenu(null)
+                      }
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="message-text">
                 {msg.content}
               </div>
@@ -939,13 +1114,6 @@ function getConversationForTicket(
                   msg.created_at
                 )}
 
-                {isStaff && (
-                  <span className="message-status">
-                    {msg.read
-                      ? "✓✓ Seen"
-                      : "✓ Delivered"}
-                  </span>
-                )}
 
               </div>
             </div>
@@ -976,7 +1144,7 @@ Tickets
 
 <span className="ticket-summary">
 
-{openTicketCount} Open • {closedTicketCount} Closed
+{openTicketCount} Open â€¢ {closedTicketCount} Closed
 
 </span>
 
@@ -1183,7 +1351,7 @@ selectedTicket?.id || null
 
     }}
   >
-    ➤
+    âž¤
   </button>
 
 </div>
@@ -1201,3 +1369,4 @@ selectedTicket?.id || null
 }
 
 export default Inbox;
+

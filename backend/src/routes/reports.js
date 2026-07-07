@@ -32,9 +32,9 @@ async ({ query, set }) =>
 `)
 
   if (
-    clinic &&
-    clinic !== "All"
-  )
+  clinic &&
+  clinic !== "All Clinics"
+)
   {
     dbQuery =
       dbQuery.eq(
@@ -77,7 +77,7 @@ async ({ query, set }) =>
 
 if (
   clinic &&
-  clinic !== "All"
+  clinic !== "All Clinics"
 )
 {
   expensesQuery =
@@ -442,21 +442,26 @@ console.log(
     )
     {
       queryBuilder =
-        queryBuilder.eq(
+        queryBuilder.ilike(
           "branch_id",
-          clinic
+          clinic.trim()
         );
     }
 
-    if(
+    if (
   paymentType &&
   paymentType !== "All Payment Types"
 )
 {
+  const normalizedPayment =
+    paymentType === "cash"
+      ? "Cash"
+      : paymentType.toLowerCase();
+
   queryBuilder =
     queryBuilder.eq(
       "payment_method",
-      paymentType.toLowerCase()
+      normalizedPayment
     );
 }
 
@@ -601,9 +606,9 @@ async ({ query, set }) =>
     )
     {
       queryBuilder =
-        queryBuilder.eq(
+        queryBuilder.ilike(
           "branch_id",
-          clinic
+          clinic.trim()
         );
     }
 

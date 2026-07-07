@@ -197,7 +197,8 @@ const pendingCount =
 
     const matchesBranch =
       branchFilter === "All" ||
-      d.branch_id === branchFilter;
+      (d.branch_id || "").trim().toLowerCase() ===
+      branchFilter.trim().toLowerCase();
 
     return (
       matchesSearch &&
@@ -781,10 +782,12 @@ async function loadDentists()
     const response =
       await getDentistsApi();
 
-    console.log(
-      "DENTISTS:",
-      response.dentists
-    );
+    console.table(
+    response.dentists.map(d => ({
+    name: `${d.first_name} ${d.last_name}`,
+    branch: d.branch_id
+  }))
+);
 
     setDentists(
       response.dentists || []

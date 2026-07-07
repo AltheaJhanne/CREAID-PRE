@@ -66,11 +66,15 @@ if(
 )
 {
   filteredAppointments =
-    filteredAppointments.filter(
-      appointment =>
-        appointment.branch_id ===
-        clinic
-    );
+  filteredAppointments.filter(
+    appointment =>
+      (appointment.branch_id || "")
+        .trim()
+        .toLowerCase() ===
+      clinic
+        .trim()
+        .toLowerCase()
+  );
 }
 
     const {
@@ -132,10 +136,15 @@ if(
 )
 {
   filteredExpenses =
-    filteredExpenses.filter(
-      expense =>
-        expense.branch_id === clinic
-    );
+  filteredExpenses.filter(
+    expense =>
+      (expense.branch_id || "")
+        .trim()
+        .toLowerCase() ===
+      clinic
+        .trim()
+        .toLowerCase()
+  );
 }
 
     const stats =
@@ -350,14 +359,26 @@ filteredAppointments.map(
       );
 
     const collectionAmount =
-      filteredAppointments.reduce(
-        (sum, appointment) =>
-          sum +
-          Number(
-            appointment.amount_paid || 0
-          ),
-        0
-      );
+  filteredAppointments
+    .filter(
+      appointment =>
+        Number(
+          appointment.amount_paid || 0
+        ) > 0 &&
+        !(
+          appointment.status === "cancelled" &&
+          appointment.rejection_reason
+        ) &&
+        appointment.status !== "cancelled"
+    )
+    .reduce(
+      (sum, appointment) =>
+        sum +
+        Number(
+          appointment.amount_paid || 0
+        ),
+      0
+    );
 
     const expenseAmount =
       filteredExpenses
@@ -509,11 +530,15 @@ filteredAppointments.map(
     )
     {
       filteredAppointments =
-        filteredAppointments.filter(
-          appointment =>
-            appointment.branch_id ===
-            clinic
-        );
+  filteredAppointments.filter(
+    appointment =>
+      (appointment.branch_id || "")
+        .trim()
+        .toLowerCase() ===
+      clinic
+        .trim()
+        .toLowerCase()
+  );
     }
 
     const {
@@ -544,11 +569,15 @@ filteredAppointments.map(
     )
     {
       filteredExpenses =
-        filteredExpenses.filter(
-          expense =>
-            expense.branch_id ===
-            clinic
-        );
+  filteredExpenses.filter(
+    expense =>
+      (expense.branch_id || "")
+        .trim()
+        .toLowerCase() ===
+      clinic
+        .trim()
+        .toLowerCase()
+  );
     }
 
     const billingAmount =
@@ -562,14 +591,26 @@ filteredAppointments.map(
       );
 
     const collectionAmount =
-      filteredAppointments.reduce(
-        (sum,a)=>
-          sum +
-          Number(
-            a.amount_paid || 0
-          ),
-        0
-      );
+  filteredAppointments
+    .filter(
+      appointment =>
+        Number(
+          appointment.amount_paid || 0
+        ) > 0 &&
+        !(
+          appointment.status === "cancelled" &&
+          appointment.rejection_reason
+        ) &&
+        appointment.status !== "cancelled"
+    )
+    .reduce(
+      (sum, appointment) =>
+        sum +
+        Number(
+          appointment.amount_paid || 0
+        ),
+      0
+    );
 
     const expenseAmount =
       filteredExpenses
