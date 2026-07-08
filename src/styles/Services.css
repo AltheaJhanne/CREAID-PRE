@@ -312,3 +312,107 @@
   color: #FA1377;
   font-weight: bold;
 }
+
+/* APPOINTMENT MODAL */
+.appt-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appt-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+}
+
+.appt-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.appt-modal-label {
+  color: #FA1377;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.appt-modal h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 16px;
+}
+
+.appt-modal p {
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.appt-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.appt-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: #FA1377;
+  color: white;
+  border: 2px solid #FA1377;
+  padding: 14px 20px;
+  border-radius: 5px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.appt-btn-primary:hover {
+  background-color: #d90f66;
+  border-color: #d90f66;
+  color: white;
+}
+
+.appt-btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: #FA1377;
+  border: 2px solid #FA1377;
+  padding: 14px 20px;
+  border-radius: 5px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.appt-btn-secondary:hover {
+  background-color: #FA1377;
+  color: white;
+}
