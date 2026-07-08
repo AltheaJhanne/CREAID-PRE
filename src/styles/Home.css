@@ -5,7 +5,6 @@
   margin-top: 85px;
 }
 
-
 .hero::before {
   content: "";
   position: absolute;
@@ -36,45 +35,86 @@
   color: #454545;
 }
 
-.hero-content button {
+.hero-contact-link {
+  color: #FA1377;
+  text-decoration: none;
+}
+
+.hero-contact-link:hover {
+  color: #d90f66;
+}
+
+/* APP BUTTONS */
+.home-app-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 5px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+.home-app-button-primary {
   background-color: #FA1377;
   color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  font-size: 15px;
+  border: 2px solid #FA1377;
 }
 
-.hero-content button:hover {
+.home-app-button-primary:hover {
   background-color: #d90f66;
+  border-color: #d90f66;
+  color: white;
 }
 
-.hero-content a {
+.home-app-button-primary svg {
+  stroke: white;
+  flex-shrink: 0;
+}
+
+.home-app-button-secondary {
+  background-color: white;
   color: #FA1377;
+  border: 2px solid #FA1377;
+}
+
+.home-app-button-secondary:hover {
+  background-color: #FA1377;
+  color: white;
+}
+
+.home-app-button-secondary svg {
+  stroke: #FA1377;
+  flex-shrink: 0;
+}
+
+.home-app-button-secondary:hover svg {
+  stroke: white;
 }
 
 /* HERO BACKGROUND */
 .hero2 {
   position: relative;
   height: 90vh;
-  background-image: url('../assets/clinic1.png'); 
+  background-image: url('../assets/clinic1.png');
   background-size: cover;
   background-position: center;
   display: flex;
   align-items: center;
 }
 
-
-/* DARK OVERLAY */
 .hero2-overlay {
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4); 
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
 }
 
-/* CONTENT */
 .hero2-inner {
   color: white;
   max-width: auto;
@@ -82,7 +122,6 @@
   margin-left: 5%;
 }
 
-/* TEXT */
 .hero2-inner h1 {
   font-size: 48px;
   font-weight: bold;
@@ -93,7 +132,6 @@
   margin: 15px 0 25px;
 }
 
-/* BUTTONS */
 .hero2-buttons {
   display: flex;
   gap: 15px;
@@ -115,25 +153,27 @@
 .hero2-buttons .btn-outline-light {
   border: 2px solid white;
 }
+
 .hero2-buttons a {
   text-decoration: none;
 }
-/* EXPLORE SECTION */
 
-.home-small-title{
+/* EXPLORE SECTION */
+.home-small-title {
   color: #FA1377;
   font-weight: 700;
   letter-spacing: 1px;
   text-align: center;
 }
-.explore-title{
+
+.explore-title {
   font-size: 50px;
   font-weight: 700;
   color: #666;
   text-align: center;
 }
 
-.explore-subtitle{
+.explore-subtitle {
   color: #666;
   max-width: 800px;
   margin: auto;
@@ -141,63 +181,50 @@
   line-height: 1.8;
 }
 
-.explore-card{
+.explore-card {
   background: white;
-
   border-radius: 5px;
-
   padding: 40px 30px;
-
   height: 100%;
-
   transition: 0.3s ease;
-
   box-shadow: 0 5px 20px rgba(0,0,0,0.12);
-
   position: relative;
-
   overflow: hidden;
 }
 
-/* TOP ACCENT LINE */
-.explore-card::before{
+.explore-card::before {
   content: "";
-
   position: absolute;
-
   top: 0;
   left: 0;
-
   width: 100%;
   height: 6px;
-
   background: #FA1377;
 }
 
-.explore-img{
+.explore-img {
   width: 220px;
   height: 180px;
   object-fit: contain;
   margin-bottom: 25px;
-
   display: block;
   margin-left: auto;
   margin-right: auto;
 }
 
-.explore-card h4{
+.explore-card h4 {
   color: #222;
   font-weight: 700;
   margin-bottom: 20px;
 }
 
-.explore-card p{
+.explore-card p {
   color: #6f6f6f;
   line-height: 1.8;
   margin-bottom: 30px;
 }
 
-.explore-btn{
+.explore-btn {
   background: #FA1377;
   color: white;
   border: none;
@@ -207,18 +234,113 @@
   letter-spacing: 1px;
   transition: 0.3s ease;
   display: inline-block;
+  cursor: pointer;
+  text-decoration: none;
 }
 
-.explore-btn:hover{
+.explore-btn:hover {
   background: #d90f66;
   color: white;
+}
+
+/* APPOINTMENT MODAL */
+.appt-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appt-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+}
+
+.appt-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.appt-modal-label {
+  color: #FA1377;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.appt-modal h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 16px;
+}
+
+.appt-modal p {
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.appt-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.appt-btn-primary {
+  background-color: #FA1377;
+  color: white;
+  border: 2px solid #FA1377;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.appt-btn-primary:hover {
+  background-color: #d90f66;
+  border-color: #d90f66;
+  color: white;
+}
+
+.appt-btn-secondary {
+  background-color: white;
+  color: #333;
+  border: 2px solid #ccc;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.appt-btn-secondary:hover {
+  border-color: #FA1377;
+  color: #FA1377;
 }
 
 /* FOOTER */
 .custom-footer {
   background-color: #0d0727;
-}
-.custom-footer {
   position: relative;
   z-index: 5;
 }
@@ -235,19 +357,18 @@
   color: #FA1377;
 }
 
-/* LEFT PARAGRAPH IMPROVEMENT */
 .footer-desc {
   font-size: 16px;
   line-height: 1.8;
   max-width: 95%;
 }
 
-/* RIGHT ALIGNMENT */
 @media (min-width: 768px) {
   .text-md-end {
     text-align: right;
   }
 }
+
 .signup-btn {
   display: inline-block;
   color: white;
@@ -256,18 +377,17 @@
   border: none;
   background-color: transparent;
 }
-.signup-btn:hover{
+
+.signup-btn:hover {
   color: #FA1377;
   font-weight: bold;
 }
 
-.footer-dropdown
-{
+.footer-dropdown {
   position: relative;
 }
 
-.footer-dropdown-btn
-{
+.footer-dropdown-btn {
   background: transparent;
   border: none;
   padding: 0;
@@ -275,8 +395,7 @@
   cursor: pointer;
 }
 
-.footer-submenu
-{
+.footer-submenu {
   list-style: none;
   margin-top: 10px;
   padding: 0;
@@ -285,7 +404,6 @@
   gap: 8px;
 }
 
-.footer-submenu li
-{
+.footer-submenu li {
   margin: 0;
 }
