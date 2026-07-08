@@ -47,8 +47,12 @@ export default function Home()
                 Open Web App
               </a>
             </div>
-
-            <a href="#" className="hero-contact-link">Any Concerns? Contact Us -&gt;</a>
+            <Link
+                      to="/Contact"
+                      className="hero-contact-link"
+                    >
+                      Any Concerns? Contact Us →
+                    </Link>
 
           </div>
 
