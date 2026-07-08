@@ -23,7 +23,7 @@
   z-index: 1;
 }
 
-/* HERO CONTENT */
+/* HERO CONTENT */ 
 .hero-content h1 {
   color: #FA1377;
   font-size: 40px;
@@ -45,6 +45,10 @@
 }
 
 /* APP BUTTONS */
+.home-app-actions {
+  min-width: min(100%, 260px);
+}
+
 .home-app-button {
   display: flex;
   align-items: center;
@@ -57,12 +61,14 @@
   text-decoration: none;
   transition: 0.3s ease;
   cursor: pointer;
+  border: 2px solid transparent;
+  text-align: center;
 }
 
 .home-app-button-primary {
   background-color: #FA1377;
   color: white;
-  border: 2px solid #FA1377;
+  border-color: #FA1377;
 }
 
 .home-app-button-primary:hover {
@@ -79,7 +85,7 @@
 .home-app-button-secondary {
   background-color: white;
   color: #FA1377;
-  border: 2px solid #FA1377;
+  border-color: #FA1377;
 }
 
 .home-app-button-secondary:hover {
@@ -252,6 +258,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 18px;
 }
 
 .appt-modal {
@@ -406,4 +413,15 @@
 
 .footer-submenu li {
   margin: 0;
+}
+
+@media (max-width: 767px) {
+  .home-app-actions {
+    width: 100% !important;
+  }
+
+  .hero2-buttons {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
 }
