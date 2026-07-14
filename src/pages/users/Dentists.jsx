@@ -125,6 +125,12 @@ billingDocuments,
 setBillingDocuments
 ] = useState([]);
 
+const [medicalFileFilter, setMedicalFileFilter] =
+useState("all");
+
+const [billingDocumentFilter, setBillingDocumentFilter] =
+useState("all");
+
 const [
 archivedBillingDocuments,
 setArchivedBillingDocuments
@@ -1175,6 +1181,71 @@ const filteredTemplates = templates.filter((template) =>
   return matchesSearch && matchesType;
 });
 
+const displayedMedicalFiles =
+(
+  showArchivedMedical
+    ? archivedMedicalFiles
+    : medicalFiles
+).filter(file =>
+{
+  if(medicalFileFilter === "all")
+  {
+    return true;
+  }
+
+  const type =
+  String(
+    file.file_type ||
+    file.type ||
+    "other"
+  )
+  .toLowerCase();
+
+  if(medicalFileFilter === "other")
+  {
+    return ![
+      "xray",
+      "lab",
+      "clearance",
+      "consent"
+    ].includes(type);
+  }
+
+  return type === medicalFileFilter;
+});
+
+const displayedBillingDocuments =
+(
+  showArchivedBilling
+    ? archivedBillingDocuments
+    : billingDocuments
+).filter(doc =>
+{
+  if(billingDocumentFilter === "all")
+  {
+    return true;
+  }
+
+  const type =
+  String(
+    doc.document_type ||
+    doc.type ||
+    ""
+  )
+  .toLowerCase();
+
+  if(billingDocumentFilter === "official_receipt")
+  {
+    return [
+      "official_receipt",
+      "official receipt",
+      "receipt"
+    ].includes(type);
+  }
+
+  return type === billingDocumentFilter;
+});
+
     return (
         <div className="dentists-root">
 
@@ -1680,27 +1751,92 @@ selectedRecordPatient && (
 <div className="record-section">
 
 <div className="record-section-header">
-  <h3>Medical Files</h3>
+
+<h3>
+
+Medical Files
+
+</h3>
+
+<div className="record-section-actions">
+
+<div className="document-filter-group">
+
+<label>
+
+File Type
+
+</label>
+
+<select
+value={medicalFileFilter}
+onChange={(e)=>
+setMedicalFileFilter(
+e.target.value
+)}
+>
+
+<option value="all">
+
+All Types
+
+</option>
+
+<option value="xray">
+
+X-Ray
+
+</option>
+
+<option value="lab">
+
+Lab Results
+
+</option>
+
+<option value="clearance">
+
+Clearance
+
+</option>
+
+<option value="consent">
+
+Consent
+
+</option>
+
+<option value="other">
+
+Others
+
+</option>
+
+</select>
+
+</div>
+
 <button
 className="archive-toggle-btn"
-onClick={() =>
+onClick={()=>
 setShowArchivedMedical(
 !showArchivedMedical
-)
-}
+)}
 >
 {
 showArchivedMedical
-? "Active Files"
-: "Archived Files"
+? "Show Active Files"
+: "Show Archived Files"
 }
 </button>
 
 </div>
 
+</div>
+
 {
 
-medicalFiles.length===0 ?
+displayedMedicalFiles.length === 0 ?
 
 (
 
@@ -1751,12 +1887,7 @@ Actions
 <tbody>
 
 {
-
-(
-showArchivedMedical
-? archivedMedicalFiles
-: medicalFiles
-).map(file=>(
+displayedMedicalFiles.map(file=>(
 
 <tr
 key={file.id}
@@ -1898,29 +2029,64 @@ Archive
 
 <div className="record-section-header">
 
-<h3>
-Billing Documents
-</h3>
+  <h3>
+    Billing Documents
+  </h3>
 
-<button
-className="archive-toggle-btn"
-onClick={() =>
-setShowArchivedBilling(
-!showArchivedBilling
-)}
->
-{
-showArchivedBilling
-? "Active Files"
-: "Archived Files"
-}
-</button>
+  <div className="record-section-actions">
+
+    <div className="document-filter-group">
+
+      <label>
+        Document Type
+      </label>
+
+      <select
+        value={billingDocumentFilter}
+        onChange={(e) =>
+          setBillingDocumentFilter(
+            e.target.value
+          )
+        }
+      >
+        <option value="all">
+          All Types
+        </option>
+
+        <option value="official_receipt">
+          Official Receipt
+        </option>
+
+        <option value="invoice">
+          Invoice
+        </option>
+
+      </select>
+
+    </div>
+
+    <button
+      className="archive-toggle-btn"
+      onClick={() =>
+        setShowArchivedBilling(
+          !showArchivedBilling
+        )
+      }
+    >
+      {
+        showArchivedBilling
+          ? "Show Active Files"
+          : "Show Archived Files"
+      }
+    </button>
+
+  </div>
 
 </div>
 
 {
 
-billingDocuments.length===0 ?
+displayedBillingDocuments.length === 0 ?
 
 (
 
@@ -1971,12 +2137,7 @@ Actions
 <tbody>
 
 {
-
-(
-showArchivedBilling
-? archivedBillingDocuments
-: billingDocuments
-).map(doc=>(
+displayedBillingDocuments.map((doc) => (
 
 <tr
 key={doc.id}

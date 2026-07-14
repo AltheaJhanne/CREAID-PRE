@@ -845,37 +845,110 @@ return {
 
 .get(
 "/logs",
-async ({ set }) =>
+async ({ query, set }) =>
 {
+  const page =
+    Number(query.page || 1);
+
+  const PAGE_SIZE = 5;
+
+  const from =
+    (page - 1) * PAGE_SIZE;
+
+  const to =
+    from + PAGE_SIZE - 1;
+
+  let dbQuery =
+    supabase
+      .from("user_logs")
+      .select("*", {
+        count: "exact"
+      });
+
+  /* ------------------------
+     USER SEARCH
+  ------------------------ */
+  console.log("LOG QUERY:", query);
+
+  if(query.user)
+  {
+    dbQuery =
+      dbQuery.ilike(
+        "user_name",
+        `%${query.user.trim()}%`
+      );
+  }
+
+  /* ------------------------
+     ROLE FILTER
+  ------------------------ */
+
+  if(
+  query.role &&
+  query.role !== "All Roles"
+)
+{
+  dbQuery =
+    dbQuery.ilike(
+      "role",
+      query.role.toLowerCase()
+    );
+}
+
+  /* ------------------------
+     ACTION FILTER
+  ------------------------ */
+
+  if(
+    query.action &&
+    query.action !== "All Actions"
+  )
+  {
+    dbQuery =
+      dbQuery.eq(
+        "action",
+        query.action
+      );
+  }
+
+  dbQuery =
+    dbQuery
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .range(
+        from,
+        to
+      );
+
   const {
     data,
-    error
+    error,
+    count
   } =
-  await supabase
-    .from("user_logs")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending: false
-      }
-    );
+  await dbQuery;
 
   if(error)
   {
     set.status = 500;
 
     return {
-      success: false,
-      message:
-        error.message
+      success:false,
+      message:error.message
     };
   }
 
-  return {
-    success: true,
+  return{
+    success:true,
+
     logs:
-      data || []
+      data || [],
+
+    total:
+      count || 0
   };
 })
 

@@ -185,9 +185,7 @@ loadMonthlySummary()
   filters.clinic
 );
 
-    setMonthlySummary(
-      response
-    );
+setMonthlySummary(response);
   }
   catch(error)
   {

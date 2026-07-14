@@ -609,3 +609,49 @@ users.css
   background: #FAEEDA;
   color: #854F0B;
 }
+.users-pagination
+{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.users-pagination button
+{
+    min-width:40px;
+    height:40px;
+
+    background:#fff;
+
+    color:#150E43;
+
+    border:1px solid #DDD8F5;
+
+    border-radius:10px;
+
+    font-size:15px;
+    font-weight:500;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.users-pagination button:hover:not(:disabled)
+{
+    border-color:#534AB7;
+    color:#534AB7;
+}
+
+.users-pagination button:disabled
+{
+    opacity:.45;
+    cursor:not-allowed;
+}
+
+.users-pagination .page-active
+{
+    border:2px solid #FA1377;
+    color:#FA1377;
+    font-weight:700;
+}

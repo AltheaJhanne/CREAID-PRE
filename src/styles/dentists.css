@@ -3660,3 +3660,44 @@ border-radius: 5px;
 
     margin-top: 18px;
 }
+.document-toolbar,
+.record-section-actions
+{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    flex-wrap:wrap;
+}
+
+.document-filter-group
+{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.document-filter-group label
+{
+    font-size:13px;
+    color:#6B648A;
+    font-weight:600;
+}
+
+.document-filter-group select
+{
+    width:200px;
+    height:40px;
+    border:1px solid #DDD8F5;
+    border-radius:10px;
+    background:#fff;
+    color:#150E43;
+    padding:0 12px;
+    font-size:14px;
+}
+
+.document-filter-group select:focus
+{
+    border-color:#534AB7;
+    outline:none;
+}

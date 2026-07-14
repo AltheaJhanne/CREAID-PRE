@@ -89,6 +89,10 @@ function Patients()
   const [newForm, setNewForm]             = useState({ name: "", age: "", contact: "", email: "", dentist: "Dr. Vannesa Cruz" });
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [billingDocuments, setBillingDocuments] = useState([]);
+  const [medicalFileFilter, setMedicalFileFilter] =
+  useState("all");
+  const [billingDocumentFilter, setBillingDocumentFilter] =
+  useState("all");
   const [archivedMedicalFiles, setArchivedMedicalFiles] = useState([]);
   const [archivedBillingDocuments, setArchivedBillingDocuments] = useState([]);
   const [
@@ -297,6 +301,73 @@ async function loadLastVisit(
 });
 
   const selectedPatient = selected ? patients.find((p) => p.id === selected) : null;
+
+  const displayedMedicalFiles =
+  (
+    showArchivedMedical
+      ? archivedMedicalFiles
+      : patientFiles
+  ).filter((file) =>
+  {
+    if(medicalFileFilter === "all")
+    {
+      return true;
+    }
+
+    const type =
+      String(
+        file.type ||
+        file.file_type ||
+        "other"
+      )
+        .trim()
+        .toLowerCase();
+
+    if(medicalFileFilter === "other")
+    {
+      return ![
+        "xray",
+        "lab",
+        "clearance",
+        "consent"
+      ].includes(type);
+    }
+
+    return type === medicalFileFilter;
+  });
+
+const displayedBillingDocuments =
+  (
+    showArchivedBilling
+      ? archivedBillingDocuments
+      : billingDocuments
+  ).filter((document) =>
+  {
+    if(billingDocumentFilter === "all")
+    {
+      return true;
+    }
+
+    const type =
+      String(
+        document.document_type ||
+        document.type ||
+        ""
+      )
+        .trim()
+        .toLowerCase();
+
+    if(billingDocumentFilter === "official_receipt")
+    {
+      return [
+        "receipt",
+        "official_receipt",
+        "official receipt"
+      ].includes(type);
+    }
+
+    return type === billingDocumentFilter;
+  });
 
   
 async function handleFileUpload(
@@ -1012,15 +1083,52 @@ console.log("MEDICAL", fullPatient?.medical);
 
           {activeTab === "medical" && (
             <div className="tab-panel">
-              <div
-  style={{
-    display: "flex",
-    justifyContent: "flex-end",
-    marginBottom: "15px"
-  }}
->
+              <div className="document-toolbar">
+
+  <div className="document-filter-group">
+
+    <label>
+      File Type
+    </label>
+
+    <select
+      value={medicalFileFilter}
+      onChange={(e) =>
+        setMedicalFileFilter(
+          e.target.value
+        )
+      }
+    >
+      <option value="all">
+        All Types
+      </option>
+
+      <option value="xray">
+        X-Ray
+      </option>
+
+      <option value="lab">
+        Lab Results
+      </option>
+
+      <option value="clearance">
+        Clearance
+      </option>
+
+      <option value="consent">
+        Consent
+      </option>
+
+      <option value="other">
+        Others
+      </option>
+
+    </select>
+
+  </div>
+
   <button
-  className="archive-toggle-btn"
+    className="archive-toggle-btn"
     onClick={() =>
       setShowArchivedMedical(
         !showArchivedMedical
@@ -1033,12 +1141,10 @@ console.log("MEDICAL", fullPatient?.medical);
         : "Show Archived Files"
     }
   </button>
+
 </div>
-                {(
-                  showArchivedMedical
-                  ? archivedMedicalFiles
-                  : patientFiles
-                  ).length === 0 ? (
+                {
+                displayedMedicalFiles.length === 0 ? (
                   <div className="billing-empty">
 
                   <div className="billing-icon">
@@ -1064,11 +1170,8 @@ console.log("MEDICAL", fullPatient?.medical);
                   </div>
                 ) : (
                   <ul className="file-list">
-                    {(
-                    showArchivedMedical
-                      ? archivedMedicalFiles
-                      : patientFiles
-                  ).map((r) => (
+                    {
+                  displayedMedicalFiles.map((r) => (
                       <li key={r.id} className="file-item">
                         <span className="file-type-icon">
                         {FILE_ICON[r.type] || "📎"}
@@ -1284,20 +1387,46 @@ console.log("MEDICAL", fullPatient?.medical);
 <div className="medical-header">
 
 
-  <div
-  style={{
-    display: "flex",
-    justifyContent: "flex-end",
-    marginBottom: "15px"
-  }}
->
+  <div className="document-toolbar">
+
+  <div className="document-filter-group">
+
+    <label>
+      Document Type
+    </label>
+
+    <select
+      value={billingDocumentFilter}
+      onChange={(e) =>
+        setBillingDocumentFilter(
+          e.target.value
+        )
+      }
+    >
+
+      <option value="all">
+        All Types
+      </option>
+
+      <option value="official_receipt">
+        Official Receipt
+      </option>
+
+      <option value="invoice">
+        Invoice
+      </option>
+
+    </select>
+
+  </div>
+
   <button
     className="archive-toggle-btn"
     onClick={() =>
-    setShowArchivedBilling(
-    !showArchivedBilling
-  )
-}
+      setShowArchivedBilling(
+        !showArchivedBilling
+      )
+    }
   >
     {
       showArchivedBilling
@@ -1305,19 +1434,13 @@ console.log("MEDICAL", fullPatient?.medical);
         : "Show Archived Files"
     }
   </button>
+
 </div>
 
 </div>
 
 {
-(
-showArchivedBilling
-? archivedBillingDocuments
-: billingDocuments
-).length === 0
-?
-
-(
+displayedBillingDocuments.length === 0 ? (
 
 <div className="billing-empty">
 
@@ -1344,12 +1467,7 @@ Official Receipts and Invoices will appear here.
 <ul className="file-list">
 
 {
-
-(
-  showArchivedBilling
-    ? archivedBillingDocuments
-    : billingDocuments
-).map(doc => (
+displayedBillingDocuments.map((doc) => (
 
 <li
 key={doc.id}
