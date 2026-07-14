@@ -26,7 +26,7 @@ function Reports()
 ];
 
   const [filters, setFilters] = useState({
-    clinic: "All",
+    clinic: "All Clinics",
     from: "",
     to: "",
   });
@@ -121,7 +121,7 @@ async function loadSummary()
             <div className="filter-row">
               <span className="filter-label">Clinic</span>
               <select value={filters.clinic} onChange={(e) => setFilters({ ...filters, clinic: e.target.value })}>
-                <option>All</option>
+                <option>All Clinics</option>
                 <option>Hagonoy</option>
                 <option>Paombong</option>
               </select>
