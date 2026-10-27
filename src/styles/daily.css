@@ -533,3 +533,58 @@
   border-radius: 8px;
   padding: 0 12px;
 }
+.daily-stat-icon .bi {
+  font-size: 25px;
+  line-height: 1;
+}
+/* White icons for Daily Sales stat cards */
+.daily-stat-card .daily-stat-icon,
+.daily-stat-card .daily-stat-icon .bi {
+  color: #ffffff !important;
+}
+/* Daily Sales print layout */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  /* Hide navigation and interactive controls */
+  .sidebar,
+  .sidebar-toggle,
+  .topbar,
+  .navbar,
+  .users-filter-container,
+  .financial-filter-row,
+  .reports-footer,
+  .daily-show-more,
+  .daily-modal-overlay {
+    display: none !important;
+  }
+
+  /* Let the report fill the printed page */
+  .users-content,
+  .users-page-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Keep report cards and table rows together */
+  .daily-stat-card,
+  .daily-table-card,
+  .daily-income-card,
+  .daily-chart-card,
+  .daily-td {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Preserve the report's colors */
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

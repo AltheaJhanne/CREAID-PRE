@@ -147,26 +147,115 @@ if(
   );
 }
 
-    const stats =
-    {
-      appointments:
-      filteredAppointments.length,
+    // Get appointment history across both branches
+const { data: appointmentHistory, error: historyError } =
+  await supabase
+    .from("appointments")
+    .select(`
+      id,
+      patient_id,
+      guest_name,
+      guest_contact,
+      appointment_date,
+      appointment_time,
+      created_at,
+      status
+    `);
 
-      recalls:
-        filteredAppointments.filter(
-          appointment =>
-            appointment.status ===
-            "completed"
-        ).length,
+if (historyError) {
+  throw historyError;
+}
 
-      patients:
-        filteredAppointments.filter(
-          appointment =>
-            Number(
-              appointment.amount_paid || 0
-            ) > 0
-        ).length
-    };
+const normalizeName = (name) =>
+  String(name || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+
+const normalizeContact = (contact) => {
+  let number = String(contact || "").replace(/\D/g, "");
+
+  if (number.startsWith("63") && number.length === 12) {
+    number = "0" + number.slice(2);
+  }
+
+  return number;
+};
+
+const isValidAppointment = (appointment) =>
+  !["cancelled", "rejected"].includes(
+    String(appointment.status || "").toLowerCase()
+  );
+
+const getPatientKey = (appointment) => {
+  if (appointment.patient_id) {
+    return `patient:${appointment.patient_id}`;
+  }
+
+  const name = normalizeName(appointment.guest_name);
+  const contact = normalizeContact(appointment.guest_contact);
+
+  if (name && contact.length === 11) {
+    return `walkin:${name}:${contact}`;
+  }
+
+  return null;
+};
+
+const historyByPatient = new Map();
+
+(appointmentHistory || [])
+  .filter(isValidAppointment)
+  .forEach((appointment) => {
+    const key = getPatientKey(appointment);
+
+    if (!key) return;
+
+    if (!historyByPatient.has(key)) {
+      historyByPatient.set(key, []);
+    }
+
+    historyByPatient.get(key).push(appointment);
+  });
+
+const getAppointmentOrder = (appointment) =>
+  `${appointment.appointment_date || ""}T${appointment.appointment_time || "00:00:00"}`;
+
+const rebookedCount = filteredAppointments.filter(
+  (appointment) => {
+    if (!isValidAppointment(appointment)) return false;
+
+    const key = getPatientKey(appointment);
+    if (!key) return false;
+
+    const history = historyByPatient.get(key) || [];
+    const currentOrder = getAppointmentOrder(appointment);
+
+    return history.some((previous) =>
+      previous.id !== appointment.id &&
+      (
+        getAppointmentOrder(previous) < currentOrder ||
+        (
+          getAppointmentOrder(previous) === currentOrder &&
+          String(previous.created_at || "") <
+            String(appointment.created_at || "")
+        )
+      )
+    );
+  }
+).length;
+
+const stats = {
+  appointments: filteredAppointments.length,
+
+  recalls: rebookedCount,
+
+  patients:
+    filteredAppointments.filter(
+      appointment =>
+        Number(appointment.amount_paid || 0) > 0
+    ).length
+};
 
     const patientAppointments =
 filteredAppointments.map(
@@ -197,18 +286,22 @@ filteredAppointments.map(
     const groupedProcedures = {};
 
     services.forEach(service =>
-    {
-      const appointment =
-        filteredAppointments.find(
-          appointment =>
-            appointment.id ===
-            service.appointment_id
-        );
+{
+  // Exclude procedures that were not performed
+  if (service.service_status !== "performed") {
+    return;
+  }
 
-      if(!appointment)
-      {
-        return;
-      }
+  const appointment =
+    filteredAppointments.find(
+      appointment =>
+        appointment.id ===
+        service.appointment_id
+    );
+
+  if (!appointment) {
+    return;
+  }
 
       if(
         !groupedProcedures[

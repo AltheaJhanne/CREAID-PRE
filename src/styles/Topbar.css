@@ -561,4 +561,32 @@
   object-fit: cover;
   border-radius: 50%;
 }
+/* TOPBAR BOOTSTRAP ICONS */
 
+.notif-btn .bi {
+  font-size: 22px;
+  line-height: 1;
+  color: #fa1377;
+}
+
+.profile-dropdown .dropdown-item,
+.overflow-dropdown .overflow-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-dropdown .dropdown-item .bi,
+.overflow-dropdown .overflow-item .bi {
+  font-size: 18px;
+  color: #fa1377;
+  line-height: 1;
+}
+
+.profile-dropdown .dropdown-item.logout .bi {
+  color: #dc3545;
+}
+
+.profile-btn .chevron .bi {
+  font-size: 14px;
+}

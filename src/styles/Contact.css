@@ -4,17 +4,16 @@
   margin-top: 85px;
 }
 
-.contact-page::before{
+.contact-page::before {
   content: "";
   position: absolute;
   inset: 0;
-
-  background-image: url('../assets/bg3.png');
-  background-size: cover;
+  background-image: url('../assets/finalbg2.png');
+  background-size: 100% 100%;
   background-position: center;
-
-  filter: grayscale(100%);
-  opacity: 0.2;
+  background-repeat: no-repeat;
+  opacity: 1;
+  pointer-events: none;
 }
 
 .contact-page > * {

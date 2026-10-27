@@ -167,12 +167,13 @@
   gap: 4px;
 }
 
-.page-main-title
-{
-  font-size: 42px;
+.collections-container .page-main-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
   font-weight: 700;
   color: #150e43;
   margin: 0;
+  line-height: 1.2;
 }
 
 .page-subtitle
@@ -406,4 +407,170 @@
   {
     font-size: 32px;
   }
+}
+
+/* COLLECTIONS REPORT - COMPACT DESIGN */
+
+.collections-container {
+  padding: 24px;
+  gap: 16px;
+}
+
+.collections-container .page-title-row {
+  margin-bottom: 4px;
+}
+
+.collections-container .page-main-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #150e43;
+}
+
+.collections-container .page-subtitle {
+  font-size: 13px;
+  margin: 4px 0 0;
+  color: #7d7896;
+}
+
+.collections-filter-panel {
+  padding: 14px 16px;
+  border: 1.5px solid #ede9f8;
+  border-radius: 12px;
+  background: #faf9fe;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.collections-filter-panel .reports-filters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 !important;
+}
+
+.collections-filter-panel .filter-item {
+  min-width: 130px;
+  flex: 1 1 150px;
+  gap: 5px;
+}
+
+.collections-filter-panel .filter-item.wide {
+  min-width: 150px;
+}
+
+.collections-filter-panel .filter-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6e6a84;
+}
+
+.collections-filter-panel .filter-item input,
+.collections-filter-panel .filter-item select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1.5px solid #ede9f8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #150e43;
+  font-size: 13px;
+}
+
+.collections-filter-panel .search-item {
+  flex: 2 1 220px;
+}
+
+.collections-filter-panel .btn-show,
+.collections-filter-panel .btn-export {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.collections-filter-panel .btn-export {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.collections-container .report-meta-row {
+  padding: 10px 16px;
+  margin: 0;
+}
+
+.collections-container .report-table th {
+  padding: 11px 14px;
+  font-size: 11px;
+}
+
+.collections-container .report-table td {
+  padding: 11px 14px;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .collections-container {
+    padding: 16px;
+  }
+
+  .collections-filter-panel .reports-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .collections-filter-panel .filter-item,
+  .collections-filter-panel .filter-item.wide {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* COLLECTIONS - REMARKS CAPSULES */
+
+.collection-remark-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.remark-success {
+  background: #d9f3e2;
+  color: #166534;
+}
+
+.remark-warning {
+  background: #fff0c2;
+  color: #92400e;
+}
+
+.remark-danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.remark-info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.remark-neutral {
+  background: #f0edf9;
+  color: #534ab7;
 }

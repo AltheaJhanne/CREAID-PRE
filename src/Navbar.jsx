@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './Navbar.css'
-import logo from './assets/logoD.png'
+import logo from './assets/finallogo.png'
 import { Link } from 'react-router-dom'
 
 export default function Navbar() {
@@ -12,7 +12,16 @@ export default function Navbar() {
         <div className="container custom-nav-container px-5">
 
           <Link className="navbar-brand" to="/">
-            <img src={logo} alt="logo" width="200" height="65" />
+            <img
+              src={logo}
+              alt="DentConnect Logo"
+              style={{
+                width: "220px",
+                maxWidth: "100%",
+                height: "auto",
+                display: "block"
+              }}
+            />
           </Link>
 
           <button

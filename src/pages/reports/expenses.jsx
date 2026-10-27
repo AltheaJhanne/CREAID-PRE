@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "../../styles/expenses.css";
 import {
   getExpensesApi,
@@ -249,76 +250,75 @@ const operatingCost =
 
       <div className="users-page-container">
 
-        <div className="expenses-toolbar">
+        
+<div className="expenses-filter-panel">
+  <div className="expenses-filter-row">
 
-          <select
-  value={clinicFilter}
-  onChange={(e) =>
-    setClinicFilter(e.target.value)
-  }
->
-  <option value="All">All Clinics</option>
-  <option value="Hagonoy">Hagonoy</option>
-  <option value="Paombong">Paombong</option>
-</select>
+    <label htmlFor="expense-clinic">Clinic</label>
+    <select
+      id="expense-clinic"
+      value={clinicFilter}
+      onChange={(e) => setClinicFilter(e.target.value)}
+    >
+      <option value="All">All Clinics</option>
+      <option value="Hagonoy">Hagonoy</option>
+      <option value="Paombong">Paombong</option>
+    </select>
 
-          <select
-  value={selectedMonth}
-  onChange={(e) =>
-    setSelectedMonth(
-      e.target.value
-    )
-  }
->
-  <option value="1">January</option>
-  <option value="2">February</option>
-  <option value="3">March</option>
-  <option value="4">April</option>
-  <option value="5">May</option>
-  <option value="6">June</option>
-  <option value="7">July</option>
-  <option value="8">August</option>
-  <option value="9">September</option>
-  <option value="10">October</option>
-  <option value="11">November</option>
-  <option value="12">December</option>
-</select>
+    <label htmlFor="expense-month">Month</label>
+    <select
+      id="expense-month"
+      value={selectedMonth}
+      onChange={(e) => setSelectedMonth(e.target.value)}
+    >
+      <option value="1">January</option>
+      <option value="2">February</option>
+      <option value="3">March</option>
+      <option value="4">April</option>
+      <option value="5">May</option>
+      <option value="6">June</option>
+      <option value="7">July</option>
+      <option value="8">August</option>
+      <option value="9">September</option>
+      <option value="10">October</option>
+      <option value="11">November</option>
+      <option value="12">December</option>
+    </select>
 
-<select
-  value={selectedYear}
-  onChange={(e) =>
-    setSelectedYear(
-      e.target.value
-    )
-  }
->
-  <option value="2025">2025</option>
-  <option value="2026">2026</option>
-  <option value="2027">2027</option>
-</select>
+    <label htmlFor="expense-year">Year</label>
+    <select
+      id="expense-year"
+      value={selectedYear}
+      onChange={(e) => setSelectedYear(e.target.value)}
+    >
+      <option value="2025">2025</option>
+      <option value="2026">2026</option>
+      <option value="2027">2027</option>
+    </select>
 
-          <input
-            className="expenses-search"
-            placeholder="Search expense..."
-            value={search}
-            onChange={(e) =>
-              setSearch(
-                e.target.value
-              )
-            }
-          />
+  </div>
+</div>
 
-          <button
-  className="btn-go"
-  onClick={() =>
-  {
-        setShowModal(true);
-  }}
->
-  + Add Expense
-</button>
+<div className="expenses-toolbar">
+  <input
+    className="expenses-search"
+    placeholder="Search expense..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+  />
 
-        </div>
+  <button
+    type="button"
+    className="btn-go"
+    onClick={() => {
+      setEditingExpense(null);
+      setShowModal(true);
+    }}
+  >
+    <i className="bi bi-plus-lg"></i>
+    Add Expense
+  </button>
+</div>
 
         <div className="reports-kpi-grid">
 
@@ -405,40 +405,33 @@ const operatingCost =
                   </td>
 
                   <td>
-  <div className="action-buttons">
-
+ 
+<div className="action-buttons">
   <button
+    type="button"
     className="btn-edit"
     title="Edit"
-    onClick={() =>
-    {
-      setEditingExpense(
-        expense
-      );
-
-      setForm({
-        ...expense
-      });
-
+    aria-label="Edit expense"
+    onClick={() => {
+      setEditingExpense(expense);
+      setForm({ ...expense });
       setShowModal(true);
     }}
   >
-    ✏️
+    <i className="bi bi-pencil-square"></i>
   </button>
 
   <button
+    type="button"
     className="btn-archive"
     title="Archive"
-    onClick={() =>
-      handleArchive(
-        expense.id
-      )
-    }
+    aria-label="Archive expense"
+    onClick={() => handleArchive(expense.id)}
   >
-    📦
+    <i className="bi bi-archive"></i>
   </button>
-
 </div>
+
 </td>
                 </tr>
               )

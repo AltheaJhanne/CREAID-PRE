@@ -397,3 +397,143 @@
   color: #150e43;
   font-size: 14px;
 }
+
+/* ==========================================
+   EXPENSES - SUMMARY STYLE FILTERS
+========================================== */
+
+
+/* COMPACT FILTER — MATCH SUMMARY */
+
+.expenses-filter-panel {
+  background: #faf9fe;
+  border: 1.5px solid #ede9f8;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.expenses-filter-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 0;
+}
+
+.expenses-filter-row label {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #292929;
+  white-space: nowrap;
+}
+
+.expenses-filter-row select {
+  width: auto;
+  min-width: 120px;
+  height: 38px;
+  padding: 0 28px 0 12px;
+  border: 1.5px solid #ede9f8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #150e43;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.expenses-filter-row select:focus {
+  outline: none;
+  border-color: #FA1377;
+}
+
+.expenses-filter-row select#expense-year {
+  min-width: 90px;
+}
+
+
+.expenses-filter-row select:focus {
+  outline: none;
+  border-color: #fa1377;
+}
+
+.expenses-toolbar {
+  margin-bottom: 16px;
+  gap: 10px;
+}
+
+.expenses-toolbar .expenses-search,
+.expenses-toolbar .btn-go {
+  height: 38px;
+}
+
+.expenses-toolbar .expenses-search {
+  height: 42px;
+  background: #ffffff;
+}
+
+.expenses-toolbar .btn-go {
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  font-size: 14px;
+}
+
+/* BOOTSTRAP ICON ACTION BUTTONS */
+
+.action-buttons .btn-edit,
+.action-buttons .btn-archive {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 9px;
+  font-size: 17px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-buttons .btn-edit {
+  background: #f0edff;
+  color: #534ab7;
+}
+
+.action-buttons .btn-edit:hover {
+  background: #e2dcff;
+}
+
+.action-buttons .btn-archive {
+  background: #ffebf3;
+  color: #fa1377;
+}
+
+.action-buttons .btn-archive:hover {
+  background: #ffd8ea;
+}
+
+@media (max-width: 768px) {
+  .expenses-filter-panel {
+    padding: 16px;
+  }
+
+  .expenses-filter-row {
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .expenses-filter-row label {
+    width: 100%;
+  }
+
+  .expenses-filter-row select {
+    width: 100%;
+  }
+}

@@ -166,7 +166,8 @@ async function loadAppointments()
               <p className="page-subtitle">Detailed clinics' appointment report.</p>
             </div>
 
-            {/* FILTERS ROW 1 */}
+            {/* FILTERS */}
+          <div className="appointments-filter-panel">
             <div className="reports-filters">
               <div className="filter-item wide">
                 <label>Associates</label>
@@ -207,7 +208,7 @@ async function loadAppointments()
             </div>
 
             {/* FILTERS ROW 2 */}
-            <div className="reports-filters" style={{ marginTop: "-8px" }}>
+            <div className="reports-filters">
               <div className="filter-item wide">
                 <label>Status</label>
                 <select
@@ -232,14 +233,16 @@ async function loadAppointments()
                   onChange={(e) => setFilters({ ...filters, patient: e.target.value })}
                 />
               </div>
-              <button className="appointment-btn-show" 
-              onClick={loadAppointments}
+              <button
+                className="appointment-btn-show"
+                onClick={loadAppointments}
               >
                 Show Report
-                </button>
-            </div>
+              </button>
+                </div>
+              </div>
 
-            {/* META ROW */}
+              {/* META ROW */}
             <div className="report-meta-row">
               <p className="rows-count">
                 Rows Count: <span>{rowsCount}</span>

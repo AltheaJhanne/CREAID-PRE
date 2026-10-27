@@ -114,8 +114,53 @@ async ({ body, set }) => {
   } = body;
 
   // ----------------------------------
-// CHECK DENTIST WORKING HOURS
-// ----------------------------------
+  // PREVENT PAST APPOINTMENT BOOKINGS
+  // Philippine Time (Asia/Manila)
+  // ----------------------------------
+
+  const now = new Date();
+
+  const manilaDate = new Intl.DateTimeFormat(
+    "en-CA",
+    {
+      timeZone: "Asia/Manila",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }
+  ).format(now);
+
+  const manilaTime = new Intl.DateTimeFormat(
+    "en-GB",
+    {
+      timeZone: "Asia/Manila",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }
+  ).format(now);
+
+  if (
+    !appointment_date ||
+    !appointment_time ||
+    appointment_date < manilaDate ||
+    (
+      appointment_date === manilaDate &&
+      appointment_time.slice(0, 5) <= manilaTime
+    )
+  ) {
+    set.status = 400;
+
+    return {
+      success: false,
+      message:
+        "Cannot book an appointment for a past date or time."
+    };
+  }
+
+  // ----------------------------------
+  // CHECK DENTIST WORKING HOURS
+  // ----------------------------------
 
 const appointmentDay =
 new Date(appointment_date)
@@ -193,52 +238,64 @@ if(lunchBreak)
 
   let checkLunch = false;
 
-  if(appliesTo === "All Days")
-  {
-    checkLunch = true;
-  }
+  if (
+  appliesTo === "all_days" ||
+  appliesTo === "All Days"
+) {
+  checkLunch = true;
+}
 
-  else if(
-    appliesTo === "Weekdays Only"
-  )
-  {
-    checkLunch =
-      !["Saturday","Sunday"]
-      .includes(appointmentDay);
-  }
+else if (
+  appliesTo === "weekdays" ||
+  appliesTo === "Weekdays Only"
+) {
+  checkLunch =
+    !["Saturday", "Sunday"].includes(appointmentDay);
+}
 
-  else if(
-    appliesTo === "Weekends Only"
-  )
-  {
-    checkLunch =
-      ["Saturday","Sunday"]
-      .includes(appointmentDay);
-  }
+else if (
+  appliesTo === "weekends" ||
+  appliesTo === "Weekends Only"
+) {
+  checkLunch =
+    ["Saturday", "Sunday"].includes(appointmentDay);
+}
 
-  else if(
-    appliesTo === "Custom"
-  )
-  {
-    checkLunch = true;
-  }
+else if (
+  appliesTo?.startsWith("custom:")
+) {
+  const customDays = appliesTo
+    .slice("custom:".length)
+    .split(",")
+    .map(day => day.trim());
 
-  if(checkLunch)
-  {
-    if(
-      appointment_time >= lunchBreak.lunch_start &&
-      appointment_time < lunchBreak.lunch_end
-    )
-    {
-      set.status = 400;
+  checkLunch = customDays.includes(appointmentDay);
+}
 
-      return {
-        success:false,
-        message:
-          "Selected time falls during lunch break."
-      };
-    }
+if (checkLunch) {
+  const toMinutes = (time) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const appointmentStart = toMinutes(appointment_time);
+  const appointmentEnd = toMinutes(appointment_end_time);
+
+  const lunchStart = toMinutes(lunchBreak.lunch_start);
+  const lunchEnd = toMinutes(lunchBreak.lunch_end);
+
+  if (
+    appointmentStart < lunchEnd &&
+    appointmentEnd > lunchStart
+  ) {
+    set.status = 400;
+
+    return {
+      success: false,
+      message: "Selected appointment overlaps the dentist's lunch break."
+    };
   }
+}
 }
 
 // ----------------------------------
@@ -1546,8 +1603,10 @@ async ({ params, set }) => {
       .from("appointments")
       .select(`
         total_amount,
-        receipt_url
-`)
+        receipt_url,
+        payment_status,
+        previous_payment_status
+      `)
       .eq("id", params.id)
       .single();
 
@@ -1569,14 +1628,21 @@ async ({ params, set }) => {
     await supabase
       .from("appointments")
       .update({
-      payment_status: "paid",
-      amount_paid:
-      appointment.total_amount,
-      remaining_balance: 0,
+        previous_payment_status:
+          appointment.payment_status === "paid"
+            ? appointment.previous_payment_status
+            : appointment.payment_status,
 
-      invoice_number:
-      invoiceNumber
-})
+        payment_status: "paid",
+
+        amount_paid:
+          appointment.total_amount,
+
+        remaining_balance: 0,
+
+        invoice_number:
+          invoiceNumber
+      })
       .eq("id", params.id);
 
   if(error)
@@ -1603,6 +1669,11 @@ async ({ params, set }) => {
 .patch("/:id/undo-paid",
 async ({ params }) => {
 
+  console.log(
+    "🔥 NEW UNDO-PAID ENDPOINT IS RUNNING:",
+    params.id
+  );
+
   await recalculateAppointmentTotals(
     params.id
   );
@@ -1614,28 +1685,57 @@ async ({ params }) => {
       .from("appointments")
       .select(`
         total_amount,
-        downpayment_amount
+        downpayment_amount,
+        payment_status,
+        previous_payment_status
       `)
       .eq("id", params.id)
       .single();
 
+  const previousStatus =
+  appointment.previous_payment_status;
+
+if (
+  appointment.payment_status !== "paid" ||
+  !["pending", "downpayment_paid"].includes(previousStatus)
+) {
+  return {
+    success: false,
+    message:
+      "Cannot undo payment because the previous payment status is unavailable."
+  };
+}
+
+const restoredAmount =
+  previousStatus === "downpayment_paid"
+    ? Number(appointment.downpayment_amount || 0)
+    : 0;
+
+const { error } =
   await supabase
     .from("appointments")
     .update({
-      payment_status:
-        "downpayment_paid",
+      payment_status: previousStatus,
 
-      amount_paid:
-        appointment.downpayment_amount,
+      previous_payment_status: null,
+
+      amount_paid: restoredAmount,
 
       remaining_balance:
         Math.max(
           0,
-          appointment.total_amount -
-          appointment.downpayment_amount
+          Number(appointment.total_amount || 0) -
+            restoredAmount
         )
     })
     .eq("id", params.id);
+
+if (error) {
+  return {
+    success: false,
+    message: error.message
+  };
+}
 
   return {
     success: true

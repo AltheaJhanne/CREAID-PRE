@@ -1,6 +1,6 @@
 import '../styles/Home.css'
-import logo from '../assets/logoD.png'
-import creaid from '../assets/creaid.jpg'
+import logo from '../assets/finallogo.png'
+import creaid from '../assets/herologo.png'
 import Contact from '../assets/Contact.png'
 import Appointment from '../assets/Appointment.png'
 import Services from '../assets/Services.png'
@@ -17,8 +17,8 @@ export default function Home()
     <div className="hero">
 
       {/* HERO SECTION */}
-      <div className="hero-content container px-4 py-5">
-        <div className="row align-items-center py-5">
+      <div className="hero-content container px-4 pt-3 pb-5">
+        <div className="row align-items-center pt-2 pb-5">
 
           <div className="col-md-6 mt-4 text-start d-flex flex-column gap-3 px-4">
 
@@ -56,8 +56,12 @@ export default function Home()
 
           </div>
 
-          <div className="col-md-6 text-center px-3">
-            <img src={creaid} alt="hero" className="img-fluid" style={{ width: "90%", marginLeft: "9%" }} />
+          <div className="col-md-6 text-center px-3 hero-logo-container">
+            <img
+              src={creaid}
+              alt="DentConnect"
+              className="img-fluid hero-logo"
+            />
           </div>
 
         </div>
@@ -84,7 +88,7 @@ export default function Home()
       </div>
 
       {/* EXPLORE MORE SECTION */}
-      <section className="explore-section py-5 mt-5">
+      <section className="explore-section py-5">
         <div className="container px-5">
 
           <div className="text-center mb-5">
@@ -177,12 +181,16 @@ export default function Home()
       )}
 
       {/* FOOTER */}
-      <footer className="custom-footer py-5 mt-5">
+      <footer className="custom-footer py-5">
         <div className="container px-5">
           <div className="row align-items-start">
 
             <div className="col-md-7 mb-4 pe-md-5">
-              <img src={logo} alt="DentConnect Logo" width="350" className="mb-3" />
+              <img
+                src={logo}
+                alt="DentConnect Logo"
+                className="footer-logo mb-3"
+              />
               <p className="text-light footer-desc">
                 DentConnect is designed to provide a seamless and patient-centered
                 dental care experience by connecting patients with trusted dental
@@ -208,21 +216,47 @@ export default function Home()
                   <h5 className="text-white fw-bold mb-3">Follow Us</h5>
                   <ul className="list-unstyled d-flex flex-column gap-3">
 
-                    <li className="footer-dropdown">
-                      <button className="footer-link footer-dropdown-btn" onClick={() => setShowFacebooks(!showFacebooks)}>
-                        Facebook
-                      </button>
-                      {showFacebooks && (
-                        <ul className="footer-submenu">
-                          <li>
-                            <a href="https://web.facebook.com/JuanaSmileDental" target="_blank" rel="noopener noreferrer" className="footer-link">Hagonoy Branch</a>
-                          </li>
-                          <li>
-                            <a href="https://www.facebook.com/share/18vhm7EgKj/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="footer-link">Paombong Branch</a>
-                          </li>
-                        </ul>
-                      )}
-                    </li>
+                    
+                <li className="footer-dropdown">
+                  <button
+                    type="button"
+                    className={`footer-link footer-dropdown-btn ${showFacebooks ? "active" : ""}`}
+                    onClick={() => setShowFacebooks(!showFacebooks)}
+                    aria-expanded={showFacebooks}
+                    aria-controls="footer-facebook-branches"
+                  >
+                    Facebook
+                    <span className={`footer-arrow ${showFacebooks ? "rotate" : ""}`}>
+                      ▼
+                    </span>
+                  </button>
+
+                  {showFacebooks && (
+                    <ul id="footer-facebook-branches" className="footer-submenu">
+                      <li>
+                        <a
+                          href="https://web.facebook.com/JuanaSmileDental"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="footer-submenu-link"
+                        >
+                          Hagonoy Branch
+                        </a>
+                      </li>
+
+                      <li>
+                        <a
+                          href="https://www.facebook.com/JuanaSmileDentalPaombong"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="footer-submenu-link"
+                        >
+                          Paombong Branch
+                        </a>
+                      </li>
+                    </ul>
+                  )}
+                </li>
 
                     <li>
                       <a href="https://www.instagram.com/juanasmiledental" target="_blank" rel="noopener noreferrer" className="footer-link">Instagram</a>

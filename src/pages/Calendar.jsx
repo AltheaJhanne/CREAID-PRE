@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "../styles/calendar.css";
 import
 {
@@ -588,147 +589,355 @@ await rescheduleAppointmentApi(
           </div>
         )}
 
-        {selectedAppointment && (
-          <div className="appointment-modal-overlay">
-            <div className="appointment-modal">
+        
+{selectedAppointment && (
+  <div className="appointment-modal-overlay">
+    <div className="appointment-modal dc-appointment-modal">
 
-              <div className="appt-modal-header">
-                <h2>Appointment Details</h2>
-                <button className="appt-modal-close-x" onClick={() => setSelectedAppointment(null)} aria-label="Close">✕</button>
-              </div>
+      {/* HEADER */}
+      <div className="appt-modal-header">
+        <h2>Appointment Details</h2>
+        <button
+          type="button"
+          className="appt-modal-close-x"
+          onClick={() => setSelectedAppointment(null)}
+          aria-label="Close"
+        >
+          <i className="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+      </div>
 
-              <div className="appt-modal-layout">
-                <div className="appt-modal-col-left">
-                  <div className="appt-modal-section">
-                    <span className="appt-modal-section-title">Patient</span>
-                    <div className="appt-detail-item">
-                      <span className="appt-detail-label">Name</span>
-                      <span className="appt-detail-value">{selectedAppointment.patient?.full_name || selectedAppointment.guest_name}</span>
-                    </div>
-                    <div className="appt-detail-item">
-                      <span className="appt-detail-label">Email</span>
-                      <span className="appt-detail-value">{selectedAppointment.patient?.email || selectedAppointment.guest_email || "N/A"}</span>
-                    </div>
-                    <div className="appt-detail-item">
-                      <span className="appt-detail-label">Contact Number</span>
-                      <span className="appt-detail-value">{selectedAppointment.patient?.contact_number || selectedAppointment.guest_contact}</span>
-                    </div>
-                    {!selectedAppointment.patient_id && (
-                      <span className="appt-guest-badge">Guest Booking</span>
-                    )}
-                  </div>
+      {/* SCROLLABLE CONTENT */}
+      <div className="dc-appt-body">
+        <div className="dc-appt-grid">
 
-                  <div className="appt-modal-section">
-                    <span className="appt-modal-section-title">Schedule</span>
-                    <div className="appt-modal-grid-2">
-                      <div className="appt-detail-item">
-                        <span className="appt-detail-label">Dentist</span>
-                        <span className="appt-detail-value">{selectedAppointment.dentist?.full_name}</span>
-                      </div>
-                      <div className="appt-detail-item">
-                        <span className="appt-detail-label">Date</span>
-                        <span className="appt-detail-value">{selectedAppointment.appointment_date}</span>
-                      </div>
-                      <div className="appt-detail-item">
-                        <span className="appt-detail-label">Time</span>
-                        <span className="appt-detail-value">{selectedAppointment.appointment_time}</span>
-                      </div>
-                      <div className="appt-detail-item">
-                        <span className="appt-detail-label">Reason for Visit</span>
-                        <span className="appt-detail-value">{selectedAppointment.reason_for_visit || "Not provided"}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="appt-modal-section">
-                    <span className="appt-modal-section-title">Notes</span>
-                    <p className="appt-modal-notes-text">{selectedAppointment.notes || "No notes provided"}</p>
-                  </div>
-                </div>
-
-                <div className="appt-modal-col-right">
-                  <div className="appt-modal-status-card">
-                    <span className="appt-modal-section-title">Status</span>
-                    <span className={`appt-status-pill ${isRejected ? "rejected" : getStatusClass(selectedAppointment.status)}`}>
-                      {isRejected ? "Rejected" : selectedAppointment.status?.replaceAll("_", " ")}
-                    </span>
-                  </div>
-
-                  <div className="appt-modal-section">
-                    <span className="appt-modal-section-title">Payment</span>
-                    <div className="appt-detail-item">
-                      <span className="appt-detail-label">Payment Status</span>
-                      <span className="appt-detail-value">{selectedAppointment.payment_status}</span>
-                    </div>
-                    <div className="appt-detail-item">
-                      <span className="appt-detail-label">Payment Method</span>
-                      <span className="appt-detail-value">{selectedAppointment.payment_method}</span>
-                    </div>
-                    <div className="appt-modal-link-group">
-                      {selectedAppointment.receipt_url && (
-                        <a href={supabase.storage.from("receipts").getPublicUrl(selectedAppointment.receipt_url).data.publicUrl} target="_blank" rel="noopener noreferrer" className="appt-receipt-link">
-                          📄 View Downpayment Receipt
-                        </a>
-                      )}
-                      <a href="#" className="appt-receipt-link" onClick={(e) => { e.preventDefault(); localStorage.setItem("highlightPaymentId", selectedAppointment.id); navigate("/payments"); }}>
-                        💳 View Payment Details
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="appt-modal-section appt-services-section">
-                <span className="appt-modal-section-title">Services Availed</span>
-                <div className="appt-services-list">
-                  {activeServices.length > 0
-                    ? activeServices.map(service => (
-                        <div key={service.id} className="appt-service-item">
-                          <span>{service.service_name}</span>
-                          <strong>₱{Number(service.price).toLocaleString()}</strong>
-                        </div>
-                      ))
-                    : <span className="appt-detail-value">No services found</span>}
-                </div>
-              </div>
-
-              <div className="appointment-modal-actions">
-                {selectedAppointment.status === "pending_verification" && (
-                  <>
-                    <button className="btn-confirm-payment" onClick={async () => { try { await confirmDownpaymentApi(selectedAppointment.id); fetchAppointments(); setSelectedAppointment(null); } catch (err) { console.error(err); } }}>Confirm Payment</button>
-                    <button className="btn-reject-booking" onClick={() => setShowRejectModal(true)}>Reject Booking</button>
-                  </>
-                )}
-
-                {selectedAppointment.status === "scheduled" && (
-                  <>
-                    <button className="btn-done" onClick={markAsDone}>Mark as Done</button>
-                    <button className="btn-no-show" onClick={markAsNoShow}>No Show</button>
-                    <button className="btn-cancel-b" onClick={cancelAppointment}>Cancel</button>
-                    <button className="btn-reschedule" onClick={async () => { const response = await getAppointmentServicesApi(selectedAppointment.id); setAppointmentServices(response.services || []); setNewDate(selectedAppointment.appointment_date); setNewTime(""); setShowReschedule(true); }}>Reschedule</button>
-                  </>
-                )}
-
-                {selectedAppointment.status === "cancelled" && !selectedAppointment.rejection_reason && (
-                  <button className="btn-incomplete" onClick={undoCancel}>Undo Cancel</button>
-                )}
-
-                {isRejected && (
-                  <button className="btn-incomplete" onClick={async () => { try { await confirmDownpaymentApi(selectedAppointment.id); await fetchAppointments(); setSelectedAppointment(null); } catch (error) { console.error(error); } }}>Undo Rejection</button>
-                )}
-
-                {selectedAppointment.status === "completed" && (
-                  <button className="btn-incomplete" onClick={markAsIncomplete}>Mark as Incomplete</button>
-                )}
-
-                {selectedAppointment.status === "no_show" && (
-                  <button className="btn-incomplete" onClick={undoNoShow}>Undo No Show</button>
-                )}
-              </div>
-
+          {/* PATIENT INFORMATION */}
+          <section className="dc-appt-card">
+            <div className="dc-appt-card-heading dc-appt-pink">
+              <i className="bi bi-person-circle"></i>
+              <h3>Patient Information</h3>
             </div>
+
+            <div className="dc-appt-card-content">
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">Name</span>
+                <span className="appt-detail-value">
+                  {selectedAppointment.patient?.full_name ||
+                    selectedAppointment.guest_name}
+                </span>
+              </div>
+
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">Email</span>
+                <span className="appt-detail-value">
+                  {selectedAppointment.patient?.email ||
+                    selectedAppointment.guest_email || "N/A"}
+                </span>
+              </div>
+
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">Contact Number</span>
+                <span className="appt-detail-value">
+                  {selectedAppointment.patient?.contact_number ||
+                    selectedAppointment.guest_contact || "N/A"}
+                </span>
+              </div>
+
+              {!selectedAppointment.patient_id && (
+                <span className="appt-guest-badge">
+                  Guest Booking
+                </span>
+              )}
+            </div>
+          </section>
+
+          {/* SCHEDULE */}
+          <section className="dc-appt-card">
+            <div className="dc-appt-card-heading dc-appt-purple">
+              <i className="bi bi-calendar-event"></i>
+              <h3>Schedule</h3>
+            </div>
+
+            <div className="dc-appt-card-content dc-appt-fields-grid">
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">Dentist</span>
+                <span className="appt-detail-value">
+                  {selectedAppointment.dentist?.full_name || "N/A"}
+                </span>
+              </div>
+
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">Date</span>
+                <span className="appt-detail-value">
+                  {selectedAppointment.appointment_date}
+                </span>
+              </div>
+
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">Time</span>
+                <span className="appt-detail-value">
+                  {selectedAppointment.appointment_time}
+                </span>
+              </div>
+
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">
+                  Reason for Visit
+                </span>
+                <span className="appt-detail-value">
+                  {selectedAppointment.reason_for_visit ||
+                    "Not provided"}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* PAYMENT INFORMATION */}
+          <section className="dc-appt-card">
+            <div className="dc-appt-card-heading dc-appt-pink">
+              <i className="bi bi-credit-card"></i>
+              <h3>Payment Information</h3>
+            </div>
+
+            <div className="dc-appt-card-content">
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">
+                  Payment Status
+                </span>
+                <span className="appt-detail-value dc-appt-capitalize">
+                  {selectedAppointment.payment_status?.replaceAll(
+                    "_", " "
+                  ) || "N/A"}
+                </span>
+              </div>
+
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">
+                  Payment Method
+                </span>
+                <span className="appt-detail-value">
+                  {selectedAppointment.payment_method || "N/A"}
+                </span>
+              </div>
+
+              <div className="dc-appt-payment-links">
+                {selectedAppointment.receipt_url && (
+                  <a
+                    href={
+                      supabase.storage
+                        .from("receipts")
+                        .getPublicUrl(
+                          selectedAppointment.receipt_url
+                        ).data.publicUrl
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="dc-appt-link"
+                  >
+                    <i className="bi bi-receipt"></i>
+                    View Downpayment Receipt
+                  </a>
+                )}
+
+                <a
+                  href="#"
+                  className="dc-appt-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    localStorage.setItem(
+                      "highlightPaymentId",
+                      selectedAppointment.id
+                    );
+                    navigate("/payments");
+                  }}
+                >
+                  <i className="bi bi-credit-card-2-front"></i>
+                  View Payment Details
+                </a>
+              </div>
+            </div>
+          </section>
+
+          {/* STATUS AND NOTES */}
+          <section className="dc-appt-card">
+            <div className="dc-appt-card-heading dc-appt-purple">
+              <i className="bi bi-clipboard-check"></i>
+              <h3>Status &amp; Notes</h3>
+            </div>
+
+            <div className="dc-appt-card-content">
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">
+                  Appointment Status
+                </span>
+                <span
+                  className={`appt-status-pill ${
+                    isRejected
+                      ? "rejected"
+                      : getStatusClass(selectedAppointment.status)
+                  }`}
+                >
+                  {isRejected
+                    ? "Rejected"
+                    : selectedAppointment.status?.replaceAll("_", " ")}
+                </span>
+              </div>
+
+              <div className="appt-detail-item">
+                <span className="appt-detail-label">Notes</span>
+                <p className="dc-appt-notes">
+                  {selectedAppointment.notes || "No notes provided"}
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* SERVICES AVAILED */}
+        <section className="dc-appt-card dc-appt-services">
+          <div className="dc-appt-card-heading dc-appt-pink">
+            <i className="bi bi-clipboard2-pulse"></i>
+            <h3>Services Availed</h3>
           </div>
+
+          <div className="dc-appt-services-content">
+            {activeServices.length > 0 ? (
+              activeServices.map((service) => (
+                <div
+                  key={service.id}
+                  className="dc-appt-service-row"
+                >
+                  <span>{service.service_name}</span>
+                  <strong>
+                    ₱{Number(service.price).toLocaleString()}
+                  </strong>
+                </div>
+              ))
+            ) : (
+              <p className="dc-appt-empty">
+                No services found
+              </p>
+            )}
+          </div>
+        </section>
+      </div>
+
+      {/* FOOTER - EXISTING CONDITIONS AND HANDLERS */}
+      <div className="appointment-modal-actions dc-appt-actions">
+
+        {selectedAppointment.status === "pending_verification" && (
+          <>
+            <button
+              className="btn-confirm-payment"
+              onClick={async () => {
+                try {
+                  await confirmDownpaymentApi(selectedAppointment.id);
+                  fetchAppointments();
+                  setSelectedAppointment(null);
+                } catch (err) {
+                  console.error(err);
+                }
+              }}
+            >
+              <i className="bi bi-check-circle"></i>
+              Confirm Payment
+            </button>
+
+            <button
+              className="btn-reject-booking"
+              onClick={() => setShowRejectModal(true)}
+            >
+              <i className="bi bi-x-circle"></i>
+              Reject Booking
+            </button>
+          </>
         )}
+
+        {selectedAppointment.status === "scheduled" && (
+          <>
+            <button className="btn-done" onClick={markAsDone}>
+              <i className="bi bi-check-circle"></i>
+              Mark as Done
+            </button>
+
+            <button className="btn-no-show" onClick={markAsNoShow}>
+              <i className="bi bi-person-x"></i>
+              No Show
+            </button>
+
+            <button
+              className="btn-cancel-b"
+              onClick={cancelAppointment}
+            >
+              <i className="bi bi-x-circle"></i>
+              Cancel
+            </button>
+
+            <button
+              className="btn-reschedule"
+              onClick={async () => {
+                const response = await getAppointmentServicesApi(
+                  selectedAppointment.id
+                );
+                setAppointmentServices(response.services || []);
+                setNewDate(selectedAppointment.appointment_date);
+                setNewTime("");
+                setShowReschedule(true);
+              }}
+            >
+              <i className="bi bi-calendar-event"></i>
+              Reschedule
+            </button>
+          </>
+        )}
+
+        {selectedAppointment.status === "cancelled" &&
+          !selectedAppointment.rejection_reason && (
+            <button className="btn-incomplete" onClick={undoCancel}>
+              <i className="bi bi-arrow-counterclockwise"></i>
+              Undo Cancel
+            </button>
+          )}
+
+        {isRejected && (
+          <button
+            className="btn-incomplete"
+            onClick={async () => {
+              try {
+                await confirmDownpaymentApi(selectedAppointment.id);
+                await fetchAppointments();
+                setSelectedAppointment(null);
+              } catch (error) {
+                console.error(error);
+              }
+            }}
+          >
+            <i className="bi bi-arrow-counterclockwise"></i>
+            Undo Rejection
+          </button>
+        )}
+
+        {selectedAppointment.status === "completed" && (
+          <button
+            className="btn-incomplete"
+            onClick={markAsIncomplete}
+          >
+            <i className="bi bi-arrow-counterclockwise"></i>
+            Mark as Incomplete
+          </button>
+        )}
+
+        {selectedAppointment.status === "no_show" && (
+          <button className="btn-incomplete" onClick={undoNoShow}>
+            <i className="bi bi-arrow-counterclockwise"></i>
+            Undo No Show
+          </button>
+        )}
+      </div>
+
+    </div>
+  </div>
+)}
 
         {showRejectModal && (
           <div className="appointment-modal-overlay">

@@ -3701,3 +3701,72 @@ border-radius: 5px;
     border-color:#534AB7;
     outline:none;
 }
+
+
+/* =========================================
+   DENTIST OVERVIEW KPI CARD FIX
+========================================= */
+
+.dentists-root .overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+/* Prevent cards from overflowing */
+.dentists-root .overview-grid .ov-card {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  gap: 10px;
+}
+
+/* Allow KPI content to shrink */
+.dentists-root .overview-grid .ov-card > div {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Prevent large values from stretching cards */
+.dentists-root .overview-grid .ov-value {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(0.8rem, 1.2vw, 1.1rem);
+}
+
+/* Keep labels inside cards */
+.dentists-root .overview-grid .ov-label {
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+/* Prevent icons from shrinking */
+.dentists-root .overview-grid .ov-icon {
+  flex-shrink: 0;
+}
+
+/* Responsive layout based on available content width */
+@media (max-width: 1200px) {
+  .dentists-root .overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .dentists-root .overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .dentists-root .overview-grid .ov-value {
+    font-size: 1.1rem;
+  }
+}

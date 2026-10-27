@@ -140,14 +140,20 @@ async function loadSummary()
         <div className="reports-kpi-grid">
           <div className="reports-kpi-card">
             <div className="reports-kpi-icon" style={{ background: "rgba(250,19,119,0.08)" }}>
-              <span style={{ fontSize: 20 }}>💰</span>
+              <i
+                className="bi bi-cash-stack"
+                style={{ fontSize: 24, color: "#FA1377" }}
+              ></i>
             </div>
             <div className="reports-kpi-label">Net Income</div>
             <div className="reports-kpi-value">{summary.netIncome}</div>
           </div>
           <div className="reports-kpi-card">
             <div className="reports-kpi-icon" style={{ background: "rgba(46,125,50,0.08)" }}>
-              <span style={{ fontSize: 20 }}>📥</span>
+              <i
+                className="bi bi-wallet2"
+                style={{ fontSize: 24, color: "#2E7D32" }}
+              ></i>
             </div>
             <div className="reports-kpi-label">Collections</div>
             <div className="reports-kpi-value">{summary.collectionAmount}</div>
@@ -155,7 +161,10 @@ async function loadSummary()
           </div>
           <div className="reports-kpi-card">
             <div className="reports-kpi-icon" style={{ background: "rgba(198,40,40,0.08)" }}>
-              <span style={{ fontSize: 20 }}>📤</span>
+              <i
+                className="bi bi-receipt"
+                style={{ fontSize: 24, color: "#C62828" }}
+              ></i>
             </div>
             <div className="reports-kpi-label">Expenses</div>
             <div className="reports-kpi-value">{summary.expenseAmount}</div>
@@ -285,7 +294,13 @@ async function loadSummary()
         </div>
 
         <div className="reports-footer">
-          <button className="btn-print">🖨️ Print</button>
+          <button
+            className="btn-print"
+            onClick={() => window.print()}
+          >
+            <i className="bi bi-printer me-2"></i>
+            Print
+          </button>
         </div>
       </div>
     </div>

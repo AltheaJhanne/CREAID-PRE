@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "../styles/users.css";
 import
 {
@@ -672,9 +673,14 @@ function Userlist()
     setPage(1);
   }
 
-  useEffect(() =>
-{
+  useEffect(() => {
   fetchUsers();
+
+  const interval = setInterval(() => {
+    fetchUsers();
+  }, 30000);
+
+  return () => clearInterval(interval);
 }, [page, appliedFilters, showArchived]);
 
 useEffect(() =>
@@ -685,7 +691,19 @@ useEffect(() =>
   const totalPages = Math.ceil(totalUsers / PAGE_SIZE);
   const pageStart = (page - 1) * PAGE_SIZE + 1;
   const pageEnd = Math.min(page * PAGE_SIZE, totalUsers);
-  const pageNumbers = Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1);
+  const visiblePageCount = 5;
+  const startPage = Math.max(
+    1,
+    Math.min(
+      page - Math.floor(visiblePageCount / 2),
+      totalPages - visiblePageCount + 1
+    )
+  );
+
+  const pageNumbers = Array.from(
+    { length: Math.min(totalPages, visiblePageCount) },
+    (_, i) => startPage + i
+  );
   const isPatient = editingUser?.role?.toLowerCase() === "patient";
   const patientAge =
   calculateAge(editForm.birthdate);
@@ -750,20 +768,46 @@ const isMinor =
           ) : (
             users.map((u, i) => (
               <div key={u.id} className="users-table-row">
-                <span className="row-actions">
-                  {canEditUsers ? (
-                    <>
-                      <button className="edit-btn" title="Edit user" onClick={() => editUser(u)}>Edit</button>
-                      {showArchived ? (
-                        <button className="edit-btn" title="Restore user" onClick={() => restoreUser(u.id)}>Restore</button>
-                      ) : (
-                        <button className="edit-btn" title="Archive user" onClick={() => archiveUser(u.id)}>Archive</button>
-                      )}
-                    </>
-                  ) : (
-                    <span className="text-muted">-</span>
-                  )}
-                </span>
+                
+          <span className="row-actions">
+            {canEditUsers ? (
+              <>
+                <button
+                  type="button"
+                  className="user-action-btn user-action-edit"
+                  title="Edit user"
+                  aria-label={`Edit ${u.name}`}
+                  onClick={() => editUser(u)}
+                >
+                  <i className="bi bi-pencil-square" aria-hidden="true"></i>
+                </button>
+
+                {showArchived ? (
+                  <button
+                    type="button"
+                    className="user-action-btn user-action-restore"
+                    title="Restore user"
+                    aria-label={`Restore ${u.name}`}
+                    onClick={() => restoreUser(u.id)}
+                  >
+                    <i className="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="user-action-btn user-action-archive"
+                    title="Archive user"
+                    aria-label={`Archive ${u.name}`}
+                    onClick={() => archiveUser(u.id)}
+                  >
+                    <i className="bi bi-archive" aria-hidden="true"></i>
+                  </button>
+                )}
+              </>
+            ) : (
+              <span className="text-muted">—</span>
+            )}
+          </span>
                 <span>
                   <div className={`user-avatar ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}>{getInitials(u.name)}</div>
                 </span>
@@ -775,10 +819,14 @@ const isMinor =
                 </span>
                 <span className="text-muted">{u.created}</span>
                 <span>
-                  <span className={u.isActiveNow ? "status-online" : "status-offline"} title={`Last seen ${u.lastOnline}`}>
-                    <span className="status-dot" />
-                    {u.isActiveNow ? "Active" : "Inactive"}
-                  </span>
+                <span
+                  className={`user-status-pill ${
+                    u.isActiveNow ? "status-online" : "status-offline"
+                  }`}
+                  title={`Last seen: ${u.lastOnline}`}
+                >
+                  {u.isActiveNow ? "Active" : "Inactive"}
+                </span>
                 </span>
               </div>
             ))
@@ -812,9 +860,14 @@ const isMinor =
               <div className="modal-left-meta">
                 <span className={`role-badge ${getRoleBadgeClass(editingUser.role)}`}>{editingUser.role}</span>
                 <div className="modal-left-id">{editingUser.id}</div>
-                <div className="modal-left-row">Created: {editingUser.created}</div>
-                <span className={editingUser.isActiveNow ? "status-online" : "status-offline"} style={{ fontSize: "11px", padding: "2px 8px" }} title={`Last seen ${editingUser.lastOnline}`}>
-                  <span className="status-dot" /> {editingUser.isActiveNow ? "Active" : "Inactive"}
+                <div className="modal-left-row">Created: {editingUser.created}</div>          
+                <span
+                  className={`user-status-pill ${
+                    editingUser.isActiveNow ? "status-online" : "status-offline"
+                  }`}
+                  title={`Last seen: ${editingUser.lastOnline}`}
+                >
+                  {editingUser.isActiveNow ? "Active" : "Inactive"}
                 </span>
               </div>
             </div>

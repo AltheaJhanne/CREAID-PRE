@@ -116,7 +116,9 @@ console.log(
             </div>
 
             {/* FILTERS ROW 1 */}
-            <div className="reports-filters">
+            {/* FILTERS */}
+            <div className="collections-filter-panel">
+              <div className="reports-filters">
               <div className="filter-item wide">
                 <label>Associates</label>
                 <select
@@ -208,10 +210,14 @@ console.log(
 >
   Show Report
 </button>
-              <button className="btn-export">Export Report ▾</button>
-            </div>
+              <button className="btn-export">
+                <i className="bi bi-download"></i>
+                Export Report
+              </button>
+                </div>
+              </div>
 
-            {/* META ROW */}
+              {/* META ROW */}
             <div className="report-meta-row">
               <p className="total-amount">
                 Total Amount: <span>{totalAmount}</span>
@@ -255,7 +261,37 @@ console.log(
                             row.amount || 0
                             ).toLocaleString()}
                             </td>
-<td>{row.remarks ?? "-"}</td>
+                            <td>
+                          <span
+                            className={`collection-remark-badge ${
+                              (() => {
+                                const remark = String(row.remarks ?? "")
+                                  .trim()
+                                  .toLowerCase();
+
+                                if (["paid", "completed", "settled"].includes(remark)) {
+                                  return "remark-success";
+                                }
+
+                                if (["partial", "partially paid", "partial payment"].includes(remark)) {
+                                  return "remark-warning";
+                                }
+
+                                if (["unpaid", "failed", "rejected", "cancelled"].includes(remark)) {
+                                  return "remark-danger";
+                                }
+
+                                if (["refunded", "refund"].includes(remark)) {
+                                  return "remark-info";
+                                }
+
+                                return "remark-neutral";
+                              })()
+                            }`}
+                          >
+                            {row.remarks ?? "-"}
+                          </span>
+                        </td>
                       </tr>
                     ))
                   )}

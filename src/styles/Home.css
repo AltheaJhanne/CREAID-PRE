@@ -1,19 +1,19 @@
 /* HERO */
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 85vh;
   margin-top: 85px;
 }
-
 .hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url('../assets/background.png');
-  background-size: cover;
-  background-position: center;
-  filter: grayscale(100%);
-  opacity: 0.2;
+  background-image: url('../assets/finalbg5.png');
+  background-size: 100% auto;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-color: #ffffff;
+  opacity: 1;
   z-index: 0;
   pointer-events: none;
 }
@@ -165,6 +165,12 @@
 }
 
 /* EXPLORE SECTION */
+.explore-section {
+  background-image: url('../assets/finalbg2.jfif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 .home-small-title {
   color: #FA1377;
   font-weight: 700;
@@ -390,30 +396,81 @@
   font-weight: bold;
 }
 
+
+/* FACEBOOK FOOTER DROPDOWN */
+
 .footer-dropdown {
   position: relative;
 }
 
 .footer-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
   background: transparent;
   border: none;
   padding: 0;
-  color: inherit;
+  color: white;
+  font-size: inherit;
+  font-family: inherit;
   cursor: pointer;
+  transition: color 0.3s ease;
 }
 
+.footer-dropdown-btn:hover,
+.footer-dropdown-btn.active {
+  color: #FA1377;
+}
+
+/* Dropdown arrow */
+.footer-arrow {
+  font-size: 10px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.footer-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+/* Branch dropdown */
 .footer-submenu {
   list-style: none;
-  margin-top: 10px;
-  padding: 0;
+  padding: 8px 0;
+  margin: 8px 0 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+  border-left: 2px solid #FA1377;
 }
 
+/* Branch links */
 .footer-submenu li {
   margin: 0;
 }
+
+.footer-submenu-link {
+  display: block;
+  padding: 6px 12px;
+  color: #e5e5e5;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.footer-submenu-link:hover {
+  color: #FA1377;
+  background: rgba(250, 19, 119, 0.08);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 767px) {
+  .footer-dropdown-btn {
+    justify-content: flex-start;
+  }
+}
+
 
 @media (max-width: 767px) {
   .home-app-actions {
@@ -424,4 +481,44 @@
     flex-wrap: wrap;
     justify-content: flex-start;
   }
+}
+/* HERO LOGO - DESKTOP */
+.hero-logo {
+  width: 90%;
+  max-width: 100%;
+  margin-left: 9%;
+}
+
+/* HERO RESPONSIVENESS - TABLET AND MOBILE */
+@media (max-width: 991px) {
+
+  .hero-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+  .hero-logo {
+  width: 80%;
+  max-width: 350px;
+  height: auto;
+  margin: 100px auto 0;
+  display: block;
+}
+  .hero-content h1 {
+    font-size: 30px;
+  }
+
+  .hero-content p {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+}
+.footer-logo {
+  width: 350px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
 }

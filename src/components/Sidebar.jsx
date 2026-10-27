@@ -1,18 +1,17 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
-import logo from "../assets/creaid.jpg";
+import logo from "../assets/adminlogo.png";
 import "../styles/Sidebar.css";
 
-const NAV_ICONS = 
-{
-  dashboard: "📊",
-  calendar:  "📅",
-  users:     "👥",
-  payments:  "💳",
-  reports:   "📈",
-  system:    "🗂️",
-  inbox:     "📬",
+const NAV_ICONS = {
+  dashboard: "bi-speedometer2",
+  calendar: "bi-calendar3",
+  users: "bi-people",
+  payments: "bi-credit-card",
+  reports: "bi-bar-chart-line",
+  system: "bi-database-gear",
+  inbox: "bi-envelope",
 };
 
 function Sidebar({ collapsed, onToggle, mobileClose, isMobileDrawer }) 
@@ -25,7 +24,15 @@ function Sidebar({ collapsed, onToggle, mobileClose, isMobileDrawer })
   return (
     <div className={`sidebar${collapsed ? " collapsed" : ""}${isMobileDrawer ? " mobile-drawer" : ""}`}>
       <button className="sidebar-toggle" onClick={isMobileDrawer ? mobileClose : onToggle} title={isMobileDrawer ? "Close" : collapsed ? "Expand" : "Collapse"}>
-        {isMobileDrawer ? "✕" : collapsed ? "›" : "‹"}
+        <i
+          className={`bi ${
+            isMobileDrawer
+              ? "bi-x-lg"
+              : collapsed
+              ? "bi-chevron-right"
+              : "bi-chevron-left"
+          }`}
+        ></i>
       </button>
 
       <img src={logo} alt="Logo" className="sidebar-logo" />
@@ -34,14 +41,14 @@ function Sidebar({ collapsed, onToggle, mobileClose, isMobileDrawer })
 
         <NavLink to="/dashboard" className={navClass} data-tooltip="Dashboard"
           onClick={isMobileDrawer ? mobileClose : undefined}>
-          <span className="nav-icon">{NAV_ICONS.dashboard}</span>
+          <i className={`nav-icon bi ${NAV_ICONS.dashboard}`}></i>
           <span className="nav-label">Dashboard</span>
         </NavLink>
 
         {permissions.calendar?.includes("view") && (
           <NavLink to="/calendar" className={navClass} data-tooltip="Calendar"
             onClick={isMobileDrawer ? mobileClose : undefined}>
-            <span className="nav-icon">{NAV_ICONS.calendar}</span>
+            <i className={`nav-icon bi ${NAV_ICONS.calendar}`}></i>
             <span className="nav-label">Calendar</span>
           </NavLink>
         )}
@@ -49,9 +56,11 @@ function Sidebar({ collapsed, onToggle, mobileClose, isMobileDrawer })
         {permissions.users?.includes("view") && (
           <>
             <div className={`nav-item submenu-toggle${openUsers ? " open" : ""}`} data-tooltip="Users" onClick={() => !collapsed && setOpenUsers(!openUsers)}>
-              <span className="nav-icon">{NAV_ICONS.users}</span>
+              <i className={`nav-icon bi ${NAV_ICONS.users}`}></i>
               <span className="nav-label">Users</span>
-              <span className="chevron-icon">▼</span>
+              <span className="chevron-icon">
+                <i className="bi bi-chevron-down"></i>
+              </span>
             </div>
             {openUsers && !collapsed && (
               <div className="submenu">
@@ -66,7 +75,7 @@ function Sidebar({ collapsed, onToggle, mobileClose, isMobileDrawer })
 
         {permissions.payments?.includes("view") && (
           <NavLink to="/payments" className={navClass} data-tooltip="Payment" onClick={isMobileDrawer ? mobileClose : undefined}>
-            <span className="nav-icon">{NAV_ICONS.payments}</span>
+            <i className={`nav-icon bi ${NAV_ICONS.payments}`}></i>
             <span className="nav-label">Payment</span>
           </NavLink>
         )}
@@ -74,9 +83,11 @@ function Sidebar({ collapsed, onToggle, mobileClose, isMobileDrawer })
         {permissions.reports?.includes("view") && (
           <>
             <div className={`nav-item submenu-toggle${openReports ? " open" : ""}`} data-tooltip="Reports" onClick={() => !collapsed && setOpenReports(!openReports)}>
-              <span className="nav-icon">{NAV_ICONS.reports}</span>
+              <i className={`nav-icon bi ${NAV_ICONS.reports}`}></i>
               <span className="nav-label">Reports</span>
-              <span className="chevron-icon">▼</span>
+              <span className="chevron-icon">
+                <i className="bi bi-chevron-down"></i>
+              </span>
             </div>
             {openReports && !collapsed && (
               <div className="submenu">
@@ -92,14 +103,14 @@ function Sidebar({ collapsed, onToggle, mobileClose, isMobileDrawer })
 
         {permissions.system?.includes("view") && (
           <NavLink to="/system" className={navClass} data-tooltip="System Data" onClick={isMobileDrawer ? mobileClose : undefined}>
-            <span className="nav-icon">{NAV_ICONS.system}</span>
+            <i className={`nav-icon bi ${NAV_ICONS.system}`}></i>
             <span className="nav-label">System Data</span>
           </NavLink>
         )}
 
         {permissions.inbox?.includes("view") && (
           <NavLink to="/inbox" className={navClass} data-tooltip="Inbox" onClick={isMobileDrawer ? mobileClose : undefined}>
-            <span className="nav-icon">{NAV_ICONS.inbox}</span>
+            <i className={`nav-icon bi ${NAV_ICONS.inbox}`}></i>
             <span className="nav-label">Inbox</span>
           </NavLink>
         )}

@@ -824,3 +824,746 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* =====================================
+   PAYMENT DETAILS MODAL REDESIGN
+===================================== */
+
+.payment-modal:not(.receipt-modal) {
+  width: 1050px;
+  max-width: 94vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #fff;
+}
+
+/* Keep the original header appearance */
+.payment-modal:not(.receipt-modal) > .modal-header {
+  flex-shrink: 0;
+}
+
+/* Scroll the content, not the whole modal */
+.payment-modal .payment-details-body {
+  display: flex !important;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px !important;
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
+
+.payment-details-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.payment-details-card {
+  border: 1px solid #ede9f8;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(21, 14, 67, 0.035);
+}
+
+.payment-details-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  background: linear-gradient(110deg, #fce7f3, #fff0f8);
+  color: #150e43;
+}
+
+.payment-details-section-heading > i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #fff;
+  color: #fa1377;
+  font-size: 19px;
+}
+
+.payment-details-section-heading h4 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #150e43;
+}
+
+.payment-details-purple {
+  background: linear-gradient(110deg, #eeedff, #f8f5ff);
+}
+
+.payment-details-purple > i {
+  color: #6254b5;
+}
+
+/* Patient card */
+.payment-details-patient {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 20px;
+}
+
+.payment-details-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #fce7f3;
+  color: #e60073;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.payment-details-patient h5 {
+  margin: 0 0 5px;
+  color: #150e43;
+  font-size: 17px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.payment-details-patient span {
+  color: #928bac;
+  font-size: 13px;
+}
+
+.payment-details-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 0 20px 24px;
+}
+
+.payment-details-info-grid label,
+.payment-details-summary-field label {
+  display: block;
+  margin-bottom: 7px;
+  color: #928bac;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.payment-details-info-grid p {
+  margin: 0;
+  color: #150e43;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+/* Payment summary */
+.payment-details-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 20px;
+}
+
+.payment-details-summary-field {
+  min-width: 0;
+}
+
+.payment-details-summary-field > p,
+.payment-details-readonly-method {
+  margin: 0;
+  padding: 12px 14px;
+  min-height: 46px;
+  border: 1px solid #e8e2f5;
+  border-radius: 10px;
+  background: #faf9fe;
+  color: #150e43;
+  font-size: 15px;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.payment-details-summary-field .payment-details-balance {
+  color: #e60073;
+}
+
+.payment-details-summary-field .payment-status-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+}
+
+.payment-details-full {
+  grid-column: 1 / -1;
+}
+
+.payment-details-full .modal-input {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 10px;
+  background: #fff;
+}
+
+/* Services table */
+.payment-details-service-table {
+  margin: 18px;
+  border: 1px solid #ede9f8;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.payment-details-service-header,
+.payment-details-service-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 150px;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+}
+
+.payment-details-service-header {
+  background: #f7f5fd;
+  color: #928bac;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.payment-details-service-row {
+  border-top: 1px solid #ede9f8;
+  color: #150e43;
+  font-size: 13px;
+}
+
+.payment-details-service-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.payment-details-service-row strong {
+  color: #fa1377;
+  font-size: 14px;
+}
+
+.payment-details-service-action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.payment-details-service-action button {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.payment-details-no-action {
+  color: #aaa3bd;
+}
+
+.payment-details-empty {
+  padding: 24px;
+  color: #928bac;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* Footer */
+.payment-modal .payment-details-footer {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 18px 24px !important;
+  flex-shrink: 0;
+  background: #faf9fe;
+  border-top: 1px solid #ede9f8;
+}
+
+.payment-details-footer-tools {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.payment-details-add-service {
+  width: min(100%, 280px);
+  min-height: 42px;
+  border-radius: 10px;
+}
+
+.payment-details-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.payment-details-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1 1 170px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.payment-details-action i {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.payment-details-action:hover {
+  transform: translateY(-1px);
+}
+
+.payment-details-action-red {
+  background: #ffe8eb;
+  color: #c62828;
+  border-color: #ffd3da;
+}
+
+.payment-details-action-green {
+  background: #e0f7e9;
+  color: #177a40;
+  border-color: #c8efd8;
+}
+
+.payment-details-action-amber {
+  background: #fff3d8;
+  color: #9a6100;
+  border-color: #ffe5a8;
+}
+
+.payment-details-action-purple {
+  background: #eeebff;
+  color: #43358f;
+  border-color: #e0dafc;
+}
+
+.payment-details-action-pink {
+  background: #fce4f1;
+  color: #d60068;
+  border-color: #f8cbe3;
+}
+
+.payment-details-action-close {
+  background: #eeecf6;
+  color: #150e43;
+  border-color: #e0dced;
+}
+
+.payment-details-action:focus-visible {
+  outline: 2px solid #fa1377;
+  outline-offset: 2px;
+}
+
+/* Responsive layout */
+@media (max-width: 800px) {
+  .payment-details-top {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-modal .payment-details-body {
+    padding: 16px !important;
+  }
+
+  .payment-modal .payment-details-footer {
+    padding: 14px 16px !important;
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .payment-details-info-grid,
+  .payment-details-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-details-service-header,
+  .payment-details-service-row {
+    grid-template-columns: minmax(0, 1fr) 80px 115px;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .payment-details-action {
+    flex-basis: 100%;
+  }
+}
+/* COMPACT PAYMENT MODAL FOOTER */
+
+.payment-modal:not(.receipt-modal) {
+  max-height: 92vh;
+}
+
+.payment-modal .payment-details-body {
+  gap: 14px;
+  padding: 16px 24px !important;
+}
+
+.payment-modal .payment-details-footer {
+  padding: 12px 24px !important;
+  gap: 10px;
+}
+
+.payment-details-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.payment-details-action {
+  min-height: 40px;
+  flex: 1 1 150px;
+  padding: 9px 12px;
+  font-size: 12px;
+}
+
+.payment-details-add-service {
+  min-height: 38px;
+}
+
+.payment-details-patient {
+  padding: 14px 20px;
+}
+
+.payment-details-info-grid {
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.payment-details-summary-grid {
+  gap: 12px;
+  padding: 16px;
+}
+
+.payment-details-section-heading {
+  padding: 11px 16px;
+}
+
+.payment-details-not-performed-label {
+  display: block;
+  margin-top: 5px;
+  color: #c62828;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* =========================================
+   PAYMENT DETAILS - SERVICES FIRST LAYOUT
+   UI ONLY - NO BUSINESS LOGIC CHANGES
+========================================= */
+
+/* Show Services Availed first */
+.payment-modal:not(.receipt-modal) .payment-details-services {
+  order: 1;
+  flex-shrink: 0;
+}
+
+/* Show patient and payment cards second */
+.payment-modal:not(.receipt-modal) .payment-details-top {
+  order: 2;
+  align-items: start;
+}
+
+/* Keep modal content scrollable */
+.payment-modal:not(.receipt-modal) .payment-details-body {
+  display: flex !important;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 16px 24px !important;
+}
+
+/* Compact Services Availed card */
+.payment-modal:not(.receipt-modal) .payment-details-services
+.payment-details-section-heading {
+  padding: 10px 16px;
+}
+
+.payment-modal:not(.receipt-modal) .payment-details-services
+.payment-details-service-table {
+  margin: 12px 16px 16px;
+}
+
+/* Service table rows */
+.payment-details-services .payment-details-service-row {
+  min-height: 44px;
+  padding: 10px 16px;
+}
+
+/* Service action buttons */
+.payment-details-services .payment-details-service-action button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Reduce footer space */
+.payment-modal:not(.receipt-modal) .payment-details-footer {
+  padding: 12px 24px !important;
+  gap: 10px;
+}
+
+/* Consistent footer buttons */
+.payment-details-footer-actions .payment-details-action {
+  min-height: 40px;
+  padding: 9px 12px;
+  flex: 1 1 150px;
+}
+
+/* Keep patient cards compact */
+.payment-details-top .payment-details-patient {
+  padding: 14px 20px;
+}
+
+.payment-details-top .payment-details-info-grid {
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.payment-details-top .payment-details-summary-grid {
+  gap: 12px;
+  padding: 16px;
+}
+
+/* ADD SERVICE - DENTCONNECT THEME */
+
+.pd-add-service-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 10px 20px;
+  background: #fa1377;
+  border: 1px solid #fa1377;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.pd-add-service-trigger:hover {
+  background: #dc0e66;
+  box-shadow: 0 5px 15px rgba(250,19,119,.18);
+}
+
+.pd-service-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000001;
+  background: rgba(21,14,67,.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pd-service-picker {
+  width: 100%;
+  max-width: 480px;
+  max-height: 75vh;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 55px rgba(21,14,67,.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pd-service-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px 22px;
+  background: #fff0f8;
+  border-bottom: 1px solid #f8d5e8;
+}
+
+.pd-service-picker-header h4 {
+  margin: 0 0 5px;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: #150e43;
+}
+
+.pd-service-picker-header p {
+  margin: 0;
+  color: #928bac;
+  font-size: 12px;
+}
+
+.pd-service-picker-close {
+  border: none;
+  background: transparent;
+  color: #150e43;
+  font-size: 17px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.pd-service-picker-list {
+  padding: 8px 16px;
+  overflow-y: auto;
+}
+
+.pd-service-picker-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 6px;
+  border-bottom: 1px solid #ede9f8;
+}
+
+.pd-service-picker-item:last-child {
+  border-bottom: none;
+}
+
+.pd-service-picker-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.pd-service-picker-name {
+  color: #150e43;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pd-service-picker-price {
+  color: #fa1377;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pd-service-picker-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 76px;
+  padding: 9px 14px;
+  border: 1px solid #fac1dd;
+  border-radius: 8px;
+  background: #fff0f8;
+  color: #e60073;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.pd-service-picker-add:hover:not(:disabled) {
+  background: #fa1377;
+  color: #fff;
+}
+
+.pd-service-picker-add:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+.pd-service-picker-empty {
+  padding: 20px;
+  text-align: center;
+  color: #928bac;
+  font-size: 13px;
+}
+
+/* SERVICES AVAILED HEADER WITH ADD SERVICE BUTTON */
+
+.payment-details-services .pd-services-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+}
+
+.pd-services-heading-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pd-services-heading-title > i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #fff;
+  color: #fa1377;
+  font-size: 19px;
+}
+
+.pd-services-heading .pd-add-service-trigger {
+  flex-shrink: 0;
+  min-height: 38px;
+  padding: 9px 16px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .payment-details-services .pd-services-heading {
+    flex-wrap: wrap;
+  }
+
+  .pd-services-heading .pd-add-service-trigger {
+    margin-left: auto;
+  }
+}
+/* Make Add Service button icon white */
+.pd-services-heading .pd-add-service-trigger i,
+.pd-services-heading .pd-add-service-trigger i::before {
+  color: #ffffff !important;
+}
+.payment-pagination-controls
+.payment-page-btn.pagination-active {
+  background: #f50070;
+  color: #fff;
+  border-color: #f50070;
+  font-weight: 700;
+}
+.btn-edit-icon .bi {
+  font-size: 16px;
+}

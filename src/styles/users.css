@@ -146,7 +146,7 @@ users.css
 .users-table-header, .users-table-row 
 {
   display: grid;
-  grid-template-columns: 64px 48px 2fr 2.5fr 1.5fr 1fr 1.2fr 1fr;
+  grid-template-columns: 76px 48px 2fr 2.5fr 1.5fr 1fr 1.2fr 1fr;
   align-items: center;
   padding: 12px 16px;
   gap: 12px;
@@ -179,12 +179,80 @@ users.css
   color: #b0aac8;
   font-size: 14px;
 }
-.row-actions 
-{
+
+/* USER LIST ACTION BUTTONS */
+
+.users-content .row-actions {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  white-space: nowrap;
 }
+
+.users-content .user-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease,
+              border-color 0.2s ease,
+              transform 0.2s ease;
+}
+
+/* Edit - Pink */
+.users-content .user-action-edit {
+  background: #FCE7F1;
+  color: #D91369;
+  border-color: #F8C4DA;
+}
+
+.users-content .user-action-edit:hover {
+  background: #FAD0E3;
+  border-color: #FA1377;
+}
+
+/* Archive - Gray */
+.users-content .user-action-archive {
+  background: #F0F0F3;
+  color: #666674;
+  border-color: #DCDCE2;
+}
+
+.users-content .user-action-archive:hover {
+  background: #E2E2E8;
+  border-color: #B8B8C2;
+}
+
+/* Restore - Blue */
+.users-content .user-action-restore {
+  background: #E6F1FB;
+  color: #185FA5;
+  border-color: #C9DFF4;
+}
+
+.users-content .user-action-restore:hover {
+  background: #D2E7FA;
+  border-color: #83B8E5;
+}
+
+.users-content .user-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.users-content .user-action-btn:focus-visible {
+  outline: 2px solid #FA1377;
+  outline-offset: 2px;
+}
+
 .edit-btn 
 {
   background: none;
@@ -261,25 +329,33 @@ users.css
 .role-admin   { background: #FBEAF0; color: #993556; }
 .role-default { background: #f0edf9; color: #150e43; }
 
-.status-online 
-{
+
+/* USER STATUS CAPSULE */
+
+.users-content .user-status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background: #EAF3DE;
-  color: #3B6D11;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 3px 10px;
-  border-radius: 20px;
+  justify-content: center;
+  width: fit-content;
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
 }
-.status-dot 
-{
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #639922;
-  flex-shrink: 0;
+
+/* Active - Green */
+.users-content .user-status-pill.status-online {
+  background-color: #DDFBE8;
+  color: #08A64B;
+}
+
+/* Inactive - Gray */
+.users-content .user-status-pill.status-offline {
+  background-color: #E9E9ED;
+  color: #707078;
 }
 .users-footer 
 {

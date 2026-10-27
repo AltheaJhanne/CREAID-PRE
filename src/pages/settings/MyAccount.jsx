@@ -359,7 +359,7 @@ window.dispatchEvent(
               <div className="account-card-header">
 
                 <span className="account-card-icon">
-                  👤
+                  <i className="bi bi-person-circle"></i>
                 </span>
 
                 <h2>My Account</h2>
@@ -398,11 +398,12 @@ window.dispatchEvent(
                         />
                         {/* BUTTON */}
                         <label
-                        htmlFor="avatar-upload"
-                        className="btn-photo"
+                          htmlFor="avatar-upload"
+                          className="btn-photo"
                         >
-                          📷 Change
-                          </label>
+                          <i className="bi bi-camera"></i>
+                          Change
+                        </label>
                           </div>
 
                   {/* FORM */}
@@ -594,7 +595,8 @@ window.dispatchEvent(
                       className="btn-save"
                       onClick={handleSave}
                     >
-                      💾 Save Changes
+                      <i className="bi bi-floppy"></i>
+                      Save Changes
                     </button>
 
                   </div>
@@ -615,7 +617,7 @@ window.dispatchEvent(
                     <div className="toggle-label">
 
                       <span className="toggle-icon notif-icon">
-                        🔔
+                        <i className="bi bi-bell"></i>
                       </span>
 
                       Notifications
@@ -647,7 +649,7 @@ window.dispatchEvent(
                     <div className="toggle-label">
 
                       <span className="toggle-icon dark-icon">
-                        🌙
+                        <i className="bi bi-moon-stars"></i>
                       </span>
 
                       Dark Mode

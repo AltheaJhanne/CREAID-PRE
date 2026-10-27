@@ -16,7 +16,60 @@ import {
 } from "recharts";
 
 
-function Daily() 
+function StatusCapsule({ status, type = "appointment" }) {
+  const normalized = String(status || "")
+    .trim()
+    .toLowerCase();
+
+  const labels = {
+    downpayment_paid: "Downpayment",
+    paid: "Paid",
+    scheduled: "Scheduled",
+    completed: "Completed",
+    pending: "Pending",
+    cancelled: "Cancelled",
+    rejected: "Rejected"
+  };
+
+  const colors = {
+    completed: "#15803d",
+    paid: "#15803d",
+    scheduled: "#2563eb",
+    pending: "#64748b",
+    downpayment_paid: "#d97706",
+    cancelled: "#dc2626",
+    rejected: "#dc2626"
+  };
+
+  const color =
+    type === "collection"
+      ? "#15803d"
+      : colors[normalized] || "#64748b";
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "fit-content",
+        padding: "5px 11px",
+        borderRadius: "999px",
+        backgroundColor: `${color}18`,
+        color,
+        fontSize: "12px",
+        fontWeight: 700,
+        whiteSpace: "nowrap"
+      }}
+    >
+      {labels[normalized] ||
+        status ||
+        "Unknown"}
+    </span>
+  );
+}
+
+function Daily()
 {
   const [stats, setStats] =
   useState({
@@ -295,7 +348,9 @@ const salesComparisonData =
 
         <div className="daily-stat-cards">
           <div className="daily-stat-card daily-stat-pink">
-            <div className="daily-stat-icon">🦷</div>
+            <div className="daily-stat-icon">
+              <i className="bi bi-calendar2-check"></i>
+            </div>
             <div className="daily-stat-info">
               <div className="daily-stat-value">{stats.appointments}</div>
               <div className="daily-stat-label">Appointments</div>
@@ -303,7 +358,10 @@ const salesComparisonData =
           </div>
 
           <div className="daily-stat-card daily-stat-purple">
-            <div className="daily-stat-icon">🔁</div>
+            <div className="daily-stat-icon">
+              <i className="bi bi-arrow-repeat"></i>
+            </div>
+
             <div className="daily-stat-info">
               <div className="daily-stat-value">{stats.recalls}</div>
               <div className="daily-stat-label">Rebooked</div>
@@ -311,7 +369,9 @@ const salesComparisonData =
           </div>
 
           <div className="daily-stat-card daily-stat-navy">
-            <div className="daily-stat-icon">👤</div>
+            <div className="daily-stat-icon">
+              <i className="bi bi-person-vcard"></i>
+            </div>
             <div className="daily-stat-info">
               <div className="daily-stat-value">{stats.patients}</div>
               <div className="daily-stat-label">Patient Invoices</div>
@@ -343,7 +403,9 @@ const salesComparisonData =
                       <span>{r.clinic}</span>
                       <span>{r.associate}</span>
                       <span>{r.reason}</span>
-                      <span>{r.status}</span>
+                      <span>
+                        <StatusCapsule status={r.status} />
+                      </span>
                     </div>
                   ))
               }
@@ -445,13 +507,8 @@ const salesComparisonData =
               ).toLocaleString()}
             </span>
 
-          <span
-  style={{
-    color: "#f59e0b",
-    fontWeight: 600
-  }}
->
-  {r.status}
+          <span>
+  <StatusCapsule status={r.status} />
 </span>
           </div>
         )
@@ -491,7 +548,12 @@ const salesComparisonData =
                       <span>{r.clinic}</span>
                       <span>{r.paymentType}</span>
                       <span>{r.amount}</span>
-                      <span>{r.remarks}</span>
+                      <span>
+                        <StatusCapsule
+                          status={r.remarks}
+                          type="collection"
+                        />
+                      </span>
                     </div>
                   ))
               }
@@ -762,7 +824,13 @@ const salesComparisonData =
         </div>
 
         <div className="reports-footer">
-          <button className="btn-print">🖨️ Print</button>
+          <button
+            className="btn-print"
+            onClick={() => window.print()}
+          >
+            <i className="bi bi-printer" style={{ marginRight: "8px" }}></i>
+            Print
+          </button>
         </div>
         {
   expandedTable && (
@@ -798,11 +866,9 @@ const salesComparisonData =
 
           <button
             className="daily-modal-close"
-            onClick={() =>
-              setExpandedTable(null)
-            }
+            onClick={() => setExpandedTable(null)}
           >
-            ✕
+            <i className="bi bi-x-lg"></i>
           </button>
 
         </div>
@@ -837,7 +903,9 @@ const salesComparisonData =
           <span>{r.clinic}</span>
           <span>{r.associate}</span>
           <span>{r.reason}</span>
-          <span>{r.status}</span>
+          <span>
+            <StatusCapsule status={r.status} />
+          </span>
         </div>
 
       ))}
@@ -925,7 +993,9 @@ const salesComparisonData =
           ).toLocaleString()}
         </span>
 
-        <span>{r.status}</span>
+        <span>
+          <StatusCapsule status={r.status} />
+        </span>
 
       </div>
 
@@ -996,7 +1066,12 @@ const salesComparisonData =
           <span>{r.clinic}</span>
           <span>{r.paymentType}</span>
           <span>{r.amount}</span>
-          <span>{r.remarks}</span>
+          <span>
+            <StatusCapsule
+              status={r.remarks}
+              type="collection"
+            />
+          </span>
         </div>
 
       ))}
@@ -1009,8 +1084,7 @@ const salesComparisonData =
 
       </div>
     </div>
-  )
-}
+  )}
       </div>
     </div>
   );

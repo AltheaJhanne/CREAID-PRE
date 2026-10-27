@@ -6,7 +6,7 @@ const CATEGORIES = [
   {
     key: "services",
     label: "Services",
-    icon: "📄",
+    icon: "bi-receipt",
     color: "blue",
     pageTitle: "Services / Bill Items",
     pageSubtitle: "Manage account services or bill items list.",
@@ -16,7 +16,7 @@ const CATEGORIES = [
   {
     key: "medicines",
     label: "Medicines",
-    icon: "💊",
+    icon: "bi-capsule",
     color: "purple",
     pageTitle: "Medicines",
     pageSubtitle: "Manage clinic medicine inventory list.",
@@ -26,7 +26,7 @@ const CATEGORIES = [
   {
     key: "templates",
     label: "Templates",
-    icon: "🗂️",
+    icon: "bi-file-earmark-text",
     color: "amber",
     pageTitle: "Templates",
     pageSubtitle: "Manage document and prescription templates.",
@@ -36,7 +36,7 @@ const CATEGORIES = [
   {
     key: "dental-habits",
     label: "Dental Habits",
-    icon: "🦷",
+    icon: "bi-clipboard2-pulse",
     color: "coral",
     pageTitle: "Dental Habits",
     pageSubtitle: "Manage dental habit entries for patient records.",
@@ -46,7 +46,7 @@ const CATEGORIES = [
   {
     key: "medical-conditions",
     label: "Medical Conditions",
-    icon: "❤️",
+    icon: "bi-heart-pulse",
     color: "red",
     pageTitle: "Medical Conditions",
     pageSubtitle: "Manage medical condition entries used in patient charts.",
@@ -56,7 +56,7 @@ const CATEGORIES = [
   {
     key: "tooth-items",
     label: "Tooth Items",
-    icon: "🦷",
+    icon: "bi-grid-3x3-gap",
     color: "green",
     pageTitle: "Tooth Items",
     pageSubtitle: "Manage tooth chart item definitions.",
@@ -1148,7 +1148,8 @@ Other
       <div className="mf-table-top">
 
         <button className="mf-back-btn" onClick={onBack}>
-          ← Back
+          <i className="bi bi-arrow-left"></i>
+          Back
         </button>
 
         <div>
@@ -1163,7 +1164,9 @@ Other
 
         <div className="mf-search-wrap">
 
-          <span className="mf-search-icon">🔍</span>
+          <span className="mf-search-icon">
+            <i className="bi bi-search"></i>
+          </span>
 
           <input
             className="mf-search"
@@ -1179,7 +1182,8 @@ Other
           className={`mf-add-btn mf-add-btn--${category.color}`}
           onClick={() => setShowModal(true)}
         >
-          {category.addLabel}
+          <i className="bi bi-plus-lg"></i>
+          {category.addLabel.replace(/^\+\s*/, "")}
         </button>
 
       </div>
@@ -1226,7 +1230,7 @@ Other
     handleEdit(row)
   }
 >
-  ✏️
+  <i className="bi bi-pencil-square"></i>
 </button>
 
                     <button
@@ -1236,7 +1240,7 @@ Other
     handleArchive(row.id)
   }
 >
-  📦
+  <i className="bi bi-archive"></i>
 </button>
 
 {row.file_url && (
@@ -1252,7 +1256,7 @@ Other
     target="_blank"
     rel="noopener noreferrer"
   >
-  view
+  <i className="bi bi-eye"></i>
   </a>
 )}
 
@@ -1338,7 +1342,7 @@ function SystemData() {
                 >
 
                   <div className="masterfile-icon">
-                    {item.icon}
+                    <i className={`bi ${item.icon}`}></i>
                   </div>
 
                   <div className="masterfile-label">

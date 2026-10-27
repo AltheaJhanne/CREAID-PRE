@@ -500,3 +500,158 @@
 .mf-action-edit{
   color: #FA1377;
 }
+/* DENTCONNECT SYSTEM DATA MODALS */
+
+.mf-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(12, 18, 49, 0.65);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.mf-modal {
+  background: #ffffff;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 18px;
+  padding: 30px;
+  box-shadow: 0 20px 65px rgba(12, 18, 49, 0.25);
+  border-top: 5px solid #fa1377;
+}
+
+.mf-modal h2 {
+  color: #161b4b;
+  font-size: 23px;
+  font-weight: 700;
+  margin: 0 0 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9eaf2;
+}
+
+.mf-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mf-modal-form input,
+.mf-modal-form select,
+.mf-modal-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 15px;
+  border: 1px solid #dfe2ed;
+  border-radius: 10px;
+  background: #f8f9fd;
+  color: #202547;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.mf-modal-form input:focus,
+.mf-modal-form select:focus,
+.mf-modal-form textarea:focus {
+  border-color: #fa1377;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(250, 19, 119, 0.1);
+}
+
+.mf-modal-form input::placeholder,
+.mf-modal-form textarea::placeholder {
+  color: #9299ad;
+}
+
+.mf-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #e9eaf2;
+}
+
+.mf-save-btn,
+.mf-cancel-btn {
+  border-radius: 9px;
+  padding: 11px 24px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.mf-save-btn {
+  background: #fa1377;
+  color: #ffffff;
+  border: 1px solid #fa1377;
+}
+
+.mf-save-btn:hover {
+  background: #d90b61;
+}
+
+.mf-cancel-btn {
+  background: #f1f2f8;
+  color: #454b67;
+  border: 1px solid #e1e3ed;
+}
+
+.mf-cancel-btn:hover {
+  background: #e5e7f0;
+}
+
+@media (max-width: 600px) {
+  .mf-modal {
+    padding: 22px;
+    border-radius: 14px;
+  }
+
+  .mf-modal-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* SYSTEM DATA BUTTON ICONS */
+
+.mf-back-btn,
+.mf-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.mf-back-btn .bi,
+.mf-add-btn .bi {
+  font-size: 16px;
+}
+
+.mf-action-edit .bi,
+.mf-action-del .bi {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Masterfile category icons */
+.masterfile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.masterfile-icon .bi {
+  display: inline-block;
+  font-size: 38px;
+  line-height: 1;
+  color: #ffffff !important;
+}

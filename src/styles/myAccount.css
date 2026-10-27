@@ -318,3 +318,28 @@
   color: #ccc;
   line-height: 1;
 }
+/* MY ACCOUNT — BOOTSTRAP ICONS */
+
+.account-card-icon .bi {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.btn-photo,
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-photo .bi,
+.btn-save .bi {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.toggle-icon .bi {
+  font-size: 20px;
+  line-height: 1;
+}

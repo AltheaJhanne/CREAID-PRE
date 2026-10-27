@@ -304,3 +304,19 @@
 .sidebar.collapsed .sidebar-footer-text {
   opacity: 0;
 }
+
+/* White icon when navigation is selected */
+.sidebar .nav-item.active .nav-icon {
+  color: #ffffff;
+}
+.sidebar .nav-item:hover .nav-icon {
+  color: #ffffff;
+}
+.sidebar-logo {
+  display: block;
+  width: 220px;
+  max-width: 90%;
+  height: 160px;
+  object-fit: contain;
+  margin: 0 auto;
+}

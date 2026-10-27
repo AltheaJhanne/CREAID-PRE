@@ -21,11 +21,19 @@ function Logs()
     Math.ceil(total / 5)
   );
 
-  const pageNumbers =
-[
-  ...Array(totalPages)
-].map(
-  (_, i) => i + 1
+  const visiblePageCount = 5;
+
+const startPage = Math.max(
+  1,
+  Math.min(
+    page - Math.floor(visiblePageCount / 2),
+    totalPages - visiblePageCount + 1
+  )
+);
+
+const pageNumbers = Array.from(
+  { length: Math.min(totalPages, visiblePageCount) },
+  (_, i) => startPage + i
 );
 
   const [appliedFilters, setAppliedFilters] =
@@ -42,84 +50,62 @@ function Logs()
       action: "All Actions"
     });
 
-  useEffect(() =>
-{
-    fetchLogs();
-},
-[
-    page,
-    appliedFilters
-]);
+ 
+useEffect(() => {
+  const controller = new AbortController();
 
-async function fetchLogs(
-    currentPage = page
-)
-{
-  setLoading(true);
+  async function fetchLogs() {
+    setLoading(true);
 
-  try
-  {
-    const params =
-      new URLSearchParams();
+    try {
+      const params = new URLSearchParams();
 
-    params.set(
-    "page",
-    currentPage
-);
+      params.set("page", String(page));
 
-    if(appliedFilters.user)
-    {
-      params.set(
-      "user",
-      appliedFilters.user
-    );
-    }
+      if (appliedFilters.user.trim()) {
+        params.set("user", appliedFilters.user.trim());
+      }
 
-    if(
-      appliedFilters.role !==
-      "All Roles"
-    )
-    {
-      params.set(
-      "role",
-      appliedFilters.role
-    );
-    }
+      if (appliedFilters.role !== "All Roles") {
+        params.set("role", appliedFilters.role);
+      }
 
-    if(
-      appliedFilters.action !==
-      "All Actions"
-    )
-    {
-      params.set(
-      "action",
-      appliedFilters.action
-    );
-    }
+      if (appliedFilters.action !== "All Actions") {
+        params.set("action", appliedFilters.action);
+      }
 
-    const response =
-      await fetch(
-        `${import.meta.env.VITE_API_URL}/users/logs?${params.toString()}`
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/logs?${params.toString()}`,
+        { signal: controller.signal }
       );
 
-    const result =
-      await response.json();
+      if (!response.ok) {
+        throw new Error("Failed to fetch user logs");
+      }
 
-    setLogs(
-      result.logs || []
-    );
+      const result = await response.json();
 
-    setTotal(
-      result.total || 0
-    );
+      if (!controller.signal.aborted) {
+        setLogs(result.logs || []);
+        setTotal(result.total || 0);
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Error fetching logs:", error);
+      }
+    } finally {
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
+    }
   }
-  catch(error)
-  {
-    console.error(error);
-  }
 
-  setLoading(false);
-}
+  fetchLogs();
+
+  return () => {
+    controller.abort();
+  };
+}, [page, appliedFilters]);
 
   return (
     <div className="users-content">
@@ -202,7 +188,8 @@ async function fetchLogs(
             "Create User",
             "Update User",
             "Archive User",
-            "Restore User"
+            "Restore User",
+            "Create Appointment"
           ].map(action => (
 
             <option
@@ -217,47 +204,31 @@ async function fetchLogs(
       </select>
 
       <button
-        className="btn-go"
-        onClick={() =>
-{
-    setAppliedFilters(filters);
-
+  className="btn-go"
+  onClick={() => {
+    setAppliedFilters({ ...filters });
     setPage(1);
-
-    if(page === 1)
-    {
-        fetchLogs(1);
-    }
-}}
-      >
-        Search
-      </button>
+  }}
+>
+  Search
+</button>
 
       <button
-        className="btn-reset"
-        onClick={() =>
-{
-    const reset =
-    {
-        user: "",
-        role: "All Roles",
-        action: "All Actions"
+  className="btn-reset"
+  onClick={() => {
+    const reset = {
+      user: "",
+      role: "All Roles",
+      action: "All Actions"
     };
 
     setFilters(reset);
-
     setAppliedFilters(reset);
-
     setPage(1);
-
-    if(page === 1)
-    {
-        fetchLogs(1);
-    }
-}}
-      >
-        Reset
-      </button>
+  }}
+>
+  Reset
+</button>
 
     </div>
 
@@ -328,7 +299,7 @@ async function fetchLogs(
 
     {" "}
 
-    {(page - 1) * 5 + 1}
+    {total === 0 ? 0 : (page - 1) * 5 + 1}
 
     -
 
@@ -354,9 +325,7 @@ async function fetchLogs(
   </button>
 
   {
-  pageNumbers
-    .slice(0, 5)
-    .map(number => (
+  pageNumbers.map(number => (
 
       <button
         key={number}

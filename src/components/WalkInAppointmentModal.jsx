@@ -20,7 +20,7 @@ import {
   getServicesApi
 }
 from "../api/services";
-
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "../styles/WalkInAppointmentModal.css";
 
 function convertMinutesToTime(minutes)
@@ -108,42 +108,25 @@ function convert24ToMinutes(time)
   return hours * 60 + minutes;
 }
 
-const generateTimeSlots = () =>
-{
+
+const generateTimeSlots = () => {
   const slots = [];
 
-  const ranges = [
-    {
-      start: 10 * 60,
-      end: 12 * 60
-    },
-    {
-      start: 13 * 60,
-      end: 17 * 60
-    }
-  ];
+  const clinicOpen = 10 * 60;
+  const clinicClose = 17 * 60;
 
-  ranges.forEach(range =>
-  {
-    for(
-      let minutes = range.start;
-      minutes < range.end;
-      minutes += 30
-    )
-    {
-      slots.push(
-        convertMinutesToTime(
-          minutes
-        )
-      );
-    }
-  });
+  for (
+    let minutes = clinicOpen;
+    minutes < clinicClose;
+    minutes += 30
+  ) {
+    slots.push(convertMinutesToTime(minutes));
+  }
 
   return slots;
 };
 
-const times =
-  generateTimeSlots();
+const times = generateTimeSlots();
 
 function calculateEndTime(
   startTime,
@@ -405,6 +388,29 @@ const unavailableTimes =
     candidateStart +
     totalDuration;
 
+  // Prevent booking past dates and past times today
+  const now = new Date();
+
+  const today =
+    `${now.getFullYear()}-` +
+    `${String(now.getMonth() + 1).padStart(2, "0")}-` +
+    `${String(now.getDate()).padStart(2, "0")}`;
+
+  const currentMinutes =
+    now.getHours() * 60 +
+    now.getMinutes();
+
+  if (form.appointment_date < today) {
+    return true;
+  }
+
+  if (
+    form.appointment_date === today &&
+    candidateStart <= currentMinutes
+  ) {
+    return true;
+  }
+
 const weekday =
   new Date(form.appointment_date)
     .toLocaleDateString(
@@ -467,6 +473,14 @@ if(lunch)
     weekday === "Saturday" ||
     weekday === "Sunday";
 
+  const customDays =
+  appliesTo?.startsWith?.("custom:")
+    ? appliesTo
+        .slice("custom:".length)
+        .split(",")
+        .map(day => day.trim())
+    : [];
+
   const shouldCheckLunch =
     appliesTo === "All Days" ||
     appliesTo === "all_days" ||
@@ -477,7 +491,7 @@ if(lunch)
       ) &&
       !isWeekend
     ) ||
-    appliesTo?.startsWith?.("custom");
+    customDays.includes(weekday);
 
   if(
     shouldCheckLunch &&
@@ -733,13 +747,71 @@ setSelectedServices([]);
     >
       <div className="walkin-modal">
 
-        <div className="walkin-header">
-          <h2>
-            Make Appointment
-          </h2>
-        </div>
+  <div className="walkin-header">
+    <div className="walkin-header-title">
+      <h2>Make Appointment</h2>
+    </div>
 
-        <div className="walkin-grid">
+    <button
+      type="button"
+      className="walkin-close-btn"
+      onClick={onClose}
+      aria-label="Close modal"
+    >
+      <i className="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div className="walkin-body">
+
+    <section className="walkin-section">
+  <div className="walkin-section-heading pink">
+    <i className="bi bi-clipboard2-pulse"></i>
+    <h3>Services</h3>
+  </div>
+
+  <div className="walkin-section-content">
+    <div className="walkin-services">
+
+          {services.map(
+            service => (
+              <label
+                key={service.id}
+                className="service-chip"
+              >
+                <input
+                  type="checkbox"
+                  checked={
+                    selectedServices.some(
+                      s =>
+                        s.id ===
+                        service.id
+                    )
+                  }
+                  onChange={() =>
+                    toggleService(
+                      service
+                    )
+                  }
+                />
+
+                {service.name}
+              </label>
+            )
+          )}
+
+            </div>
+  </div>
+</section>
+
+  <section className="walkin-section">
+  <div className="walkin-section-heading pink">
+    <i className="bi bi-person-circle"></i>
+    <h3>Patient & Appointment Information</h3>
+  </div>
+
+  <div className="walkin-section-content">
+    <div className="walkin-grid">
 
           <input
             placeholder="Full Name"
@@ -780,15 +852,14 @@ setSelectedServices([]);
           <select
             value={form.branch_id}
             onChange={(e) =>
-            setForm({
-            ...form,
-            branch_id:
-            e.target.value,
-
-            dentist_id: ""
-        })
-    }
->
+              setForm({
+                ...form,
+                branch_id: e.target.value,
+                dentist_id: "",
+                appointment_time: ""
+              })
+            }
+          >
             <option value="Hagonoy">
               Hagonoy
             </option>
@@ -803,8 +874,8 @@ setSelectedServices([]);
             onChange={(e) =>
               setForm({
                 ...form,
-                dentist_id:
-                  e.target.value
+                dentist_id: e.target.value,
+                appointment_time: ""
               })
             }
           >
@@ -830,8 +901,8 @@ setSelectedServices([]);
             onChange={(e) =>
               setForm({
                 ...form,
-                appointment_date:
-                  e.target.value
+                appointment_date: e.target.value,
+                appointment_time: ""
               })
             }
           />
@@ -900,11 +971,19 @@ times.map(time =>
               JCB
             </option>
           </select>
-
         </div>
+  </div>
+</section>
 
-        <textarea
-          placeholder="Reason for Visit"
+<section className="walkin-section">
+  <div className="walkin-section-heading purple">
+    <i className="bi bi-journal-text"></i>
+    <h3>Additional Details</h3>
+  </div>
+
+  <div className="walkin-section-content">
+    <textarea
+      placeholder="Reason for Visit"
           value={form.reason_for_visit}
           onChange={(e) =>
             setForm({
@@ -925,46 +1004,13 @@ times.map(time =>
                 e.target.value
             })
           }
-        />
-
-        <div className="walkin-services">
-
-          <h4>
-            Services
-          </h4>
-
-          {services.map(
-            service => (
-              <label
-                key={service.id}
-                className="service-chip"
-              >
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedServices.some(
-                      s =>
-                        s.id ===
-                        service.id
-                    )
-                  }
-                  onChange={() =>
-                    toggleService(
-                      service
-                    )
-                  }
                 />
+  </div>
+</section>
 
-                {service.name}
-              </label>
-            )
-          )}
-
-        </div>
-
-        <div className="walkin-summary">
-
+<div className="walkin-summary">
   <h3>
+    <i className="bi bi-receipt"></i>
     Appointment Summary
   </h3>
 
@@ -1054,25 +1100,29 @@ times.map(time =>
 
 </div>
 
-        <div className="walkin-actions">
+</div> {/* End of walkin-body */}
 
-          <button
-            className="cancel-btn"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
+<div className="walkin-actions">
+  <button
+    type="button"
+    className="cancel-btn"
+    onClick={onClose}
+  >
+    <i className="bi bi-x-circle"></i>
+    Cancel
+  </button>
 
-          <button
-            className="create-btn"
-            onClick={handleSubmit}
-          >
-            Create Appointment
-          </button>
+  <button
+    type="button"
+    className="create-btn"
+    onClick={handleSubmit}
+  >
+    <i className="bi bi-calendar2-check"></i>
+    Create Appointment
+  </button>
+</div>
 
-        </div>
-
-      </div>
+</div>
     </div>
   );
 }

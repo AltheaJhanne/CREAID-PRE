@@ -1347,3 +1347,675 @@
 
     font-weight: 700;
 }
+
+/* =========================================
+   DENTCONNECT - APPOINTMENT DETAILS MODAL
+   Consistent with Payment Details
+   UI ONLY
+========================================= */
+
+.appointment-modal-overlay > .appointment-modal {
+  width: min(1050px, 94vw);
+  max-height: 92vh;
+  padding: 0;
+  overflow-y: auto;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(21, 14, 67, 0.2);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* HEADER */
+.appointment-modal > .appt-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  padding: 20px 28px;
+  background: #faf9fe;
+  border-bottom: 1.5px solid #ede9f8;
+}
+
+.appointment-modal > .appt-modal-header h2 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #150e43;
+}
+
+.appointment-modal > .appt-modal-header .appt-modal-close-x {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #f0edf9;
+  color: #150e43;
+}
+
+/* TWO-COLUMN CARD LAYOUT */
+.appointment-modal > .appt-modal-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 18px;
+  padding: 22px 24px 0;
+}
+
+.appointment-modal .appt-modal-col-left,
+.appointment-modal .appt-modal-col-right {
+  gap: 16px;
+  min-width: 0;
+}
+
+/* INFORMATION CARDS */
+.appointment-modal .appt-modal-section,
+.appointment-modal .appt-modal-status-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid #ede9f8;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(21, 14, 67, 0.035);
+}
+
+/* PINK PATIENT CARD */
+.appointment-modal .appt-modal-col-left
+  > .appt-modal-section:first-child {
+  background: linear-gradient(
+    180deg,
+    #fff0f8 0,
+    #fff0f8 48px,
+    #fff 48px
+  );
+}
+
+/* LAVENDER SCHEDULE CARD */
+.appointment-modal .appt-modal-col-left
+  > .appt-modal-section:nth-child(2) {
+  background: linear-gradient(
+    180deg,
+    #f2efff 0,
+    #f2efff 48px,
+    #fff 48px
+  );
+}
+
+/* STATUS CARD */
+.appointment-modal .appt-modal-status-card {
+  background: #faf9fe;
+}
+
+/* PAYMENT CARD */
+.appointment-modal .appt-modal-col-right
+  > .appt-modal-section {
+  background: linear-gradient(
+    180deg,
+    #f2efff 0,
+    #f2efff 48px,
+    #fff 48px
+  );
+}
+
+/* CARD HEADINGS */
+.appointment-modal .appt-modal-section-title {
+  display: block;
+  margin-bottom: 14px;
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #150e43;
+}
+
+/* LABELS */
+.appointment-modal .appt-detail-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #948daf;
+}
+
+/* VALUES */
+.appointment-modal .appt-detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #150e43;
+  overflow-wrap: anywhere;
+}
+
+.appointment-modal .appt-detail-item {
+  gap: 5px;
+}
+
+/* SCHEDULE GRID */
+.appointment-modal .appt-modal-grid-2 {
+  gap: 18px 16px;
+}
+
+/* STATUS BADGE */
+.appointment-modal .appt-status-pill {
+  width: fit-content;
+  max-width: none;
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+/* PAYMENT LINKS */
+.appointment-modal .appt-modal-link-group {
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.appointment-modal .appt-receipt-link {
+  width: fit-content;
+  padding: 10px 14px;
+  border: 1px solid #f8c8e1;
+  border-radius: 9px;
+  background: #fff0f8;
+  color: #fa1377;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.appointment-modal .appt-receipt-link:hover {
+  background: #ffe0ef;
+  text-decoration: none;
+}
+
+/* SERVICES AVAILED */
+.appointment-modal > .appt-services-section {
+  margin: 18px 24px 0;
+  padding: 0 0 16px;
+  border: 1px solid #ede9f8;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.appointment-modal > .appt-services-section
+  > .appt-modal-section-title {
+  margin: 0;
+  padding: 17px 20px;
+  background: #fff0f8;
+  border-bottom: 1px solid #f7d9e9;
+  color: #150e43;
+}
+
+.appointment-modal .appt-services-list {
+  gap: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 12px 16px;
+}
+
+.appointment-modal .appt-service-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid #ede9f8;
+  border-radius: 0;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #150e43;
+}
+
+.appointment-modal .appt-service-item:first-child {
+  border-radius: 10px 10px 0 0;
+}
+
+.appointment-modal .appt-service-item:last-child {
+  border-radius: 0 0 10px 10px;
+}
+
+.appointment-modal .appt-service-item:only-child {
+  border-radius: 10px;
+}
+
+.appointment-modal .appt-service-item strong {
+  color: #fa1377;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* FOOTER ACTION BUTTONS */
+.appointment-modal > .appointment-modal-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 16px 24px;
+  border-top: 1.5px solid #ede9f8;
+  background: #faf9fe;
+}
+
+.appointment-modal > .appointment-modal-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 150px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: normal;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.appointment-modal > .appointment-modal-actions button:hover {
+  filter: brightness(0.96);
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  .appointment-modal > .appt-modal-layout {
+    grid-template-columns: 1fr;
+    padding: 16px 14px 0;
+  }
+
+  .appointment-modal > .appt-services-section {
+    margin: 16px 14px 0;
+  }
+
+  .appointment-modal > .appointment-modal-actions {
+    padding: 12px 14px;
+  }
+
+  .appointment-modal > .appointment-modal-actions button {
+    flex: 1 1 130px;
+  }
+
+  .appointment-modal > .appt-modal-header {
+    padding: 16px 18px;
+  }
+}
+
+/* ==========================================
+   DENTCONNECT APPOINTMENT DETAILS REDESIGN
+   UI ONLY - NO BUSINESS LOGIC CHANGES
+========================================== */
+
+.appointment-modal-overlay .dc-appointment-modal {
+  width: min(1050px, 94vw);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(21, 14, 67, .2);
+}
+
+/* Header */
+.dc-appointment-modal > .appt-modal-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 26px;
+  margin: 0;
+  background: #faf9fe;
+  border-bottom: 1px solid #ede9f8;
+}
+
+.dc-appointment-modal > .appt-modal-header h2 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #150e43;
+}
+
+.dc-appointment-modal .appt-modal-close-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: #f0edf9;
+  color: #150e43;
+  cursor: pointer;
+}
+
+/* Scrollable body */
+.dc-appointment-modal .dc-appt-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+/* Balanced two-column layout */
+.dc-appointment-modal .dc-appt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* Cards */
+.dc-appointment-modal .dc-appt-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid #ede9f8;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(21, 14, 67, .035);
+}
+
+/* Card headers */
+.dc-appointment-modal .dc-appt-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 12px 18px;
+}
+
+.dc-appointment-modal .dc-appt-pink {
+  background: linear-gradient(110deg, #fce7f3, #fff0f8);
+}
+
+.dc-appointment-modal .dc-appt-purple {
+  background: linear-gradient(110deg, #eeedff, #f8f5ff);
+}
+
+.dc-appointment-modal .dc-appt-card-heading > i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #fff;
+  color: #fa1377;
+  font-size: 19px;
+}
+
+.dc-appointment-modal .dc-appt-purple > i {
+  color: #6254b5;
+}
+
+.dc-appointment-modal .dc-appt-card-heading h3 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: #150e43;
+}
+
+/* Card content */
+.dc-appointment-modal .dc-appt-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 18px 20px;
+  flex: 1;
+}
+
+.dc-appointment-modal .appt-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.dc-appointment-modal .appt-detail-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: #948daf;
+}
+
+.dc-appointment-modal .appt-detail-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #150e43;
+  overflow-wrap: anywhere;
+}
+
+.dc-appointment-modal .dc-appt-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 20px 16px;
+}
+
+.dc-appointment-modal .dc-appt-capitalize {
+  text-transform: capitalize;
+}
+
+/* Guest badge */
+.dc-appointment-modal .appt-guest-badge {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #f0edf9;
+  color: #62558b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Status and notes */
+.dc-appointment-modal .appt-status-pill {
+  align-self: flex-start;
+  width: fit-content;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.dc-appointment-modal .dc-appt-notes {
+  margin: 0;
+  color: #150e43;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Payment links */
+.dc-appointment-modal .dc-appt-payment-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 3px;
+}
+
+.dc-appointment-modal .dc-appt-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid #f8c8e1;
+  border-radius: 9px;
+  background: #fff0f8;
+  color: #e60073;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.dc-appointment-modal .dc-appt-link:hover {
+  background: #ffe0ef;
+  text-decoration: none;
+}
+
+/* Services */
+.dc-appointment-modal .dc-appt-services {
+  margin-top: 16px;
+}
+
+.dc-appointment-modal .dc-appt-services-content {
+  padding: 14px 18px;
+}
+
+.dc-appointment-modal .dc-appt-service-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 15px;
+  border: 1px solid #ede9f8;
+  border-bottom: 0;
+  color: #150e43;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dc-appointment-modal .dc-appt-service-row:first-child {
+  border-radius: 10px 10px 0 0;
+}
+
+.dc-appointment-modal .dc-appt-service-row:last-child {
+  border-bottom: 1px solid #ede9f8;
+  border-radius: 0 0 10px 10px;
+}
+
+.dc-appointment-modal .dc-appt-service-row:only-child {
+  border-radius: 10px;
+}
+
+.dc-appointment-modal .dc-appt-service-row strong {
+  color: #fa1377;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.dc-appointment-modal .dc-appt-empty {
+  margin: 0;
+  padding: 12px;
+  text-align: center;
+  color: #948daf;
+  font-size: 13px;
+}
+
+/* Footer */
+.dc-appointment-modal > .dc-appt-actions {
+  position: static;
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: stretch;
+  gap: 10px;
+  margin: 0;
+  padding: 15px 24px;
+  border-top: 1px solid #ede9f8;
+  background: #faf9fe;
+}
+
+.dc-appointment-modal > .dc-appt-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  flex: 1 1 150px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.3;
+  white-space: normal;
+  cursor: pointer;
+}
+
+.dc-appointment-modal > .dc-appt-actions button i {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* Pastel button colors, matching Payment Details */
+.dc-appointment-modal > .dc-appt-actions .btn-done,
+.dc-appointment-modal > .dc-appt-actions .btn-confirm-payment {
+  background: #e0f7e9;
+  color: #177a40;
+  border: 1px solid #c8efd8;
+}
+
+.dc-appointment-modal > .dc-appt-actions .btn-no-show {
+  background: #fff3d8;
+  color: #9a6100;
+  border: 1px solid #ffe5a8;
+}
+
+.dc-appointment-modal > .dc-appt-actions .btn-cancel-b,
+.dc-appointment-modal > .dc-appt-actions .btn-reject-booking {
+  background: #ffe8eb;
+  color: #c62828;
+  border: 1px solid #ffd3da;
+}
+
+.dc-appointment-modal > .dc-appt-actions .btn-reschedule,
+.dc-appointment-modal > .dc-appt-actions .btn-incomplete {
+  background: #eeebff;
+  color: #43358f;
+  border: 1px solid #e0dafc;
+}
+
+.dc-appointment-modal > .dc-appt-actions button:hover {
+  filter: brightness(.97);
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .dc-appointment-modal .dc-appt-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dc-appointment-modal .dc-appt-body {
+    padding: 14px;
+  }
+
+  .dc-appointment-modal > .dc-appt-actions {
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dc-appointment-modal .dc-appt-fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dc-appointment-modal > .dc-appt-actions button {
+    flex-basis: 100%;
+  }
+}

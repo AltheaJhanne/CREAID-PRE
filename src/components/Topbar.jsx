@@ -286,9 +286,9 @@ function Topbar({
                   setShowOverflow(false);
                 }}
               >
-                🔔
+                <i className="bi bi-bell"></i>
 
-                <span className="dot"></span>
+              <span className="dot"></span>
 
               </button>
 
@@ -357,12 +357,12 @@ function Topbar({
               </span>
 
               <span className="chevron">
-
-                {showProfile
-                  ? "▲"
-                  : "▼"}
-
-              </span>
+              <i
+                className={`bi ${
+                  showProfile ? "bi-chevron-up" : "bi-chevron-down"
+                }`}
+              ></i>
+            </span>
 
             </button>
 
@@ -418,7 +418,8 @@ function Topbar({
                     navigate("/myaccount");
                   }}
                 >
-                  👤 My Account
+                  <i className="bi bi-person-circle"></i>
+                <span>My Account</span>
                 </div>
 
                 <div
@@ -436,7 +437,8 @@ function Topbar({
                   setShowLogoutConfirm(true);
                 }}
               >
-                🚪 Logout
+                <i className="bi bi-box-arrow-right"></i>
+              <span>Logout</span>
               </div>
 
               </div>
@@ -487,7 +489,8 @@ function Topbar({
                         setShowNotif(true);
                       }}
                     >
-                      🔔 Notifications
+                      <i className="bi bi-bell"></i>
+                      <span>Notifications</span>
 
                       <span className="overflow-notif-dot">
                         !

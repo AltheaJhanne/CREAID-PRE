@@ -103,15 +103,19 @@ useEffect(() => {
 
 }, [selectedConversation]);
 
-/*
 useEffect(() => {
+  if (!selectedConversation) return;
 
-  messagesEndRef.current?.scrollIntoView({
-    behavior: "smooth"
+  const messagesContainer =
+    messagesEndRef.current?.closest(".messages-area");
+
+  if (!messagesContainer) return;
+
+  messagesContainer.scrollTo({
+    top: messagesContainer.scrollHeight,
+    behavior: "instant"
   });
-
-}, [messages]);
-*/
+}, [messages, selectedConversation?.id, selectedTicket?.id]);  
 
 async function loadMessages(
   otherUserId,

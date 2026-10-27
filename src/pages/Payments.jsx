@@ -97,12 +97,22 @@ const [clinicFilter, setClinicFilter] = useState("All");
   const [services, setServices] = useState([]);
   const [viewingPayment, setViewingPayment] = useState(null);
   const [allServices, setAllServices] = useState([]);
+  const [showAddService, setShowAddService] = useState(false);
+const [addingServiceId, setAddingServiceId] = useState(null);
   const [filterStatus, setFilterStatus] =
   useState("");
   const [filterMethod, setFilterMethod] =
   useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+  setCurrentPage(1);
+}, [
+  clinicFilter,
+  filterStatus,
+  filterMethod,
+  searchTerm
+]);
 
   useEffect(() =>
 {
@@ -305,14 +315,25 @@ return (
 );
   });
 
-  const totalPages =
-  Math.max(
-    1,
-    Math.ceil(
-      filteredPayments.length /
-      PAGE_SIZE
-    )
-  );
+  const totalPages = Math.max(
+  1,
+  Math.ceil(filteredPayments.length / PAGE_SIZE)
+);
+
+const visiblePageCount = 5;
+
+const startPage = Math.max(
+  1,
+  Math.min(
+    currentPage - Math.floor(visiblePageCount / 2),
+    totalPages - visiblePageCount + 1
+  )
+);
+
+const pageNumbers = Array.from(
+  { length: Math.min(totalPages, visiblePageCount) },
+  (_, i) => startPage + i
+);
 
 const paginatedPayments =
   filteredPayments.slice(
@@ -1033,7 +1054,7 @@ async function handleReinstate()
     handleEdit(p);
   }}
 >
-  ✏️
+  <i className="bi bi-pencil-square" aria-hidden="true"></i>
 </button>
                 </span>
               </div>
@@ -1062,41 +1083,43 @@ async function handleReinstate()
 
   <div className="payment-pagination-controls">
 
+  <button
+    className="payment-page-btn"
+    disabled={currentPage === 1}
+    onClick={() =>
+      setCurrentPage(currentPage - 1)
+    }
+  >
+    ‹
+  </button>
+
+  {pageNumbers.map((number) => (
     <button
-      className="payment-page-btn"
-      disabled={
-        currentPage === 1
-      }
+      key={number}
+      className={`payment-page-btn ${
+        currentPage === number
+          ? "pagination-active"
+          : ""
+      }`}
       onClick={() =>
-        setCurrentPage(
-          currentPage - 1
-        )
+        setCurrentPage(number)
       }
     >
-      ‹
+      {number}
     </button>
+  ))}
 
-    <span>
-      Page {currentPage}
-      {" / "}
-      {totalPages}
-    </span>
+  <button
+    className="payment-page-btn"
+    disabled={currentPage === totalPages}
+    onClick={() =>
+      setCurrentPage(currentPage + 1)
+    }
+  >
+    ›
+  </button>
 
-    <button
-      className="payment-page-btn"
-      disabled={
-        currentPage === totalPages
-      }
-      onClick={() =>
-        setCurrentPage(
-          currentPage + 1
-        )
-      }
-    >
-      ›
-    </button>
-
-  </div>
+</div>
 
 </div>
 
@@ -1113,326 +1136,389 @@ async function handleReinstate()
         <h3>Payment Details</h3>
       </div>
 
-      <div className="modal-body">
+      
+<div className="modal-body payment-details-body">
 
-        <div className="modal-field">
-          <label>Patient</label>
-          <p className="modal-readonly">
-            {editForm.guest_name}
-          </p>
-        </div>
+  {/* PATIENT INFORMATION + PAYMENT SUMMARY */}
+  <div className="payment-details-top">
 
-        <div className="modal-field">
-          <label>Total Amount</label>
-          <p className="modal-readonly">
-            ₱{Number(
-              editForm.total_amount || 0
-            ).toLocaleString()}
-          </p>
-        </div>
-
-        <div className="modal-field">
-          <label>Amount Paid</label>
-          <p className="modal-readonly">
-            ₱{Number(
-              editForm.amount_paid || 0
-            ).toLocaleString()}
-          </p>
-        </div>
-
-        <div className="modal-field">
-          <label>Remaining Balance</label>
-          <p className="modal-readonly">
-            ₱{Number(
-              editForm.remaining_balance || 0
-            ).toLocaleString()}
-          </p>
-        </div>
-
-        <div className="modal-field">
-  <label>Mode of Payment</label>
-
-  {editForm.status === "rejected" ? (
-
-    <p className="modal-readonly">
-      {editForm.payment_method}
-    </p>
-
-  ) : (
-
-    <select
-      className="modal-input"
-      value={
-        editForm.payment_method || ""
-      }
-      onChange={(e) =>
-        setEditForm({
-          ...editForm,
-          payment_method:
-            e.target.value
-        })
-      }
-    >
-      <option value="Cash">
-        Cash
-      </option>
-
-      <option value="GCash">
-        GCash
-      </option>
-
-      <option value="Card">
-        Card
-      </option>
-    </select>
-
-  )}
-</div>
-
-        <div className="modal-field">
-  <label>Payment Status</label>
-
-  <p
-    className={`payment-status-display ${editForm.payment_status?.toLowerCase()}`}
-  >
-    {editForm.payment_status}
-  </p>
-</div>
-
-        <div
-          className="modal-field"
-          style={{
-            gridColumn: "1 / -1"
-          }}
-        >
-          <label>
-            Services Availed
-          </label>
-
-          <div className="services-list">
-
-            {services.filter(
-  service =>
-    service.service_status !==
-    "not_performed"
-).length > 0 ? (
-
-  services
-    .filter(
-      service =>
-        service.service_status !==
-        "not_performed"
-    )
-    .map((service) => (
-                <div
-                  key={service.id}
-                  className="service-item"
-                >
-                  <span>
-                    {service.service_name}
-                  </span>
-
-                  {editForm.payment_status !== "cancelled" &&
- editForm.payment_status !== "paid" && (
-
-<div className="service-actions">
-
-  <strong>
-    ₱{Number(
-      service.price
-    ).toLocaleString()}
-  </strong>
-
-  {editForm.payment_status !== "cancelled" &&
- editForm.payment_status !== "paid" &&
- editForm.status !== "rejected" && (
-
-    service.service_status === "not_performed" ? (
-
-      <button
-        className="btn-performed"
-        onClick={() =>
-          handlePerformed(service)
-        }
-      >
-        Undo
-      </button>
-
-    ) : (
-
-      <button
-        className="btn-not-performed"
-        onClick={() =>
-          handleNotPerformed(service)
-        }
-      >
-        Not Performed
-      </button>
-
-    )
-
-  )}
-
-</div>
-
-)}
-                </div>
-              ))
-            ) : (
-              <p>
-                No services found.
-              </p>
-            )}
-
-          </div>
-        </div>
-
+    {/* PATIENT INFORMATION */}
+    <section className="payment-details-card">
+      <div className="payment-details-section-heading">
+        <i className="bi bi-person-circle" aria-hidden="true"></i>
+        <h4>Patient Information</h4>
       </div>
 
+      <div className="payment-details-patient">
+        <div className="payment-details-avatar">
+          {getInitials(editForm.guest_name)}
+        </div>
 
-        <div className="modal-footer">
+        <div>
+          <h5>{editForm.guest_name || "—"}</h5>
+          <span>Patient</span>
+        </div>
+      </div>
+
+      <div className="payment-details-info-grid">
+        <div>
+          <label>Clinic Branch</label>
+          <p>{editForm.branch_id || "—"}</p>
+        </div>
+
+        <div>
+          <label>Appointment Date</label>
+          <p>{editForm.appointment_date || "—"}</p>
+        </div>
+
+        <div>
+          <label>Invoice Number</label>
+          <p>{editForm.invoice_number || "—"}</p>
+        </div>
+      </div>
+    </section>
+
+    {/* PAYMENT SUMMARY */}
+    <section className="payment-details-card">
+      <div className="payment-details-section-heading payment-details-purple">
+        <i className="bi bi-credit-card" aria-hidden="true"></i>
+        <h4>Payment Summary</h4>
+      </div>
+
+      <div className="payment-details-summary-grid">
+        <div className="payment-details-summary-field">
+          <label>Total Amount</label>
+          <p>
+            ₱{Number(editForm.total_amount || 0).toLocaleString()}
+          </p>
+        </div>
+
+        <div className="payment-details-summary-field">
+          <label>Amount Paid</label>
+          <p>
+            ₱{Number(editForm.amount_paid || 0).toLocaleString()}
+          </p>
+        </div>
+
+        <div className="payment-details-summary-field">
+          <label>Remaining Balance</label>
+          <p className="payment-details-balance">
+            ₱{Number(editForm.remaining_balance || 0).toLocaleString()}
+          </p>
+        </div>
+
+        <div className="payment-details-summary-field">
+          <label>Payment Status</label>
+          <p
+            className={`payment-status-display ${editForm.payment_status?.toLowerCase()}`}
+          >
+            {formatStatus(editForm.payment_status)}
+          </p>
+        </div>
+
+        <div className="payment-details-summary-field payment-details-full">
+          <label>Mode of Payment</label>
+
+          {editForm.status === "rejected" ? (
+            <p className="payment-details-readonly-method">
+              {editForm.payment_method || "—"}
+            </p>
+          ) : (
+            <select
+              className="modal-input"
+              value={editForm.payment_method || ""}
+              onChange={(e) =>
+                setEditForm({
+                  ...editForm,
+                  payment_method: e.target.value,
+                })
+              }
+            >
+              <option value="Cash">Cash</option>
+              <option value="GCash">GCash</option>
+              <option value="Card">Card</option>
+            </select>
+          )}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  {/* SERVICES AVAILED */}
+  
+<section className="payment-details-card payment-details-services">
+  
+<div className="payment-details-section-heading pd-services-heading">
+  <div className="pd-services-heading-title">
+    <i className="bi bi-clipboard2-pulse" aria-hidden="true"></i>
+    <h4>Services Availed</h4>
+  </div>
 
   {editForm.payment_status !== "cancelled" &&
- editForm.payment_status !== "paid" &&
- editForm.status !== "rejected" && (
+    editForm.payment_status !== "paid" &&
+    editForm.status !== "rejected" && (
+      <button
+        type="button"
+        className="pd-add-service-trigger"
+        onClick={() => setShowAddService(true)}
+      >
+        <i className="bi bi-plus-circle"></i>
+        Add Service
+      </button>
+    )}
+</div>
 
-<select
-      className="modal-input"
-      onChange={async (e) =>
-      {
-        if(!e.target.value)
-        {
-          return;
-        }
+  <div className="payment-details-service-table">
+    <div className="payment-details-service-header">
+      <span>Service Name</span>
+      <span>Price</span>
+      <span>Action</span>
+    </div>
 
-        try
-        {
-          await addServiceToPaymentApi(
-            editingPayment.id,
-            e.target.value
-          );
-
-          await handleEdit(
-            editingPayment
-          );
-
-          await loadPayments();
-        }
-        catch(error)
-        {
-          console.error(error);
-        }
-      }}
-    >
-      <option value="">
-        + Add Service
-      </option>
-
-      {allServices.map(service => (
-
-        <option
+    {services.length > 0 ? (
+      services.map((service) => (
+        <div
+          className="payment-details-service-row"
           key={service.id}
-          value={service.id}
         >
-          {service.name}
-          {" - ₱"}
-          {service.price}
-        </option>
+          <span className="payment-details-service-name">
+            {service.service_name}
 
-      ))}
-    </select>
+            {service.service_status === "not_performed" && (
+              <span className="payment-details-not-performed-label">
+                Not Performed
+              </span>
+            )}
+          </span>
 
-  )}
+          <strong>
+            ₱{Number(service.price).toLocaleString()}
+          </strong>
 
-  {editForm.payment_status === "cancelled" ? (
+          <div className="payment-details-service-action">
+            {editForm.payment_status !== "cancelled" &&
+            editForm.payment_status !== "paid" &&
+            editForm.status !== "rejected" ? (
+              service.service_status === "not_performed" ? (
+                <button
+                  type="button"
+                  className="btn-performed"
+                  onClick={() => handlePerformed(service)}
+                >
+                  Undo
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn-not-performed"
+                  onClick={() => handleNotPerformed(service)}
+                >
+                  Not Performed
+                </button>
+              )
+            ) : (
+              <span className="payment-details-no-action">—</span>
+            )}
+          </div>
+        </div>
+      ))
+    ) : (
+      <div className="payment-details-empty">
+        No services found.
+      </div>
+    )}
+  </div>
+</section>
+</div>
 
-  <button
-    className="btn-reinstate"
-    onClick={handleReinstate}
+{/* FOOTER ACTIONS */}
+<div className="modal-footer payment-details-footer">
+
+
+{/* ADD SERVICE SELECTION PANEL */}
+{showAddService && (
+  <div
+    className="pd-service-overlay"
+    onClick={() => setShowAddService(false)}
   >
-    Reinstate Appointment
-  </button>
+    <div
+      className="pd-service-picker"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="pd-service-picker-header">
+        <div>
+          <h4>Select a Service</h4>
+          <p>Choose a service to add to this payment.</p>
+        </div>
 
-) : (
+        <button
+          type="button"
+          className="pd-service-picker-close"
+          onClick={() => setShowAddService(false)}
+        >
+          <i className="bi bi-x-lg"></i>
+        </button>
+      </div>
 
-  editForm.payment_status !== "paid" &&
-  editForm.status !== "rejected" && (
+      <div className="pd-service-picker-list">
+        {allServices.length > 0 ? (
+          allServices.map((service) => (
+            <div
+              className="pd-service-picker-item"
+              key={service.id}
+            >
+              <div className="pd-service-picker-info">
+                <span className="pd-service-picker-name">
+                  {service.name}
+                </span>
+
+                <span className="pd-service-picker-price">
+                  ₱{Number(service.price || 0).toLocaleString()}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="pd-service-picker-add"
+                disabled={addingServiceId !== null}
+                onClick={async () => {
+                  try {
+                    setAddingServiceId(service.id);
+
+                    // Existing business process
+                    await addServiceToPaymentApi(
+                      editingPayment.id,
+                      service.id
+                    );
+
+                    // Existing payment and service refresh
+                    const updatedPayments = await loadPayments();
+
+                    const updatedPayment = updatedPayments.find(
+                      (p) => p.id === editingPayment.id
+                    );
+
+                    await handleEdit(
+                      updatedPayment || editingPayment
+                    );
+
+                    setShowAddService(false);
+                  } catch (error) {
+                    console.error(
+                      "Error adding service:",
+                      error
+                    );
+                  } finally {
+                    setAddingServiceId(null);
+                  }
+                }}
+              >
+                <i className="bi bi-plus-lg"></i>
+                {addingServiceId === service.id
+                  ? "Adding..."
+                  : "Add"}
+              </button>
+            </div>
+          ))
+        ) : (
+          <p className="pd-service-picker-empty">
+            No available services found.
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+  {/* ACTION BUTTONS */}
+  <div className="payment-details-footer-actions">
+
+    {editForm.payment_status === "cancelled" ? (
+      <button
+        type="button"
+        className="payment-details-action payment-details-action-green"
+        onClick={handleReinstate}
+      >
+        <i className="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+        Reinstate Appointment
+      </button>
+    ) : (
+      editForm.payment_status !== "paid" &&
+      editForm.status !== "rejected" && (
+        <button
+          type="button"
+          className="payment-details-action payment-details-action-red"
+          onClick={handleCancelPayment}
+        >
+          <i className="bi bi-x-circle" aria-hidden="true"></i>
+          Cancel / No Show
+        </button>
+      )
+    )}
+
+    {editForm.payment_status !== "cancelled" &&
+      editForm.status !== "rejected" &&
+      (editForm.payment_status === "paid" ? (
+        <button
+          type="button"
+          className="payment-details-action payment-details-action-amber"
+          onClick={handleUndoPaid}
+        >
+          <i className="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+          Undo Fully Paid
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="payment-details-action payment-details-action-green"
+          onClick={handleMarkPaid}
+        >
+          <i className="bi bi-check-circle" aria-hidden="true"></i>
+          Mark Fully Paid
+        </button>
+      ))}
 
     <button
-      className="btn-cancel-payment"
-      onClick={handleCancelPayment}
+      type="button"
+      className="payment-details-action payment-details-action-purple"
+      onClick={handleGenerateInvoice}
     >
-      Cancel / No Show
+      <i className="bi bi-file-earmark-arrow-down" aria-hidden="true"></i>
+      Download Invoice PDF
     </button>
 
-  )
-
-)}
-
-  {editForm.payment_status !== "cancelled" &&
- editForm.status !== "rejected" && (
-
-    editForm.payment_status === "paid" ? (
-
+    {editForm.payment_status === "paid" && (
       <button
-        className="btn-warning"
-        onClick={handleUndoPaid}
+        type="button"
+        className="payment-details-action payment-details-action-purple"
+        onClick={handleGenerateOfficialReceipt}
       >
-        Undo Fully Paid
+        <i className="bi bi-receipt" aria-hidden="true"></i>
+        Download Official Receipt
       </button>
+    )}
 
-    ) : (
+    <button
+      type="button"
+      className="payment-details-action payment-details-action-pink"
+      onClick={() => setShowReceipt(true)}
+    >
+      <i className="bi bi-receipt-cutoff" aria-hidden="true"></i>
+      View Downpayment Receipt
+    </button>
 
-      <button
-        className="btn-save"
-        onClick={handleMarkPaid}
-      >
-        Mark Fully Paid
-      </button>
+    <button
+      type="button"
+      className="payment-details-action payment-details-action-close"
+      onClick={handleCancel}
+    >
+      <i className="bi bi-x-lg" aria-hidden="true"></i>
+      Close
+    </button>
 
-    )
-
-  )}
-
-  <button
-  className="btn-save"
-  onClick={() =>
-    handleGenerateInvoice()
-  }
->
-  Download Invoice PDF
-</button>
-
-{editForm.payment_status === "paid" && (
-
-  <button
-  className="btn-save"
-  onClick={() =>
-    handleGenerateOfficialReceipt()
-  }
->
-  Download Official Receipt
-</button>
-
-)}
-
-<button
-  className="btn-save"
-  onClick={() =>
-    setShowReceipt(true)
-  }
->
-  View Dowmpayment Receipt
-</button>
-
-  <button
-    className="btn-cancel-edit"
-    onClick={handleCancel}
-  >
-    Close
-  </button>
-
+  </div>
 </div>
+
 
       </div>
       {showReceipt && (
