@@ -1,6 +1,24 @@
 import { supabase } from "../../lib/supabase";
 import { useState, useRef, useEffect } from "react";
 import "../../styles/patients.css";
+
+import {
+  ClipboardList,
+  FolderOpen,
+  ReceiptText,
+  NotebookPen,
+  Scan,
+  FlaskConical,
+  Hospital,
+  PenLine,
+  Pill,
+  Send,
+  Paperclip,
+  Stethoscope,
+  Search,
+  Archive,
+  ArchiveRestore
+} from "lucide-react";
 import { downloadFile } from "../../lib/downloadFile";
 import {
   getPatientsApi,
@@ -61,15 +79,14 @@ function calculateAge(birthdate)
 
   return age;
 }
-const FILE_ICON =
-{
-  xray: "🦷",
-  lab: "🧪",
-  clearance: "🏥",
-  consent: "✍️",
-  prescription: "💊",
-  referral: "📨",
-  other: "📎"
+const FILE_ICON = {
+  xray: Scan,
+  lab: FlaskConical,
+  clearance: Hospital,
+  consent: PenLine,
+  prescription: Pill,
+  referral: Send,
+  other: Paperclip
 };
 
 function Patients() 
@@ -450,9 +467,12 @@ async function loadPatientFiles(
   try
   {
     const response =
-      await getPatientFilesApi(
-        patientId
-      );
+  await getPatientFilesApi(
+    patientId
+  );
+
+console.log("PATIENT PAGE ID:", patientId);
+console.log("PATIENT MEDICAL FILES RESPONSE:", response);
 
     const records =
 (response.files || [])
@@ -665,7 +685,11 @@ console.log("MEDICAL", fullPatient?.medical);
     <div className="patients-root">
 
       <button className="sidebar-toggle" onClick={() => setSidebarOpen((o) => !o)} aria-label="Toggle patient list">
-        {sidebarOpen ? "✕" : "🦷 Patients"}
+        {sidebarOpen ? "✕" : (
+          <>
+            <Stethoscope size={18} /> Patients
+          </>
+        )}
       </button>
 
       {sidebarOpen && (
@@ -675,13 +699,17 @@ console.log("MEDICAL", fullPatient?.medical);
       <aside className={`patients-sidebar${sidebarOpen ? " sidebar-open" : ""}`}>
         <div className="sidebar-header">
           <h1 className="sidebar-title">
-            <span className="title-icon">🦷</span> Patients
+            <span className="title-icon">
+            <Stethoscope size={20} />
+          </span> Patients
           </h1>
         </div>
 
         <div className="sidebar-filters">
           <div className="search-wrap">
-            <span className="search-icon">⌕</span>
+            <span className="search-icon">
+              <Search size={18} />
+            </span>
             <input className="search-input" placeholder="Search name or dentist…" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <div className="filter-pills">
@@ -753,7 +781,9 @@ console.log("MEDICAL", fullPatient?.medical);
       <main className="patients-detail">
         {!selectedPatient ? (
           <div className="detail-empty">
-            <div className="empty-icon">🦷</div>
+            <div className="empty-icon">
+              <Stethoscope size={32} />
+            </div>
             <p>Select a patient to view their profile</p>
           </div>
         ) : (
@@ -797,17 +827,29 @@ console.log("MEDICAL", fullPatient?.medical);
               "notes"
             ].map((tab) => (
                 <button key={tab} className={`tab-btn ${activeTab === tab ? "tab-active" : ""}`} onClick={() => setActiveTab(tab)}>
-                  {tab === "info" &&
-                  "📋 Information"}
+                  {tab === "info" && (
+  <>
+    <ClipboardList size={16} /> Information
+  </>
+)}
 
-                  {tab === "medical" &&
-                  `📁 Medical Files (${patientFiles.length})`}
+{tab === "medical" && (
+  <>
+    <FolderOpen size={16} /> Medical Files ({patientFiles.length})
+  </>
+)}
 
-                  {tab === "billing" &&
-                  "🧾 Billing Documents"}
+{tab === "billing" && (
+  <>
+    <ReceiptText size={16} /> Billing Documents
+  </>
+)}
 
-                  {tab === "notes" &&
-                  "📝 Notes"}
+{tab === "notes" && (
+  <>
+    <NotebookPen size={16} /> Notes
+  </>
+)}
                 </button>
               ))}
             </div>
@@ -1148,9 +1190,7 @@ console.log("MEDICAL", fullPatient?.medical);
                   <div className="billing-empty">
 
                   <div className="billing-icon">
-
-                  📁
-
+                    <FolderOpen size={32} />
                   </div>
 
                   <h3>
@@ -1174,8 +1214,11 @@ console.log("MEDICAL", fullPatient?.medical);
                   displayedMedicalFiles.map((r) => (
                       <li key={r.id} className="file-item">
                         <span className="file-type-icon">
-                        {FILE_ICON[r.type] || "📎"}
-                      </span>
+                          {(() => {
+                            const FileIcon = FILE_ICON[r.type] || Paperclip;
+                            return <FileIcon size={20} />;
+                          })()}
+                        </span>
 
                       <div className="file-meta">
 
@@ -1445,7 +1488,7 @@ displayedBillingDocuments.length === 0 ? (
 <div className="billing-empty">
 
 <div className="billing-icon">
-🧾
+  <ReceiptText size={32} />
 </div>
 
 <h3>
@@ -1475,9 +1518,7 @@ className="file-item"
 >
 
 <span className="file-type-icon">
-
-🧾
-
+  <ReceiptText size={20} />
 </span>
 
 <span
@@ -1577,7 +1618,15 @@ Uploaded by:
           );
         }}
       >
-        ↩ Unarchive
+        <ArchiveRestore
+          size={16}
+          style={{
+            display: "inline-block",
+            verticalAlign: "middle",
+            marginRight: 6
+          }}
+        />
+        Unarchive
       </button>
     )
   : (
@@ -1607,7 +1656,15 @@ Uploaded by:
           );
         }}
       >
-        📦 Archive
+        <Archive
+          size={16}
+          style={{
+            display: "inline-block",
+            verticalAlign: "middle",
+            marginRight: 6
+          }}
+        />
+        Archive
       </button>
     )
 }

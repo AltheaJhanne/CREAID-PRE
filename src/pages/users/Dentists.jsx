@@ -1,5 +1,43 @@
 import { useState, useEffect, useRef } from "react";
 import "../../styles/dentists.css";
+
+import {
+  LayoutDashboard,
+  UsersRound,
+  CalendarDays,
+  FileText,
+  ClipboardList,
+  FolderOpen,
+  ReceiptText,
+  NotebookPen,
+  Stethoscope,
+  Search,
+  MapPin,
+  Clock3,
+  TrendingUp,
+  Wallet,
+  Phone,
+  Mail,
+  Activity,
+  Syringe,
+  Utensils,
+  Palmtree,
+  MessageCircle,
+  UserRound,
+  Save,
+  Eye,
+  Printer,
+  Send,
+  PenLine,
+  CheckCircle2,
+  XCircle,
+  Ban,
+  CircleHelp,
+  Baby,
+  HeartPulse,
+  AlertTriangle,
+  BriefcaseMedical
+} from "lucide-react";
 import { getDentistsApi, saveDentistScheduleApi, getDentistScheduleApi } from "../../api/users";
 import { getPatientRecordsApi } from "../../api/patients";
 import { getMyPatientsApi, getDentistEarningsApi} from "../../api/appointments";
@@ -21,12 +59,12 @@ from "../../api/files";
 import { supabase } from "../../lib/supabase";
 
 const LEAVE_ICON = {
-  "Sick Leave": "🤒",
-  "Vacation Leave": "🏖️",
-  "Emergency Leave": "🚨",
-  "Maternity Leave": "👶",
-  "Paternity Leave": "👨‍👦",
-  "Medical Leave": "🏥"
+  "Sick Leave": HeartPulse,
+  "Vacation Leave": Palmtree,
+  "Emergency Leave": AlertTriangle,
+  "Maternity Leave": Baby,
+  "Paternity Leave": Baby,
+  "Medical Leave": BriefcaseMedical
 };
 
 function Dentists() 
@@ -401,17 +439,24 @@ await Promise.all([
 
 ]);
 
+console.log("DENTIST PAGE PATIENT ID:", patient.id);
+console.log("DENTIST MEDICAL FILES RESPONSE:", fileResponse);
+
     setPatientRecords(
       recordResponse.records || []
     );
 
     setMedicalFiles(
-      fileResponse.files || []
-    );
+  fileResponse.files || []
+);
 
-    setBillingDocuments(
-      billingResponse.documents || []
-    );
+setArchivedMedicalFiles(
+  archivedFileResponse.files || []
+);
+
+setBillingDocuments(
+  billingResponse.documents || []
+);
 
     setArchivedBillingDocuments(
   archivedBillingResponse.documents || []
@@ -1250,7 +1295,11 @@ const displayedBillingDocuments =
         <div className="dentists-root">
 
             <button className="sidebar-toggle" onClick={() => setSidebarOpen((o) => !o)} aria-label="Toggle dentist list">
-                {sidebarOpen ? "✕" : "👨‍⚕️ Dentists"}
+                {sidebarOpen ? "✕" : (
+                  <>
+                    <Stethoscope size={18} /> Dentists
+                  </>
+                )}
             </button>
 
             {sidebarOpen && (
@@ -1261,7 +1310,7 @@ const displayedBillingDocuments =
 
                 <div className="sidebar-header">
                     <h1 className="sidebar-title">
-                        <span>👨‍⚕️</span> Dentists
+                        <span><Stethoscope size={20} /></span> Dentists
                     </h1>
                 </div>
                 <div className="branch-filter-wrap">
@@ -1288,7 +1337,7 @@ const displayedBillingDocuments =
   </select>
 </div>
                 <div className="sidebar-search-wrap">
-                    <span className="search-icon">⌕</span>
+                    <span className="search-icon"><Search size={18} /></span>
                     <input className="search-input" placeholder="Search dentist or specialty…" value={search} onChange={(e) => setSearch(e.target.value)}/>
                 </div>
 
@@ -1325,7 +1374,7 @@ const displayedBillingDocuments =
             <main className="dentists-detail">
                 {!selectedDentist ? (
                     <div className="detail-empty">
-                        <div className="empty-icon">👨‍⚕️</div>
+                        <div className="empty-icon"><Stethoscope size={32} /></div>
                         <p>Select a dentist to view their profile</p>
                     </div>
                 ) : (
@@ -1350,8 +1399,14 @@ const displayedBillingDocuments =
                                 <h2 className="detail-name">{`${selectedDentist.first_name} ${selectedDentist.last_name}`}</h2>
                                 <p className="detail-spec">Dentist</p>
                                 <p className="detail-sub">{selectedDentist.contact_number || "N/A"} · {selectedDentist.email}</p>
-                                <p className="detail-sub">📍 {selectedDentist.branch_id} Branch</p>
-                                <p className="detail-schedule">⏰ {formatWorkingHours(workingHours)}</p>
+                                <p className="detail-sub">
+                                  <MapPin size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+                                  {selectedDentist.branch_id} Branch
+                                </p>
+                                <p className="detail-schedule">
+                                  <Clock3 size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+                                  {formatWorkingHours(workingHours)}
+                                </p>
                             </div>
                             <div className="detail-hero-right">
                                 <span className={`status-pill ${STATUS_COLOR[selectedDentist.status]}-pill`}>
@@ -1375,15 +1430,20 @@ const displayedBillingDocuments =
 
                         <div className="detail-tabs">
                             {[
-                                { key: "overview",  label: "📊 Overview" },
-                                { key: "patients",  label: `🧑‍🦷 Patients` },
-                                { key: "schedule", label: `🏖️ Schedule`},
-                                { key: "forms",     label: "📝 Forms" },
-                            ].map(({ key, label }) => (
-                                <button key={key} className={`tab-btn ${activeTab === key ? "tab-active" : ""}`} onClick={() => setActiveTab(key)}>
-                                    {label}
-                                </button>
-                            ))}
+                            { key: "overview", label: "Overview", Icon: LayoutDashboard },
+                            { key: "patients", label: "Patients", Icon: UsersRound },
+                            { key: "schedule", label: "Schedule", Icon: CalendarDays },
+                            { key: "forms", label: "Forms", Icon: FileText }
+                          ].map(({ key, label, Icon }) => (
+                            <button
+                              key={key}
+                              className={`tab-btn ${activeTab === key ? "tab-active" : ""}`}
+                              onClick={() => setActiveTab(key)}
+                            >
+                              <Icon size={16} style={{ verticalAlign: "middle", marginRight: 6 }} />
+                              {label}
+                            </button>
+                          ))}
                         </div>
 
                         {activeTab === "overview" && (
@@ -1404,7 +1464,7 @@ const displayedBillingDocuments =
       </div>
 
       <div className="ov-card">
-        <span className="ov-icon">📈</span>
+        <span className="ov-icon"><TrendingUp size={22} /></span>
         <div>
           <span className="ov-value">
             ₱{Number(totalCommission || 0).toLocaleString()}
@@ -1428,7 +1488,7 @@ const displayedBillingDocuments =
       </div>
 
       <div className="ov-card">
-        <span className="ov-icon">🧑‍🦷</span>
+        <span className="ov-icon"><UsersRound size={22} /></span>
         <div>
           <span className="ov-value">
             {myPatients.length}
@@ -1442,7 +1502,8 @@ const displayedBillingDocuments =
           <div className="section-card">
 
     <h3 className="section-title">
-        💰 Commission Breakdown
+        <Wallet size={18} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+        Commission Breakdown
         <table className="commission-table">
 <thead>
 <tr>
@@ -1606,28 +1667,28 @@ selectedRecordPatient && (
         className={recordTab === "info" ? "record-tab active" : "record-tab"}
         onClick={() => setRecordTab("info")}
       >
-        📋 Information
+        <ClipboardList size={16} style={{ verticalAlign: "middle", marginRight: 6 }} /> Information
       </button>
 
       <button
         className={recordTab === "medical" ? "record-tab active" : "record-tab"}
         onClick={() => setRecordTab("medical")}
       >
-        📁 Medical Files
+        <FolderOpen size={16} style={{ verticalAlign: "middle", marginRight: 6 }} /> Medical Files
       </button>
 
       <button
         className={recordTab === "billing" ? "record-tab active" : "record-tab"}
         onClick={() => setRecordTab("billing")}
       >
-        🧾 Billing Documents
+        <ReceiptText size={16} style={{ verticalAlign: "middle", marginRight: 6 }} /> Billing Documents
       </button>
 
       <button
         className={recordTab === "notes" ? "record-tab active" : "record-tab"}
         onClick={() => setRecordTab("notes")}
       >
-        📝 Dental History
+        <NotebookPen size={16} style={{ verticalAlign: "middle", marginRight: 6 }} /> Dental History
       </button>
 
     </div>
@@ -1673,11 +1734,13 @@ selectedRecordPatient && (
     <div className="record-contact">
 
       <span>
-        📞 {selectedRecordPatient.contact_number || "No Contact"}
+        <Phone size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+        {selectedRecordPatient.contact_number || "No Contact"}
       </span>
 
       <span>
-        📧 {selectedRecordPatient.email}
+        <Mail size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+{selectedRecordPatient.email}
       </span>
 
     </div>
@@ -1691,7 +1754,7 @@ selectedRecordPatient && (
 <div className="record-stat">
 
 <div className="record-stat-icon">
-🦷
+  <Stethoscope size={22} />
 </div>
 
 <div>
@@ -1707,7 +1770,7 @@ selectedRecordPatient && (
 <div className="record-stat">
 
 <div className="record-stat-icon">
-📅
+  <CalendarDays size={22} />
 </div>
 
 <div>
@@ -1725,7 +1788,7 @@ selectedRecordPatient && (
 <div className="record-stat">
 
 <div className="record-stat-icon">
-💉
+  <Syringe size={22} />
 </div>
 
 <div>
@@ -2145,7 +2208,8 @@ key={doc.id}
 
 <td>
 
-📄 {doc.title}
+<FileText size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+{doc.title}
 
 </td>
 
@@ -2312,11 +2376,13 @@ Archive
               >
 
                 <div className="record-date">
-                  📅 {record.record_date}
+                  <CalendarDays size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+                  {record.record_date}
                 </div>
 
                 <h4>
-                  🦷 {record.treatment_name}
+                  <Stethoscope size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+                  {record.treatment_name}
                 </h4>
 
                 <button
@@ -2350,7 +2416,10 @@ Archive
 {activeTab === "schedule" && (
     <div className="tab-panel">
       <div className="section-card" style={{ marginBottom: 16 }}>
-          <h3 className="section-title">🕐 Working Hours</h3>
+          <h3 className="section-title">
+            <Clock3 size={18} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+            Working Hours
+          </h3>
               <div style={{ display: "flex", flexDirection: "column" }}>
                   {DAYS.map((day) => (
                     <div key={day} className="dact-day-row">
@@ -2434,8 +2503,9 @@ Archive
   style={{ marginBottom: 16 }}
 >
   <h3 className="section-title">
-    🍽️ Lunch Break
-  </h3>
+    <Utensils size={18} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+  Lunch Break
+    </h3>
 
   <div className="dact-form-grid">
 
@@ -2541,7 +2611,8 @@ Archive
                                 <div className="leave-section-card" style={{ marginBottom: 16 }}>
                                     <div className="leave-section-header">
                                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                            <h3 className="section-title" style={{ margin: 0 }}>🏖️ Leave Requests</h3>
+                                            <h3 className="section-title" style={{ margin: 0 }}><Palmtree size={18} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />
+Leave Requests</h3>
                                             {pendingCount > 0 && <span className="leave-pending-badge">{pendingCount} Pending</span>}
                                         </div>
                                     </div>
@@ -2551,7 +2622,10 @@ Archive
                                         <ul className="leave-list">
                                             {leaveRequests.map((l) => (
                                                 <li key={l.id} className={`leave-item leave-item-${l.status.toLowerCase()}`}>
-                                                    <div className="leave-type-badge">{LEAVE_ICON[l.leave_type] || "📋"}</div>
+                                                    <div className="leave-type-badge">{(() => {
+                                                        const LeaveIcon = LEAVE_ICON[l.leave_type] || ClipboardList;
+                                                        return <LeaveIcon size={20} />;
+                                                      })()}</div>
                                                     <div className="leave-meta">
 
   <span className="leave-type-label">
@@ -3074,7 +3148,10 @@ showRemarkModal && (
     <div className="leave-review-summary">
 
       <div className="leave-review-icon">
-        {LEAVE_ICON[showRemarkModal.leave_type] || "📅"}
+        {(() => {
+          const LeaveIcon = LEAVE_ICON[showRemarkModal.leave_type] || CalendarDays;
+          return <LeaveIcon size={20} />;
+        })()}
       </div>
 
       <div className="leave-review-info">
