@@ -15,8 +15,14 @@ if (
   );
 }
 
-export const supabase =
-createClient(
+export const supabase = createClient(
   supabaseUrl,
-  serviceRoleKey
+  serviceRoleKey,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  }
 );

@@ -266,3 +266,27 @@
     padding: 36px 30px;
   }
 }
+/* DENTCONNECT DARK MODE — INITIAL TEST */
+
+html.dark-mode body {
+  background-color: #101827;
+  color: #f1f5f9;
+}
+
+html.dark-mode .admin-main,
+html.dark-mode .dashboard-content {
+  background-color: #101827;
+  color: #f1f5f9;
+}
+
+html.dark-mode .account-card {
+  background-color: #1e293b;
+  color: #f1f5f9;
+}
+
+html.dark-mode .account-card input,
+html.dark-mode .account-card select {
+  background-color: #273449;
+  color: #f1f5f9;
+  border-color: #475569;
+}

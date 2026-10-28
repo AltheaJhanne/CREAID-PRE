@@ -446,13 +446,32 @@ async ({ params, body, set }) =>
   if(medical)
   {
     const {
-      data: existingMedical
-    } =
-    await supabase
-      .from("patient_medical_records")
-      .select("id")
-      .eq("patient_id", params.id)
-      .maybeSingle();
+  data: existingMedical,
+  error: existingMedicalError
+} = await supabase
+  .from("patient_medical_records")
+  .select("id")
+  .eq("patient_id", params.id)
+  .maybeSingle();
+
+if (existingMedicalError) {
+  console.error(
+    "Medical record lookup failed:",
+    existingMedicalError
+  );
+
+  set.status = 500;
+
+  return {
+    success: false,
+    message: "Unable to verify the patient's medical record."
+  };
+}
+
+console.log(
+  "Existing medical record found:",
+  Boolean(existingMedical)
+);
 
     if(existingMedical)
     {

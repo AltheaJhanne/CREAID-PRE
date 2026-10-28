@@ -537,3 +537,217 @@
     width: 100%;
   }
 }
+
+/* ==========================================
+   DENTCONNECT — EXPENSE MODAL REDESIGN
+   ========================================== */
+
+.expense-modal-overlay {
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgba(21, 14, 67, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.expense-modal {
+  width: min(100%, 760px);
+  max-width: 760px;
+  max-height: min(90vh, 820px);
+  padding: 0;
+  gap: 0;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #ede9f8;
+  border-radius: 18px;
+  box-shadow: 0 24px 65px rgba(21, 14, 67, 0.2);
+}
+
+/* Header */
+
+.expense-modal > h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  margin: 0;
+  padding: 20px 26px;
+  background: #faf8ff;
+  border-bottom: 1px solid #eae5f5;
+  color: #150e43;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* Form layout */
+
+.expense-modal > .form-group,
+.expense-modal > .form-row {
+  margin-left: 26px;
+  margin-right: 26px;
+}
+
+.expense-modal > .form-group:first-of-type {
+  margin-top: 22px;
+}
+
+.expense-modal > .form-group,
+.expense-modal .form-row .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.expense-modal > .form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.expense-modal > .form-group,
+.expense-modal > .form-row {
+  margin-bottom: 18px;
+}
+
+.expense-modal .form-group label {
+  margin: 0;
+  color: #77708f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: none;
+}
+
+/* Compact inputs */
+
+.expense-modal .form-group input,
+.expense-modal .form-group select,
+.expense-modal .form-group textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 43px;
+  padding: 10px 13px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1.5px solid #e7e2f2;
+  border-radius: 9px;
+  color: #150e43;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.expense-modal .form-group input::placeholder,
+.expense-modal .form-group textarea::placeholder {
+  color: #a19bb4;
+}
+
+.expense-modal .form-group input:focus,
+.expense-modal .form-group select:focus,
+.expense-modal .form-group textarea:focus {
+  border-color: #fa1377;
+  box-shadow: 0 0 0 3px rgba(250, 19, 119, 0.08);
+}
+
+.expense-modal .form-group textarea {
+  height: 72px;
+  min-height: 72px;
+  resize: vertical;
+}
+
+/* Footer */
+
+.expense-modal > .modal-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 4px 0 0;
+  padding: 16px 26px;
+  background: #faf8ff;
+  border-top: 1px solid #eae5f5;
+}
+
+.expense-modal > .modal-actions .btn-cancel,
+.expense-modal > .modal-actions .btn-submit {
+  min-width: 125px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.expense-modal > .modal-actions .btn-cancel {
+  background: #fff;
+  border: 1px solid #e1dced;
+  color: #150e43;
+}
+
+.expense-modal > .modal-actions .btn-submit {
+  background: #fa1377;
+  border: 1px solid #fa1377;
+  color: #fff;
+}
+
+.expense-modal > .modal-actions .btn-submit:hover {
+  background: #dc0b66;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+  .expense-modal-overlay {
+    padding: 12px;
+  }
+
+  .expense-modal {
+    width: 100%;
+    max-height: 92vh;
+  }
+
+  .expense-modal > h3 {
+    padding: 18px;
+    font-size: 18px;
+  }
+
+  .expense-modal > .form-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .expense-modal > .form-group,
+  .expense-modal > .form-row {
+    margin-left: 18px;
+    margin-right: 18px;
+    margin-bottom: 14px;
+  }
+
+  .expense-modal > .modal-actions {
+    padding: 14px 18px;
+  }
+
+  .expense-modal > .modal-actions button {
+    flex: 1;
+    min-width: 0;
+  }
+}
+/* MATCH PAYMENT DETAILS MODAL TYPOGRAPHY */
+
+.expense-modal > h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+}
+
+.expense-modal .form-group label {
+  font-family: "DM Sans", sans-serif;
+}
+
+.expense-modal .form-group input,
+.expense-modal .form-group select,
+.expense-modal .form-group textarea,
+.expense-modal .modal-actions button {
+  font-family: "DM Sans", sans-serif;
+}

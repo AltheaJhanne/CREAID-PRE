@@ -1981,41 +1981,259 @@ await logActivity({
   };
 })
 
-.patch("/:id/reschedule",
-async ({ params, body, set }) => {
+
+.patch("/:id/reschedule", async ({ params, body, set }) => {
+  const fail = (status, message) => {
+    set.status = status;
+    return { success: false, message };
+  };
+
+  const toMinutes = (value) => {
+    const match = String(value ?? "").match(
+      /^(\d{1,2}):(\d{2})(?::\d{2})?$/
+    );
+
+    if (!match) return NaN;
+
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+
+    if (hours > 23 || minutes > 59) return NaN;
+
+    return hours * 60 + minutes;
+  };
 
   const {
     appointment_date,
     appointment_time,
     appointment_end_time
-  } = body;
+  } = body ?? {};
 
-  const { error } =
-    await supabase
+  if (
+    typeof appointment_date !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(appointment_date)
+  ) {
+    return fail(400, "Invalid appointment date.");
+  }
+
+  const start = toMinutes(appointment_time);
+  const end = toMinutes(appointment_end_time);
+
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+    return fail(400, "Invalid appointment time range.");
+  }
+
+  const [year, month, day] = appointment_date.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return fail(400, "Invalid appointment date.");
+  }
+
+  const manilaParts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Manila",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    })
+      .formatToParts(new Date())
+      .map(part => [part.type, part.value])
+  );
+
+  const today = `${manilaParts.year}-${manilaParts.month}-${manilaParts.day}`;
+  const currentMinutes =
+    Number(manilaParts.hour) * 60 + Number(manilaParts.minute);
+
+  if (
+    appointment_date < today ||
+    (appointment_date === today && start <= currentMinutes)
+  ) {
+    return fail(400, "Please select a future appointment time.");
+  }
+
+  const { data: appointment, error: appointmentError } = await supabase
+    .from("appointments")
+    .select("id, dentist_id, status")
+    .eq("id", params.id)
+    .single();
+
+  if (appointmentError || !appointment) {
+    return fail(404, "Appointment not found.");
+  }
+
+  if (appointment.status !== "scheduled") {
+    return fail(400, "Only scheduled appointments can be rescheduled.");
+  }
+
+  if (!appointment.dentist_id) {
+    return fail(400, "No dentist assigned to this appointment.");
+  }
+
+  const dentistId = appointment.dentist_id;
+
+  const dayName = date.toLocaleDateString("en-US", {
+    weekday: "long",
+    timeZone: "UTC"
+  });
+
+  const [
+    hoursResult,
+    lunchResult,
+    leaveResult,
+    bookingsResult
+  ] = await Promise.all([
+    supabase
+      .from("dentist_working_hours")
+      .select("start_time, end_time, is_off")
+      .eq("dentist_id", dentistId)
+      .eq("day_name", dayName)
+      .maybeSingle(),
+
+    supabase
+      .from("dentist_lunch_breaks")
+      .select("lunch_start, lunch_end, applies_to")
+      .eq("dentist_id", dentistId)
+      .maybeSingle(),
+
+    supabase
+      .from("dentist_leave_requests")
+      .select("leave_from, leave_to")
+      .eq("dentist_id", dentistId)
+      .eq("status", "approved")
+      .lte("leave_from", appointment_date)
+      .gte("leave_to", appointment_date),
+
+    supabase
       .from("appointments")
-      .update({
-        appointment_date,
-        appointment_time,
-        appointment_end_time
-      })
-      .eq("id", params.id);
+      .select("id, appointment_time, appointment_end_time, status")
+      .eq("dentist_id", dentistId)
+      .eq("appointment_date", appointment_date)
+      .neq("id", params.id)
+      .in("status", [
+        "scheduled",
+        "confirmed",
+        "pending_verification",
+        "pending_payment"
+      ])
+  ]);
 
-  if(error)
-  {
-    set.status = 500;
+  const queryError = [
+    hoursResult,
+    lunchResult,
+    leaveResult,
+    bookingsResult
+  ].find(result => result.error);
 
-    return {
-      success: false,
-      message: error.message
-    };
+  if (queryError) {
+    console.error("Reschedule validation error:", queryError.error);
+    return fail(500, "Unable to verify dentist availability.");
+  }
+
+  const hours = hoursResult.data;
+
+  if (!hours || hours.is_off) {
+    return fail(409, "Dentist is not working on this date.");
+  }
+
+  const workingStart = toMinutes(hours.start_time);
+  const workingEnd = toMinutes(hours.end_time);
+
+  if (
+    !Number.isFinite(workingStart) ||
+    !Number.isFinite(workingEnd) ||
+    start < workingStart ||
+    end > workingEnd
+  ) {
+    return fail(409, "Time is outside the dentist's working hours.");
+  }
+
+  if (leaveResult.data?.length > 0) {
+    return fail(409, "Dentist is on approved leave.");
+  }
+
+  const lunch = lunchResult.data;
+
+  if (lunch) {
+    const appliesTo = lunch.applies_to || "";
+    const weekend = ["Saturday", "Sunday"].includes(dayName);
+
+    const lunchApplies =
+      ["all_days", "All Days"].includes(appliesTo) ||
+      (["weekdays", "Weekdays Only"].includes(appliesTo) && !weekend) ||
+      (["weekends", "Weekends Only"].includes(appliesTo) && weekend) ||
+      (
+        appliesTo.startsWith("custom:") &&
+        appliesTo.slice(7).split(",").map(d => d.trim()).includes(dayName)
+      );
+
+    if (lunchApplies) {
+      const lunchStart = toMinutes(lunch.lunch_start);
+      const lunchEnd = toMinutes(lunch.lunch_end);
+
+      if (
+        !Number.isFinite(lunchStart) ||
+        !Number.isFinite(lunchEnd)
+      ) {
+        return fail(500, "Dentist lunch schedule is invalid.");
+      }
+
+      if (start < lunchEnd && end > lunchStart) {
+        return fail(409, "Selected time overlaps the dentist's lunch break.");
+      }
+    }
+  }
+
+  const conflict = (bookingsResult.data || []).some(booking => {
+    const bookedStart = toMinutes(booking.appointment_time);
+    const bookedEnd = toMinutes(booking.appointment_end_time);
+
+    if (
+      !Number.isFinite(bookedStart) ||
+      !Number.isFinite(bookedEnd)
+    ) {
+      return true;
+    }
+
+    return start < bookedEnd && end > bookedStart;
+  });
+
+  if (conflict) {
+    return fail(409, "Dentist already has an appointment at this time.");
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from("appointments")
+    .update({
+      appointment_date,
+      appointment_time,
+      appointment_end_time
+    })
+    .eq("id", params.id)
+    .eq("status", "scheduled")
+    .select("id");
+
+  if (updateError) {
+    return fail(500, updateError.message);
+  }
+
+  if (!updated?.length) {
+    return fail(409, "Appointment status changed. Please refresh.");
   }
 
   return {
     success: true,
-    message:
-      "Appointment rescheduled"
+    message: "Appointment rescheduled successfully."
   };
 })
+
 
 .patch(
 "/:id/status",

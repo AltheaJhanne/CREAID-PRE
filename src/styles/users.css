@@ -731,3 +731,300 @@ users.css
     color:#FA1377;
     font-weight:700;
 }
+
+/* ==========================================
+   DENTCONNECT — EDIT USER MODAL REFRESH
+   ========================================== */
+
+.edit-modal-overlay {
+  padding: 18px;
+  box-sizing: border-box;
+  background: rgba(21, 14, 67, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.edit-modal {
+  width: min(1100px, 100%);
+  max-width: 1100px;
+  max-height: 90vh;
+  border-radius: 18px;
+  box-shadow: 0 24px 65px rgba(21, 14, 67, 0.2);
+}
+
+.edit-modal .modal-left {
+  width: 240px;
+  box-sizing: border-box;
+  padding: 28px 18px;
+  background: #faf8ff;
+}
+
+.edit-modal .modal-right {
+  min-width: 0;
+  padding: 22px 26px;
+  gap: 14px;
+}
+
+.edit-modal .modal-right-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eae5f5;
+}
+
+.edit-modal .modal-right-header h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 21px;
+  font-weight: 400;
+  color: #150e43;
+}
+
+.edit-modal .modal-section-title {
+  margin: 12px 0 0;
+  padding-bottom: 9px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #77708f;
+  border-bottom: 1px solid #ede9f8;
+}
+
+.edit-modal .modal-field label {
+  color: #77708f;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.edit-modal .modal-field input,
+.edit-modal .modal-field select {
+  min-width: 0;
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  background: #fff;
+  border: 1.5px solid #e7e2f2;
+  border-radius: 9px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+}
+
+.edit-modal .edit-modal-actions {
+  position: sticky;
+  bottom: -22px;
+  z-index: 5;
+  margin-top: 8px;
+  padding: 16px 0;
+  background: #fff;
+  border-top: 1px solid #eae5f5;
+}
+
+.edit-modal .edit-modal-actions button {
+  min-width: 125px;
+  height: 42px;
+  border-radius: 9px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* SEARCHABLE MULTI-SELECT */
+
+.user-multiselect {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 8px 0;
+  font-family: "DM Sans", sans-serif;
+}
+
+.user-multiselect-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #77708f;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.user-multiselect-count {
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #f0edff;
+  color: #534ab7;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.user-multiselect-box {
+  padding: 12px;
+  border: 1.5px solid #e7e2f2;
+  border-radius: 12px;
+  background: #faf9fe;
+}
+
+.user-multiselect-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 13px;
+  border: 1.5px solid #e7e2f2;
+  border-radius: 9px;
+  background: #fff;
+  color: #928bac;
+}
+
+.user-multiselect-search:focus-within {
+  border-color: #fa1377;
+  box-shadow: 0 0 0 3px rgba(250, 19, 119, 0.08);
+}
+
+.user-multiselect-search input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #150e43;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.user-multiselect-search input:focus {
+  box-shadow: none;
+}
+
+.user-selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.user-selected-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #e4dcfa;
+  border-radius: 8px;
+  background: #f0edff;
+  color: #534ab7;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.user-selected-tag button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #534ab7;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.user-selected-tag button:hover {
+  color: #fa1377;
+}
+
+.user-multiselect-empty {
+  margin: 10px 0 0;
+  color: #9b95b8;
+  font-size: 12px;
+}
+
+.user-multiselect-results {
+  padding: 10px;
+  border: 1px solid #e7e2f2;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(21, 14, 67, 0.07);
+}
+
+.user-multiselect-results-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px 10px;
+  color: #928bac;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.user-multiselect-results-head button {
+  border: none;
+  background: transparent;
+  color: #fa1377;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.user-multiselect-options {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.user-multiselect-options > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #150e43;
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.user-multiselect-options > button:hover {
+  background: #faf0f7;
+  color: #d40b62;
+}
+
+.user-multiselect-options > button i {
+  color: #fa1377;
+}
+
+.user-multiselect-options > p {
+  padding: 10px;
+  color: #928bac;
+  font-size: 12px;
+}
+
+@media (max-width: 750px) {
+  .edit-modal {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .edit-modal .modal-left {
+    width: 100%;
+    padding: 16px;
+    border-right: none;
+    border-bottom: 1px solid #ede9f8;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .edit-modal .modal-right {
+    overflow-y: visible;
+    padding: 18px;
+  }
+}

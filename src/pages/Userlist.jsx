@@ -132,6 +132,116 @@ function calculateAge(birthdate)
   return age;
 }
 
+
+function SearchableMultiSelect({
+  title,
+  options,
+  selected = [],
+  onToggle,
+  disabled = false
+}) {
+  const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const selectedItems = Array.isArray(selected) ? selected : [];
+
+  const matches = options.filter((option) =>
+    option.toLowerCase().includes(search.trim().toLowerCase()) &&
+    !selectedItems.includes(option)
+  );
+
+  return (
+    <div className="user-multiselect">
+      <div className="user-multiselect-heading">
+        <span>{title}</span>
+        <span className="user-multiselect-count">
+          {selectedItems.length} selected
+        </span>
+      </div>
+
+      <div className="user-multiselect-box">
+        <div className="user-multiselect-search">
+          <i className="bi bi-search" aria-hidden="true"></i>
+          <input
+            type="text"
+            placeholder={`Search ${title.toLowerCase()}...`}
+            value={search}
+            disabled={disabled}
+            onFocus={() => setIsOpen(true)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setIsOpen(true);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setIsOpen(false);
+            }}
+          />
+        </div>
+
+        {selectedItems.length > 0 && (
+          <div className="user-selected-tags">
+            {selectedItems.map((item) => (
+              <span className="user-selected-tag" key={item}>
+                {item}
+                {!disabled && (
+                  <button
+                    type="button"
+                    aria-label={`Remove ${item}`}
+                    onClick={() => onToggle(item)}
+                  >
+                    <i className="bi bi-x"></i>
+                  </button>
+                )}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {selectedItems.length === 0 && (
+          <p className="user-multiselect-empty">
+            No {title.toLowerCase()} selected
+          </p>
+        )}
+      </div>
+
+      {isOpen && !disabled && (
+        <div className="user-multiselect-results">
+          <div className="user-multiselect-results-head">
+            <span>Available options</span>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+            >
+              Close
+            </button>
+          </div>
+
+          <div className="user-multiselect-options">
+            {matches.length > 0 ? (
+              matches.map((option) => (
+                <button
+                  type="button"
+                  key={option}
+                  onClick={() => {
+                    onToggle(option);
+                    setSearch("");
+                    setIsOpen(false);
+                  }}
+                >
+                  <i className="bi bi-plus-circle"></i>
+                  {option}
+                </button>
+              ))
+            ) : (
+              <p>No matching options found.</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Userlist()
 {
   const [users, setUsers] = useState([]);
@@ -874,7 +984,7 @@ const isMinor =
 
             <div className="modal-right">
               <div className="modal-right-header">
-                <h3>Edit {isPatient ? "Patient" : "User"}</h3>
+                <h3>TEST NEW MODAL — Edit {isPatient ? "Patient" : "User"}</h3>
                 <button className="modal-close-btn" onClick={() => setEditingUser(null)}>✕</button>
               </div>
 
@@ -1215,25 +1325,22 @@ const isMinor =
   </div>
 ))}
 
-                  <div className="modal-section-title">Medical Conditions</div>
-                  <div className="modal-checkbox-group">
-                    {MEDICAL_CONDITIONS.map((c) => (
-                      <label key={c}>
-                        <input type="checkbox" checked={medical.conditions?.includes(c)} onChange={() => toggleCheckbox("conditions", c)} />
-                        {c}
-                      </label>
-                    ))}
-                  </div>
+                  
+<SearchableMultiSelect
+  title="Medical Conditions"
+  options={MEDICAL_CONDITIONS}
+  selected={medical.conditions}
+  disabled={!canEditUsers}
+  onToggle={(value) => toggleCheckbox("conditions", value)}
+/>
 
-                  <div className="modal-section-title">Dental Habits</div>
-                  <div className="modal-checkbox-group">
-                    {DENTAL_HABITS.map((h) => (
-                      <label key={h}>
-                        <input type="checkbox" checked={medical.dental_habits?.includes(h)} onChange={() => toggleCheckbox("dental_habits", h)} />
-                        {h}
-                      </label>
-                    ))}
-                  </div>
+<SearchableMultiSelect
+  title="Dental Habits"
+  options={DENTAL_HABITS}
+  selected={medical.dental_habits}
+  disabled={!canEditUsers}
+  onToggle={(value) => toggleCheckbox("dental_habits", value)}
+/>
                 </>
               )}
 

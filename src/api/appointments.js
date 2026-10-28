@@ -26,28 +26,13 @@ const API_URL =
   return response.data;
 }
 
-  export async function rescheduleAppointmentApi(
-  id,
-  data
-)
-{
-  const response =
-    await fetch(
-  `${API_URL}/appointments/${id}/reschedule`,
-      {
-        method: "PATCH",
+  export async function rescheduleAppointmentApi(id, data) {
+  const response = await axios.patch(
+    `${API_URL}/appointments/${id}/reschedule`,
+    data
+  );
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body:
-          JSON.stringify(data)
-      }
-    );
-
-  return response.json();
+  return response.data;
 }
 
   export const markServiceNotPerformedApi =
@@ -354,3 +339,12 @@ export async function cancelAppointmentByTokenApi(
 
   return response.data;
 }
+
+// GET DENTIST WORKING HOURS, LUNCH BREAKS, AND APPROVED LEAVES
+export const getDentistScheduleApi = async (dentistId) => {
+  const response = await axios.get(
+    `${API_URL}/users/${dentistId}/schedule`
+  );
+
+  return response.data;
+};

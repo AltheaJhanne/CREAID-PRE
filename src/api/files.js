@@ -91,27 +91,26 @@ export async function deletePatientFileApi(
 }
 
 export async function getMedicalFilesApi(
-  patientId
-)
-{
-  console.log(
-  "LOADING FILES FOR:",
-  patientId
-);
+  patientId,
+  options = {}
+) {
+  const params = new URLSearchParams();
 
-  const response =
-    await fetch(
-      `${API_BASE}/medical-files/${patientId}`
-    );
+  if (options.archived) {
+    params.set("archived", "true");
+  }
 
-  const result =
-    await response.json();
+  const url =
+    `${API_BASE}/medical-files/${patientId}${
+      params.toString() ? `?${params}` : ""
+    }`;
 
-  if(!response.ok)
-  {
+  const response = await fetch(url);
+  const result = await response.json();
+
+  if (!response.ok) {
     throw new Error(
-      result.message ||
-      "Failed to load files"
+      result.message || "Failed to load medical files"
     );
   }
 

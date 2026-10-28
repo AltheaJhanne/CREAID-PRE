@@ -65,6 +65,69 @@ const [rowsCount, setRowsCount] =
   loadCollections();
 }, []);
 
+
+function handleExportReport() {
+  if (rows.length === 0) {
+    alert("No collection records available to export.");
+    return;
+  }
+
+  const headers = [
+    "Date",
+    "Patient",
+    "Clinic",
+    "Payment Type",
+    "Reference Number",
+    "Amount (PHP)",
+    "Remarks"
+  ];
+
+  const escapeCSV = (value) => {
+    let text = String(value ?? "");
+
+    // Prevent spreadsheet formula injection
+    if (/^[\s]*[=+\-@\t\r]/.test(text)) {
+      text = "'" + text;
+    }
+
+    return `"${text.replace(/"/g, '""')}"`;
+  };
+
+  const csvRows = rows.map((row) => [
+    row.date,
+    row.patient,
+    row.clinic,
+    row.paymentType,
+    row.referenceNo,
+    Number(row.amount || 0),
+    row.remarks
+  ]);
+
+  const csvContent = [
+    headers.map(escapeCSV).join(","),
+    ...csvRows.map((row) => row.map(escapeCSV).join(","))
+  ].join("\r\n");
+
+  const blob = new Blob(
+    ["\uFEFF" + csvContent],
+    { type: "text/csv;charset=utf-8;" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download =
+    `DentConnect_Collections_${new Date().toISOString().slice(0, 10)}.csv`;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+
+
 async function loadCollections()
 {
   try
@@ -210,7 +273,11 @@ console.log(
 >
   Show Report
 </button>
-              <button className="btn-export">
+              <button
+                type="button"
+                className="btn-export"
+                onClick={handleExportReport}
+              >
                 <i className="bi bi-download"></i>
                 Export Report
               </button>

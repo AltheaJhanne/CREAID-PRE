@@ -35,11 +35,24 @@ function MyAccount() {
   });
 
   const [settings, setSettings] = useState({
-    notification: true,
-    darkMode: false
-  });
+  notification: true,
+  darkMode: localStorage.getItem("dentconnect-dark-mode") === "true"
+});
 
-  const [loading, setLoading] = useState(true);
+// DARK MODE FUNCTIONALITY
+useEffect(() => {
+  document.documentElement.classList.toggle(
+    "dark-mode",
+    settings.darkMode
+  );
+
+  localStorage.setItem(
+    "dentconnect-dark-mode",
+    String(settings.darkMode)
+  );
+}, [settings.darkMode]);
+
+const [loading, setLoading] = useState(true);
 
   // FETCH USER DATA
   useEffect(() => {
@@ -661,12 +674,11 @@ window.dispatchEvent(
                       <input
                         type="checkbox"
                         checked={settings.darkMode}
-                        onChange={() =>
-                          setSettings({
-                            ...settings,
-                            darkMode:
-                              !settings.darkMode
-                          })
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            darkMode: e.target.checked
+                          }))
                         }
                       />
 

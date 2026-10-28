@@ -8,7 +8,8 @@ import
   confirmDownpaymentApi,
   getAppointmentServicesApi,
   rescheduleAppointmentApi,
-  rejectAppointmentApi
+  rejectAppointmentApi,
+  getDentistScheduleApi
 }
 from "../api/appointments";
 import { supabase } from "../lib/supabase";
@@ -48,10 +49,56 @@ function Calendar()
   const [statusFilter, setStatusFilter] = useState("");
   const [clinicFilter, setClinicFilter] = useState("All");
   const [showReschedule, setShowReschedule] = useState(false);
+  const [dentistSchedule, setDentistSchedule] = useState(null);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
+
+  useEffect(() => {
+  if (!showReschedule || !selectedAppointment?.dentist_id) {
+    setDentistSchedule(null);
+    setScheduleLoading(false);
+    return;
+  }
+
+  let cancelled = false;
+
+  const fetchDentistSchedule = async () => {
+    setScheduleLoading(true);
+    setDentistSchedule(null);
+
+    try {
+      const response = await getDentistScheduleApi(
+        selectedAppointment.dentist_id
+      );
+
+      if (!cancelled) {
+        if (!response.success) {
+          throw new Error(response.message || "Failed to load schedule.");
+        }
+
+        setDentistSchedule(response);
+      }
+    } catch (error) {
+      if (!cancelled) {
+        console.error("Dentist schedule error:", error);
+        setDentistSchedule(null);
+      }
+    } finally {
+      if (!cancelled) {
+        setScheduleLoading(false);
+      }
+    }
+  };
+
+  fetchDentistSchedule();
+
+  return () => {
+    cancelled = true;
+  };
+}, [showReschedule, selectedAppointment?.dentist_id]);
 
   useEffect(() =>
   {
@@ -130,14 +177,30 @@ function Calendar()
     }
   };
 
-  const convertTimeToMinutes = (timeString) =>
-  {
-    const [time, period] = timeString.split(" ");
-    let [hours, minutes] = time.split(":").map(Number);
-    if (period === "PM" && hours !== 12) hours += 12;
-    if (period === "AM" && hours === 12) hours = 0;
-    return hours * 60 + minutes;
-  };
+  const convertTimeToMinutes = (timeString) => {
+  if (!timeString) return NaN;
+
+  const match = String(timeString).trim().match(
+    /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i
+  );
+
+  if (!match) return NaN;
+
+  let hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const period = match[3]?.toUpperCase();
+
+  if (minutes > 59) return NaN;
+
+  if (period) {
+    if (hours < 1 || hours > 12) return NaN;
+    hours = (hours % 12) + (period === "PM" ? 12 : 0);
+  } else if (hours > 23) {
+    return NaN;
+  }
+
+  return hours * 60 + minutes;
+};
 
   const convertMinutesToTime = (minutes) =>
   {
@@ -153,69 +216,224 @@ function Calendar()
     ? appointmentServices.reduce((sum, s) => sum + Number(s.duration_minutes || 0), 0)
     : 60;
 
-  const availableTimeSlots = [
-    "10:00 AM", "10:30 AM",
-    "11:00 AM", "11:30 AM",
-    "1:00 PM", "1:30 PM",
-    "2:00 PM", "2:30 PM",
-    "3:00 PM", "3:30 PM",
-    "4:00 PM", "4:30 PM",
-  ];
+  const availableSlots = (() => {
+  if (
+    !newDate ||
+    !selectedAppointment?.dentist_id ||
+    !dentistSchedule ||
+    scheduleLoading
+  ) {
+    return [];
+  }
 
-  const availableSlots = availableTimeSlots.filter((time) =>
-  {
-    if (!newDate || !rescheduleDuration) return false;
-    const candidateStart = convertTimeToMinutes(time);
-    const candidateEnd = candidateStart + rescheduleDuration;
-    const lunchStart = 12 * 60;
-    const lunchEnd = 13 * 60;
-    const clinicClose = 17 * 60;
-    if (candidateEnd > clinicClose) return false;
-    if (candidateStart < lunchStart && candidateEnd > lunchStart) return false;
-    if (candidateStart >= lunchStart && candidateStart < lunchEnd) return false;
-    return !appointments.some((appt) =>
-    {
-      if (appt.id === selectedAppointment?.id) return false;
-      if (appt.appointment_date !== newDate) return false;
-      const blockedStatuses = [
-        "scheduled",
-        "pending_verification",
-        "pending_payment",
-        "confirmed"
-      ];
+  // Supports both "13:00:00" and "1:00 PM"
+  const toMinutes = (value) => {
+    if (!value) return NaN;
 
-      if (
-        !blockedStatuses.includes(
-          appt.status
-        )
-      )
-      {
+    const text = String(value).trim();
+    const match = text.match(
+      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i
+    );
+
+    if (!match) return NaN;
+
+    let hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    const period = match[3]?.toUpperCase();
+
+    if (minutes > 59) return NaN;
+
+    if (period) {
+      if (hours < 1 || hours > 12) return NaN;
+      hours = (hours % 12) + (period === "PM" ? 12 : 0);
+    } else if (hours > 23) {
+      return NaN;
+    }
+
+    return hours * 60 + minutes;
+  };
+
+  const dateParts = newDate.split("-").map(Number);
+
+  if (dateParts.length !== 3) return [];
+
+  const [year, month, day] = dateParts;
+
+  const appointmentDay = new Date(
+    Date.UTC(year, month - 1, day)
+  ).toLocaleDateString("en-US", {
+    weekday: "long",
+    timeZone: "UTC"
+  });
+
+  const workingHours = dentistSchedule.hours?.find(
+    (row) =>
+      row.day_name?.toLowerCase() ===
+      appointmentDay.toLowerCase()
+  );
+
+  if (!workingHours || workingHours.is_off) {
+    return [];
+  }
+
+  const onApprovedLeave = dentistSchedule.leaves?.some(
+    (leave) =>
+      newDate >= leave.leave_from &&
+      newDate <= leave.leave_to
+  );
+
+  if (onApprovedLeave || isHoliday(newDate)) {
+    return [];
+  }
+
+  const workingStart = toMinutes(workingHours.start_time);
+  const workingEnd = toMinutes(workingHours.end_time);
+
+  if (
+    !Number.isFinite(workingStart) ||
+    !Number.isFinite(workingEnd) ||
+    workingEnd <= workingStart
+  ) {
+    return [];
+  }
+
+  const lunch = dentistSchedule.lunch;
+
+  let lunchApplies = false;
+
+  if (lunch) {
+    const appliesTo = lunch.applies_to || "";
+
+    if (["all_days", "All Days"].includes(appliesTo)) {
+      lunchApplies = true;
+    } else if (
+      ["weekdays", "Weekdays Only"].includes(appliesTo)
+    ) {
+      lunchApplies = !["Saturday", "Sunday"].includes(
+        appointmentDay
+      );
+    } else if (
+      ["weekends", "Weekends Only"].includes(appliesTo)
+    ) {
+      lunchApplies = ["Saturday", "Sunday"].includes(
+        appointmentDay
+      );
+    } else if (appliesTo.startsWith("custom:")) {
+      lunchApplies = appliesTo
+        .slice("custom:".length)
+        .split(",")
+        .map((day) => day.trim())
+        .includes(appointmentDay);
+    }
+  }
+
+  const lunchStart = lunchApplies
+    ? toMinutes(lunch.lunch_start)
+    : NaN;
+
+  const lunchEnd = lunchApplies
+    ? toMinutes(lunch.lunch_end)
+    : NaN;
+
+  const duration = Number(rescheduleDuration);
+
+  if (!Number.isFinite(duration) || duration <= 0) {
+    return [];
+  }
+
+  // Generate slots every 30 minutes.
+  const slots = [];
+
+  const firstSlot = Math.ceil(workingStart / 30) * 30;
+
+  for (
+    let start = firstSlot;
+    start + duration <= workingEnd;
+    start += 30
+  ) {
+    const end = start + duration;
+
+    if (
+      lunchApplies &&
+      Number.isFinite(lunchStart) &&
+      Number.isFinite(lunchEnd) &&
+      start < lunchEnd &&
+      end > lunchStart
+    ) {
+      continue;
+    }
+
+    const hasConflict = appointments.some((appt) => {
+      if (appt.id === selectedAppointment.id) return false;
+
+      if (appt.dentist_id !== selectedAppointment.dentist_id) {
         return false;
       }
 
-      const existingStart =
-  convertTimeToMinutes(
-    appt.appointment_time
-  );
+      if (appt.appointment_date !== newDate) return false;
 
-const existingEnd =
-  convertTimeToMinutes(
-    appt.appointment_end_time
-  );
+      const blockingStatuses = [
+        "scheduled",
+        "confirmed",
+        "pending_verification",
+        "pending_payment"
+      ];
 
-return (
-  candidateStart < existingEnd &&
-  candidateEnd > existingStart
-);
+      if (!blockingStatuses.includes(appt.status)) {
+        return false;
+      }
 
-  return (
-    candidateStart <
-      existingEnd &&
-    candidateEnd >
-      existingStart
-  );
+      const existingStart = toMinutes(appt.appointment_time);
+      const existingEnd = toMinutes(appt.appointment_end_time);
+
+      // Missing appointment times should not be treated
+      // as proof that the slot is available.
+      if (
+        !Number.isFinite(existingStart) ||
+        !Number.isFinite(existingEnd)
+      ) {
+        return true;
+      }
+
+      return start < existingEnd && end > existingStart;
     });
-  });
+
+    if (hasConflict) continue;
+
+    // Exclude slots that have already passed today
+    const nowInManila = new Intl.DateTimeFormat(
+      "en-GB",
+      {
+        timeZone: "Asia/Manila",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+      }
+    ).formatToParts(new Date());
+
+    const parts = Object.fromEntries(
+      nowInManila.map((part) => [part.type, part.value])
+    );
+
+    const today = `${parts.year}-${parts.month}-${parts.day}`;
+    const currentMinutes =
+      Number(parts.hour) * 60 + Number(parts.minute);
+
+    if (
+      newDate < today ||
+      (newDate === today && start <= currentMinutes)
+    ) {
+      continue;
+    }
+
+    slots.push(convertMinutesToTime(start));
+  }
+
+  return slots;
+})();
 
   const markAsDone = async () =>
   {
@@ -298,41 +516,65 @@ return (
     catch (error) { console.error(error); }
   };
 
-  const handleReschedule = async () =>
-  {
-    if (!newDate || !newTime)
-    {
-      alert("Please select a new date and time.");
-      return;
-    }
-    try
-    {
-      const newStartMinutes =
-  convertTimeToMinutes(newTime);
-
-const newEndTime =
-  convertMinutesToTime(
-    newStartMinutes + rescheduleDuration
-  );
-
-await rescheduleAppointmentApi(
-  selectedAppointment.id,
-  {
-    appointment_date: newDate,
-
-    appointment_time:
-      convert12To24(newTime),
-
-    appointment_end_time:
-      convert12To24(newEndTime),
+  const handleReschedule = async () => {
+  if (!newDate || !newTime) {
+    alert("Please select a new date and time.");
+    return;
   }
-);
-      await fetchAppointments();
-      setShowReschedule(false);
-      setSelectedAppointment(null);
+
+  if (
+    scheduleLoading ||
+    !dentistSchedule ||
+    !availableSlots.includes(newTime)
+  ) {
+    alert("This time slot is no longer available. Please select another.");
+    return;
+  }
+
+  try {
+    const newStartMinutes = convertTimeToMinutes(newTime);
+
+    const newEndTime = convertMinutesToTime(
+      newStartMinutes + rescheduleDuration
+    );
+
+    const response = await rescheduleAppointmentApi(
+      selectedAppointment.id,
+      {
+        appointment_date: newDate,
+        appointment_time: convert12To24(newTime),
+        appointment_end_time: convert12To24(newEndTime)
+      }
+    );
+
+    if (!response.success) {
+      throw new Error(
+        response.message || "Unable to reschedule appointment."
+      );
     }
-    catch (error) { console.error(error); }
-  };
+
+    await fetchAppointments();
+
+    setShowReschedule(false);
+    setSelectedAppointment(null);
+    setNewDate("");
+    setNewTime("");
+
+    alert("Appointment rescheduled successfully!");
+  } catch (error) {
+    console.error("Reschedule failed:", error);
+
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "Unable to reschedule appointment. Please try again.";
+
+    alert(message);
+
+    // Keep the modal open so the user can choose another slot.
+    await fetchAppointments();
+  }
+};
 
   const navigate_to_day = (date) =>
   {
@@ -967,32 +1209,121 @@ await rescheduleAppointmentApi(
           </div>
         )}
 
-        {showReschedule && (
-          <div className="appointment-modal-overlay">
-            <div className="reschedule-modal">
-              <div className="appt-modal-header" style={{ padding: "20px 20px 0" }}>
-                <h2>Reschedule Appointment</h2>
-              </div>
-              <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "15px" }}>
-                <div className="appt-detail-item">
-                  <span className="appt-detail-label">New Date</span>
-                  <input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
-                </div>
-                <div className="appt-detail-item">
-                  <span className="appt-detail-label">New Time</span>
-                  <select value={newTime} onChange={(e) => setNewTime(e.target.value)}>
-                    <option value="">Select Time</option>
-                    {availableSlots.map(slot => <option key={slot} value={slot}>{slot}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div className="appointment-modal-actions" style={{ padding: "0 20px 20px" }}>
-                <button className="btn-reschedule" onClick={handleReschedule}>Save</button>
-                <button className="modal-close-btn" onClick={() => setShowReschedule(false)}>Cancel</button>
-              </div>
+        
+{showReschedule && (
+  <div className="appointment-modal-overlay">
+    <div className="reschedule-modal dc-reschedule-modal">
+
+      <div className="dc-reschedule-header">
+        <div className="dc-reschedule-heading">
+          <span className="dc-reschedule-icon">
+            <i className="bi bi-calendar2-week"></i>
+          </span>
+
+          <div>
+            <h2>Reschedule Appointment</h2>
+            <p>Choose a new date and available time slot.</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="dc-reschedule-close"
+          onClick={() => setShowReschedule(false)}
+          aria-label="Close"
+        >
+          <i className="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div className="dc-reschedule-body">
+        <div className="dc-reschedule-current">
+          <span className="dc-reschedule-section-label">
+            <i className="bi bi-clock-history"></i>
+            Current Appointment
+          </span>
+
+          <div className="dc-reschedule-current-grid">
+            <div>
+              <small>Date</small>
+              <strong>{selectedAppointment?.appointment_date}</strong>
+            </div>
+            <div>
+              <small>Time</small>
+              <strong>{selectedAppointment?.appointment_time}</strong>
             </div>
           </div>
-        )}
+        </div>
+
+        <div className="dc-reschedule-field">
+          <label htmlFor="dc-new-date">
+            <i className="bi bi-calendar-event"></i>
+            New Appointment Date
+          </label>
+
+          <input
+            id="dc-new-date"
+            type="date"
+            value={newDate}
+            min={new Date().toLocaleDateString("en-CA")}
+            onChange={(e) => {
+              setNewDate(e.target.value);
+              setNewTime("");
+            }}
+          />
+        </div>
+
+        <div className="dc-reschedule-field">
+          <label htmlFor="dc-new-time">
+            <i className="bi bi-clock"></i>
+            Available Time Slots
+          </label>
+
+          <select
+            id="dc-new-time"
+            value={newTime}
+            onChange={(e) => setNewTime(e.target.value)}
+            disabled={!newDate || availableSlots.length === 0}
+          >
+            <option value="">Select an available time</option>
+            {availableSlots.map((slot) => (
+              <option key={slot} value={slot}>
+                {slot}
+              </option>
+            ))}
+          </select>
+
+          {newDate && availableSlots.length === 0 && (
+            <p className="dc-reschedule-empty">
+              No available time slots for this date.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="dc-reschedule-footer">
+        <button
+          type="button"
+          className="dc-reschedule-cancel"
+          onClick={() => setShowReschedule(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          className="dc-reschedule-save"
+          onClick={handleReschedule}
+          disabled={!newDate || !newTime || !availableSlots.includes(newTime)}
+        >
+          <i className="bi bi-check2-circle"></i>
+          Save Changes
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
 
       </div>
     </div>

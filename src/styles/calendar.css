@@ -2019,3 +2019,206 @@
     flex-basis: 100%;
   }
 }
+
+/* DENTCONNECT RESCHEDULE MODAL */
+
+.dc-reschedule-modal {
+  width: min(480px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 22px 65px rgba(30, 25, 65, 0.22);
+  font-family: "DM Sans", sans-serif;
+}
+
+.dc-reschedule-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 23px 26px;
+  background: #f5f0ff;
+  border-bottom: 1px solid #e9dff7;
+}
+
+.dc-reschedule-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.dc-reschedule-icon {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #fce5f2;
+  color: #d52c87;
+  font-size: 21px;
+}
+
+.dc-reschedule-heading h2 {
+  margin: 0;
+  color: #272044;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.dc-reschedule-heading p {
+  margin: 5px 0 0;
+  color: #817b91;
+  font-size: 12px;
+}
+
+.dc-reschedule-close {
+  border: none;
+  background: transparent;
+  color: #827b94;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.dc-reschedule-body {
+  display: flex;
+  flex-direction: column;
+  gap: 23px;
+  padding: 25px 26px;
+}
+
+.dc-reschedule-current {
+  padding: 17px;
+  border: 1px solid #eee5fa;
+  border-radius: 12px;
+  background: #faf8ff;
+}
+
+.dc-reschedule-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: #7a5c9c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dc-reschedule-current-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.dc-reschedule-current-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dc-reschedule-current-grid small {
+  color: #898397;
+  font-size: 11px;
+}
+
+.dc-reschedule-current-grid strong {
+  color: #302b46;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dc-reschedule-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.dc-reschedule-field label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #403751;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dc-reschedule-field label i {
+  color: #d52c87;
+}
+
+.dc-reschedule-field input,
+.dc-reschedule-field select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 11px 13px;
+  border: 1px solid #ded2ed;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  color: #393149;
+  font: inherit;
+  font-size: 13px;
+}
+
+.dc-reschedule-field input:focus,
+.dc-reschedule-field select:focus {
+  border-color: #d52c87;
+  box-shadow: 0 0 0 3px rgba(213, 44, 135, 0.1);
+}
+
+.dc-reschedule-field select:disabled {
+  background: #f5f3f8;
+  color: #a49dac;
+}
+
+.dc-reschedule-empty {
+  margin: 0;
+  color: #ba5478;
+  font-size: 12px;
+}
+
+.dc-reschedule-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 11px;
+  padding: 18px 26px;
+  border-top: 1px solid #eee5f7;
+  background: #faf8ff;
+}
+
+.dc-reschedule-cancel,
+.dc-reschedule-save {
+  padding: 11px 19px;
+  border-radius: 9px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dc-reschedule-cancel {
+  border: 1px solid #ddd4e9;
+  background: #fff;
+  color: #6c607e;
+}
+
+.dc-reschedule-save {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: #d52c87;
+  color: #fff;
+}
+
+.dc-reschedule-save:hover:not(:disabled) {
+  background: #b92070;
+}
+
+.dc-reschedule-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

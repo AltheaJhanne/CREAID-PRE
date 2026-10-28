@@ -1567,3 +1567,212 @@
 .btn-edit-icon .bi {
   font-size: 16px;
 }
+
+/* =========================================
+   DENTCONNECT PAYMENT PAGE UI REFRESH
+   KPI CARDS + FILTER TOOLBAR
+   ========================================= */
+
+/* Summary-style filter container */
+.payment-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px 20px;
+  margin-bottom: 22px;
+  background: #faf9fe;
+  border: 1.5px solid #eae5f8;
+  border-radius: 16px;
+}
+
+/* Search field */
+.payment-toolbar .payment-search-wrap {
+  flex: 1 1 260px;
+  min-width: 200px;
+}
+
+.payment-toolbar .payment-search-input {
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  border: 1.5px solid #e8e2f5;
+  border-radius: 11px;
+  background: #fff;
+  color: #150e43;
+  font-size: 13px;
+}
+
+.payment-toolbar .payment-search-icon {
+  left: 14px;
+}
+
+/* Clinic, status, and method filters */
+.payment-toolbar .payment-clinic-filter,
+.payment-toolbar .payment-filter-select {
+  width: auto;
+  flex: 1 1 150px;
+  min-width: 135px;
+  height: 48px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 1.5px solid #e8e2f5;
+  border-radius: 11px;
+  background: #fff;
+  color: #150e43;
+  font-size: 13px;
+}
+
+.payment-toolbar select:focus,
+.payment-toolbar .payment-search-input:focus {
+  outline: none;
+  border-color: #fa1377;
+  box-shadow: 0 0 0 3px rgba(250, 19, 119, 0.09);
+}
+
+/* KPI card grid */
+.payment-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* White cards with colored top accents */
+.payment-metrics .payment-metric-card {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  padding: 22px 20px;
+  background: #fff;
+  border: 1px solid #ede9f8;
+  border-top: 4px solid var(--metric-accent);
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(21, 14, 67, 0.045);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Individual KPI colors */
+.payment-metric-card:nth-child(1) {
+  --metric-accent: #16a34a;
+}
+
+.payment-metric-card:nth-child(2) {
+  --metric-accent: #f59e0b;
+}
+
+.payment-metric-card:nth-child(3) {
+  --metric-accent: #172b66;
+}
+
+.payment-metric-card:nth-child(4) {
+  --metric-accent: #fa1377;
+}
+
+.payment-metrics .payment-metric-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(21, 14, 67, 0.09);
+}
+
+.payment-metrics .pmc-label {
+  margin-bottom: 12px;
+  color: #77708f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.payment-metrics .pmc-value {
+  color: var(--metric-accent);
+  font-size: clamp(22px, 2vw, 30px);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.payment-metrics .pmc-value--danger {
+  color: var(--metric-accent);
+}
+
+.payment-metrics .pmc-sub {
+  margin-top: 10px;
+  color: #928bac;
+  font-size: 12px;
+}
+
+/* Responsive layouts */
+@media (max-width: 1100px) {
+  .payment-toolbar {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .payment-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .payment-toolbar {
+    padding: 14px;
+  }
+
+  .payment-toolbar .payment-search-wrap {
+    flex-basis: 100%;
+  }
+
+  .payment-toolbar .payment-clinic-filter,
+  .payment-toolbar .payment-filter-select {
+    flex-basis: 100%;
+  }
+
+  .payment-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* COMPACT PAYMENT FILTERS */
+
+.payment-toolbar {
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+}
+
+.payment-toolbar .payment-search-wrap {
+  flex: 0 1 300px;
+  min-width: 200px;
+}
+
+.payment-toolbar .payment-search-input {
+  width: 100%;
+  height: 40px;
+  padding: 8px 12px 8px 36px;
+  font-size: 13px;
+  border-radius: 9px;
+}
+
+.payment-toolbar .payment-clinic-filter,
+.payment-toolbar .payment-filter-select {
+  flex: 0 1 165px;
+  width: 165px;
+  min-width: 125px;
+  height: 40px;
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 9px;
+}
+
+@media (max-width: 700px) {
+  .payment-toolbar .payment-search-wrap {
+    flex: 1 1 100%;
+  }
+
+  .payment-toolbar .payment-clinic-filter,
+  .payment-toolbar .payment-filter-select {
+    flex: 1 1 145px;
+    width: auto;
+  }
+}
